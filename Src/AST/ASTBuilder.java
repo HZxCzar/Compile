@@ -1,24 +1,24 @@
-package Compile.Src.AST;
+package Compiler.Src.AST;
 
-import Compile.Src.Grammer.*;
+import Compiler.Src.Grammer.*;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
 
-import Compile.Src.AST.Node.ASTNode;
-import Compile.Src.AST.Node.ASTRoot;
-import Compile.Src.AST.Node.DefNode.*;
-import Compile.Src.AST.Node.ExprNode.*;
-import Compile.Src.AST.Node.ExprNode.ASTAtomExpr.Type;
-import Compile.Src.AST.Node.ExprNode.ExprUnitNode.*;
-import Compile.Src.AST.Node.StatementNode.*;
-import Compile.Src.Grammer.MxBaseVisitor;
-import Compile.Src.Grammer.MxParser;
-import Compile.Src.Util.position;
-import Compile.Src.Util.Info.ClassInfo;
-import Compile.Src.Util.Info.FuncInfo;
-import Compile.Src.Util.Info.TypeInfo;
-import Compile.Src.Util.Info.VarInfo;
+import Compiler.Src.AST.Node.ASTNode;
+import Compiler.Src.AST.Node.ASTRoot;
+import Compiler.Src.AST.Node.DefNode.*;
+import Compiler.Src.AST.Node.ExprNode.*;
+import Compiler.Src.AST.Node.ExprNode.ASTAtomExpr.Type;
+import Compiler.Src.AST.Node.ExprNode.ExprUnitNode.*;
+import Compiler.Src.AST.Node.StatementNode.*;
+import Compiler.Src.Grammer.MxBaseVisitor;
+import Compiler.Src.Grammer.MxParser;
+import Compiler.Src.Util.position;
+import Compiler.Src.Util.Info.ClassInfo;
+import Compiler.Src.Util.Info.FuncInfo;
+import Compiler.Src.Util.Info.TypeInfo;
+import Compiler.Src.Util.Info.VarInfo;
 
 @lombok.experimental.SuperBuilder
 @lombok.Getter

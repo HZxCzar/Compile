@@ -1,4 +1,4 @@
-package Compile.Src.Util.Info;
+package Compiler.Src.Util.Info;
 
 import java.util.ArrayList;
 @lombok.Getter

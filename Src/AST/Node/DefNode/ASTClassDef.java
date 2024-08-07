@@ -1,13 +1,13 @@
-package Compile.Src.AST.Node.DefNode;
+package Compiler.Src.AST.Node.DefNode;
 
 import java.util.ArrayList;
 
-import Compile.Src.AST.ASTVisitor;
-import Compile.Src.AST.Node.Def.ASTDef;
-import Compile.Src.AST.Node.Def.ASTVarDef;
-import Compile.Src.Util.Info.*;
-import Compile.Src.Util.ScopeUtil.*;
-import Compile.src.Util.Error;
+import Compiler.Src.AST.ASTVisitor;
+import Compiler.Src.AST.Node.Def.ASTDef;
+import Compiler.Src.AST.Node.Def.ASTVarDef;
+import Compiler.Src.Util.Info.*;
+import Compiler.Src.Util.ScopeUtil.*;
+import Compiler.src.Util.Error;
 
 @lombok.experimental.SuperBuilder
 @lombok.Getter

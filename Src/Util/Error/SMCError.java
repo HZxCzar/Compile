@@ -2,14 +2,14 @@ package Compiler.Src.Util.Error;
 
 @lombok.Getter
 @lombok.Setter
-public class SBCError {
+public class SMCError {
     private final String content;
 
-    public SBCError() {
+    public SMCError() {
         content = "";
     }
 
-    public SBCError(String msg) {
+    public SMCError(String msg) {
         content = msg;
     }
 
@@ -17,7 +17,7 @@ public class SBCError {
         content += msg;
     }
 
-    public void append(SBCError msg)
+    public void append(SMCError msg)
     {
         content+=msg.getContent();
     }

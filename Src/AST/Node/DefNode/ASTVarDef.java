@@ -1,7 +1,7 @@
-package Compile.Src.AST.Node.DefNode;
+package Compiler.Src.AST.Node.DefNode;
 
-import Compile.src.Util.Error;
-import Compile.Src.Util.Info.VarInfo;
+import Compiler.src.Util.Error;
+import Compiler.Src.Util.Info.VarInfo;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter

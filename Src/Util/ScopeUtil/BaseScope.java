@@ -1,8 +1,11 @@
-package Compile.Src.Util.ScopeUtil;
+package Compiler.Src.Util.ScopeUtil;
 
 import java.util.TreeMap;
 
 import Compile.Src.Util.Info.*;
+import Compiler.Src.Util.Info.BaseInfo;
+import Compiler.Src.Util.Info.VarInfo;
+import Compiler.Src.Util.Error.*;
 
 // @lombok.experimental.SuperBuilder
 @lombok.Getter
@@ -18,7 +21,8 @@ public class BaseScope {
         this.vars = new TreeMap<String, VarInfo>();
     }
 
-    public boolean containsVars(String name) {
+    @Override
+    public boolean contains(String name) {
         return vars.containsKey(name);
     }
 
@@ -30,5 +34,18 @@ public class BaseScope {
         else{
             throw("BaseScope.declare(BaseInfo) should not be called"+var.getPos());
         }
+    }
+
+    @Override
+    public boolean containsFuncs(String name) throws ScopeError
+    {
+        throw new ScopeError("no containsFuncs");
+        return false;
+    }
+
+    @Override
+    public boolean containsClasses(String name)throws ScopeError {
+        throw new ScopeError("no containsClasses");
+        return false;
     }
 }

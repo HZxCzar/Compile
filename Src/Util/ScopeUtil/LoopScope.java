@@ -1,6 +1,6 @@
-package Compile.Src.Util.ScopeUtil;
+package Compiler.Src.Util.ScopeUtil;
 
-import Compile.Src.Util.Info.*;
+import Compiler.Src.Util.Info.*;
 
 import java.util.TreeMap;
 

@@ -1,6 +1,8 @@
-package Compile.Src.Util.ScopeUtil;
+package Compiler.Src.Util.ScopeUtil;
 
 import Compile.Src.Util.Info.*;
+import Compiler.Src.Util.Info.BaseInfo;
+import Compiler.Src.Util.Info.VarInfo;
 
 import java.util.TreeMap;
 
@@ -21,12 +23,8 @@ public class FuncScope extends BaseScope {
         {
             vars.put(var.getName(), (VarInfo)var);
         }
-        else if(var instanceof FuncInfo)
-        {
-            funcs.put(var.getName(), (FuncInfo)var);
-        }
         else{
-            throw new Error("ClassScope.declare(BaseInfo) should not be called"+var.getPos());
+            throw new Error("FuncScope.declare(BaseInfo) should not be called"+var.getPos());
         }
     }
 }

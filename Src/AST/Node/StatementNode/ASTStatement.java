@@ -1,8 +1,8 @@
-package Compile.Src.AST.Node.StatementNode;
+package Compiler.Src.AST.Node.StatementNode;
 
 import AST.ASTNode;
 import AST.ASTVisitor;
-import Compile.Src.Util.Info.StmtInfo;
+import Compiler.Src.Util.Info.StmtInfo;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter

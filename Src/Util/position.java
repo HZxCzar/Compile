@@ -1,4 +1,4 @@
-package Compile.Src.Util;
+package Compiler.Src.Util;
 
 public class position {
     private int row, column;

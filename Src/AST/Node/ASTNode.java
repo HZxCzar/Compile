@@ -1,8 +1,8 @@
-package Compile.Src.AST.Node;
+package Compiler.Src.AST.Node;
 
 
-import Compile.Src.Util.position;
-import Compile.Src.AST.*;
+import Compiler.Src.Util.position;
+import Compiler.Src.AST.*;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter

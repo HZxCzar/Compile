@@ -1,11 +1,11 @@
-package Compile.Src.AST;
+package Compiler.Src.AST;
 
-import Compile.Src.AST.Node.*;
-import Compile.Src.AST.Node.DefNode.*;
-import Compile.Src.AST.Node.ExprNode.*;
-import Compile.Src.AST.Node.StatementNode.*;
-import Compile.Src.AST.Node.ExprNode.ExprUnitNode.*;
-import Compile.Src.Util.Error.*;
+import Compiler.Src.AST.Node.*;
+import Compiler.Src.AST.Node.DefNode.*;
+import Compiler.Src.AST.Node.ExprNode.*;
+import Compiler.Src.AST.Node.StatementNode.*;
+import Compiler.Src.AST.Node.ExprNode.ExprUnitNode.*;
+import Compiler.Src.Util.Error.*;
 
 
 public interface ASTVisitor<T> {

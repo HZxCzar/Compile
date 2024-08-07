@@ -1,10 +1,10 @@
-package Compile.Src.Util.Info;
+package Compiler.Src.Util.Info;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
 
-import Compile.Src.AST.Node.Def.ASTVarDef;
-import Compile.Src.AST.Node.Def.ASTFuncDef;
+import Compiler.Src.AST.Node.Def.ASTVarDef;
+import Compiler.Src.AST.Node.Def.ASTFuncDef;
 @lombok.Getter
 @lombok.Setter
 public class ClassInfo extends BaseInfo {

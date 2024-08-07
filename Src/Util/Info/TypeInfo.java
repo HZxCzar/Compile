@@ -1,4 +1,4 @@
-package Compile.Src.Util.Info;
+package Compiler.Src.Util.Info;
 @lombok.Getter
 @lombok.Setter
 public class TypeInfo extends BaseInfo {

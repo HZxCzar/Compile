@@ -1,6 +1,6 @@
 grammar Mx;
 import Lexer;
-@header {package Compile.Src.Grammer;}
+@header {package Compiler.Src.Grammer;}
 program: (funDef | classDef | varDef)* EOF;
 type: Int | Bool | String | Void | Identifier;
 

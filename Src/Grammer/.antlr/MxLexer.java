@@ -1,5 +1,5 @@
-// Generated from /home/czar/CPL/Compile/Src/Grammer/Mx.g4 by ANTLR 4.13.1
-package Compile.Src.Grammer;
+// Generated from /home/czar/CPL/Compiler/Src/Grammer/Mx.g4 by ANTLR 4.13.1
+package Compiler.Src.Grammer;
 import org.antlr.v4.runtime.Lexer;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;

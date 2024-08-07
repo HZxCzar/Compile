@@ -1,11 +1,11 @@
-package Compile.Src.AST.Node.StatementNode;
+package Compiler.Src.AST.Node.StatementNode;
 
 import AST.ASTNode;
 import AST.ASTVisitor;
-import Compile.Src.Util.Info.StmtInfo;
-import Compile.Src.Util.Scope.*;
-import Compile.Src.AST.Node.Expr.ASTExpr;
-import Compile.Src.AST.Node.Statement.ASTStatement;
+import Compiler.Src.Util.Info.StmtInfo;
+import Compiler.Src.Util.Scope.*;
+import Compiler.Src.AST.Node.Expr.ASTExpr;
+import Compiler.Src.AST.Node.Statement.ASTStatement;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter

@@ -1,14 +1,14 @@
-package Compile.Src.AST.Node.DefNode;
+package Compiler.Src.AST.Node.DefNode;
 
 import java.util.ArrayList;
 
-import Compile.src.Util.Error.*;
-import Compile.Src.AST.Node.ASTNode;
-import Compile.Src.AST.Node.Statement.ASTBlockstatement;
-import Compile.Src.Util.Info.ClassInfo;
-import Compile.Src.Util.Info.FuncInfo;
-import Compile.Src.AST.ASTVisitor;
-import Compile.Src.Util.ScopeUtil.*;
+import Compiler.src.Util.Error.*;
+import Compiler.Src.AST.Node.ASTNode;
+import Compiler.Src.AST.Node.Statement.ASTBlockstatement;
+import Compiler.Src.Util.Info.ClassInfo;
+import Compiler.Src.Util.Info.FuncInfo;
+import Compiler.Src.AST.ASTVisitor;
+import Compiler.Src.Util.ScopeUtil.*;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter
@@ -24,7 +24,7 @@ public class ASTFuncDef extends ASTDef {
     @Override
     public void addScope(BaseScope scope) {
         if (this.funcscope == null) {
-            this.funcscope = new ClassScope(scope, (FuncInfo) getInfo());
+            this.funcscope = new FuncScope(scope, (FuncInfo) getInfo());
         }
     }
 
