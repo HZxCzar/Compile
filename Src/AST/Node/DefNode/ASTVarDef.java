@@ -6,7 +6,7 @@ import Compiler.Src.Util.Info.VarInfo;
 @lombok.Getter
 @lombok.Setter
 public class ASTVarDef extends ASTDef {
-    private final ExprInfo initexpr;
+    private final ASTExpr initexpr;
     @Override
     public <T> T accept(ASTVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);

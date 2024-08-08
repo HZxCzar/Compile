@@ -48,4 +48,18 @@ public class BaseScope {
         throw new ScopeError("no containsClasses");
         return false;
     }
+
+    @Override
+    public BaseInfo BackSearch(String name)
+    {
+        if(vars.containsKey(name))
+        {
+            return vars.get(name);
+        }
+        else if(this.parent!=null)
+        {
+            return parent.BackSearch(name);
+        }
+        return null;
+    }
 }

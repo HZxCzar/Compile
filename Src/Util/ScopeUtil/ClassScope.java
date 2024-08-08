@@ -44,4 +44,22 @@ public class ClassScope extends BaseScope {
     {
         return funcs.containsKey(name);
     }
+
+    @Override
+    public BaseInfo BackSearch(String name)
+    {
+        if(vars.containsKey(name))
+        {
+            return vars.get(name);
+        }
+        else if(funcs.containsKey(name))
+        {
+            return funcs.get(name);
+        }
+        else if(this.parent!=null)
+        {
+            return parent.BackSearch(name);
+        }
+        return null;
+    }
 }

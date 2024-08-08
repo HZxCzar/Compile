@@ -11,6 +11,8 @@ public interface BasicType {
     TypeInfo stringType = new TypeInfo("string", 0);
     TypeInfo nullType = new TypeInfo("null", 0);
     TypeInfo thisType = new TypeInfo("this", 0);
+    TypeInfo fstringType = new TypeInfo("fstring", 0);
+    TypeInfo constarrayType = new TypeInfo("constarray", 0);
 
     // BaseFunc
     FuncInfo printFunc = new FuncInfo("print", voidType, stringType);

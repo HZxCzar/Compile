@@ -39,4 +39,18 @@ public class ScopeControl {
     }
     return false;
   }
+
+  public BaseScope whichClass(BaseScope cur)
+  {
+    BaseScope tmp=cur;
+    while(tmp!=null)
+    {
+      if(tmp instanceof ClassScope)
+      {
+        return tmp;
+      }
+      tmp=tmp.getParent();
+    }
+    return null;
+  }
 }

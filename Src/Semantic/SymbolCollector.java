@@ -74,10 +74,10 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
             return new SBCError("Invalid ReturnType for Function " + node.getName());
         }
         var msg = new SBCError();
-        for (var def : node.getParams())// Only accept params
-        {
-            msg.append(visit(def));
-        }
+        // for (var def : node.getParams())// Only accept params
+        // {
+        //     msg.append(visit(def));
+        // }
         exitScope();
         return msg;
     }

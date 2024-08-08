@@ -27,4 +27,18 @@ public class FuncScope extends BaseScope {
             throw new Error("FuncScope.declare(BaseInfo) should not be called"+var.getPos());
         }
     }
+
+    @Override
+    public BaseInfo BackSearch(String name)
+    {
+        if(vars.containsKey(name))
+        {
+            return vars.get(name);
+        }
+        else if(this.parent!=null)
+        {
+            return parent.BackSearch(name);
+        }
+        return null;
+    }
 }
