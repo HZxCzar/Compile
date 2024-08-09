@@ -25,7 +25,7 @@ public class ScopeControl {
 
   public boolean ValidFuncType(TypeInfo type)
   {
-    if(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType) || type.equals(GlobalScope.stringType) || type.equals(GlobalScope.voidType) || globalScope.containsClasses(type.getName()))
+    if(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType) || type.equals(GlobalScope.stringType) || type.equals(GlobalScope.voidType) || globalScope.containsClasses(type.getName())!=null)
     {
       return true;
     }
@@ -33,7 +33,7 @@ public class ScopeControl {
   }
   public boolean ValidVarType(TypeInfo type)
   {
-    if(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType) || type.equals(GlobalScope.stringType) || globalScope.containsClasses(type.getName()))
+    if(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType) || type.equals(GlobalScope.stringType) || globalScope.containsClasses(type.getName())!=null)
     {
       return true;
     }
@@ -46,6 +46,34 @@ public class ScopeControl {
     while(tmp!=null)
     {
       if(tmp instanceof ClassScope)
+      {
+        return tmp;
+      }
+      tmp=tmp.getParent();
+    }
+    return null;
+  }
+
+  public BaseScope whichFunc(BaseScope cur)
+  {
+    BaseScope tmp=cur;
+    while(tmp!=null)
+    {
+      if(tmp instanceof FuncScope)
+      {
+        return tmp;
+      }
+      tmp=tmp.getParent();
+    }
+    return null;
+  }
+
+  public BaseScope whichLoop(BaseScope cur)
+  {
+    BaseScope tmp=cur;
+    while(tmp!=null)
+    {
+      if(tmp instanceof LoopScope)
       {
         return tmp;
       }

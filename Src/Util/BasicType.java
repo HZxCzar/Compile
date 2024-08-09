@@ -11,8 +11,8 @@ public interface BasicType {
     TypeInfo stringType = new TypeInfo("string", 0);
     TypeInfo nullType = new TypeInfo("null", 0);
     TypeInfo thisType = new TypeInfo("this", 0);
-    TypeInfo fstringType = new TypeInfo("fstring", 0);
-    TypeInfo constarrayType = new TypeInfo("constarray", 0);
+    // TypeInfo fstringType = new TypeInfo("fstring", 0);
+    // TypeInfo constarrayType = new TypeInfo("constarray", 0);
 
     // BaseFunc
     FuncInfo printFunc = new FuncInfo("print", voidType, stringType);
@@ -23,4 +23,15 @@ public interface BasicType {
     FuncInfo getIntFunc = new FuncInfo("getInt", intType);
     FuncInfo toStringFunc = new FuncInfo("toString", stringType);
 
+    FuncInfo arraySize = new FuncInfo("size",intType);
+    FuncInfo stringLengthFunc = new FuncInfo("length", intType);
+    FuncInfo stringSubstringFunc = new FuncInfo("substring", stringType, intType, intType);
+    FuncInfo stringParseintFunc = new FuncInfo("parseInt", intType);
+    FuncInfo stringOrdFunc = new FuncInfo("ord", intType, intType);
+    
+
+    //BaseClass
+    ClassInfo intClass = new ClassInfo("int");
+    ClassInfo boolClass = new ClassInfo("bool");
+    ClassInfo stringClass = new ClassInfo("string", stringLengthFunc, stringSubstringFunc, stringParseintFunc, stringOrdFunc);
 }

@@ -4,6 +4,8 @@ import java.util.TreeMap;
 
 import Compile.Src.Util.Info.*;
 import Compiler.Src.Util.Info.BaseInfo;
+import Compiler.Src.Util.Info.ClassInfo;
+import Compiler.Src.Util.Info.FuncInfo;
 import Compiler.Src.Util.Info.VarInfo;
 import Compiler.Src.Util.Error.*;
 
@@ -37,16 +39,16 @@ public class BaseScope {
     }
 
     @Override
-    public boolean containsFuncs(String name) throws ScopeError
+    public FuncInfo containsFuncs(String name) throws ScopeError
     {
         throw new ScopeError("no containsFuncs");
-        return false;
+        return null;
     }
 
     @Override
-    public boolean containsClasses(String name)throws ScopeError {
+    public ClassInfo containsClasses(String name)throws ScopeError {
         throw new ScopeError("no containsClasses");
-        return false;
+        return null;
     }
 
     @Override

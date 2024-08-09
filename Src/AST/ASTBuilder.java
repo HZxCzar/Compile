@@ -244,7 +244,12 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitExpressionstatement(MxParser.ExpressionstatementContext ctx) {
-        var exprStmt = ASTExpressionstatement.builder().pos(new position(ctx.start)).expr(ctx.expression()).build();
+        var exprs=new ArrayList<ASTExpr>();
+        for(var unit:ctx.expression())
+        {
+            exprs.add((ASTExpr)visit(unit));
+        }
+        var exprStmt = ASTExpressionstatement.builder().pos(new position(ctx.start)).expr(exprs).build();
         exprStmt.getExpr().setParent(exprStmt);
         return exprStmt;
     }
@@ -270,9 +275,13 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
             }
         }
         var newExpr = ASTNewExpr.builder().pos(new position(ctx.start))
-                .type(new TypeInfo(ctx.type(), ctx.arrayUnit().size())).size(units).build();
+                .type(new TypeInfo(ctx.type(), ctx.arrayUnit().size())).size(units)
+                .constarray(ctx.constarray() != null ? (ASTConstarray) visit(ctx.constarray()) : null).build();
         for (var unit : units) {
             unit.setParent(newExpr);
+        }
+        if (ctx.constarray() != null) {
+            newExpr.getConstarray().setParent(newExpr);
         }
         return newExpr;
     }
@@ -332,7 +341,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitUnaryExpr(MxParser.UnaryExprContext ctx) {
-        var unaryExpr = ASTUnaryExpr.builder().expr((ASTExpr) visit(ctx.expression())).op(ctx.op).build();
+        var unaryExpr = ASTUnaryExpr.builder().pos(new position(ctx.start)).expr((ASTExpr) visit(ctx.expression()))
+                .op(ctx.op).build();
         unaryExpr.getExpr().setParent(unaryExpr);
         return unaryExpr;
     }
@@ -424,11 +434,11 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitConstarray(MxParser.ConstarrayContext ctx) {
         var units = new ArrayList<ASTExpr>();
-        for(var unit : ctx.expression()){
+        for (var unit : ctx.expression()) {
             units.add((ASTExpr) visit(unit));
         }
         var constarrayExpr = ASTConstarray.builder().pos(new position(ctx.start)).expr(units).build();
-        for(var unit : units){
+        for (var unit : units) {
             unit.setParent(constarrayExpr);
         }
         return constarrayExpr;
@@ -436,25 +446,23 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
 
     @Override
     public ASTNode visitFstring(MxParser.FstringContext ctx) {
-        if(ctx.FStringLiteral()!=null)
-        {
-            return ASTFstring.builder().pos(new position(ctx.start)).strpart(ctx.FStringLiteral().getText().substring(2, ctx.FStringLiteral().getText().length() - 2)).exprpart(null).build();
-        }
-        else
-        {
-            var strpart=new ArrayList<String>();
-            var exprpart=new ArrayList<ASTExpr>();
+        if (ctx.FStringLiteral() != null) {
+            return ASTFstring.builder().pos(new position(ctx.start))
+                    .strpart(ctx.FStringLiteral().getText().substring(2, ctx.FStringLiteral().getText().length() - 2))
+                    .exprpart(null).build();
+        } else {
+            var strpart = new ArrayList<String>();
+            var exprpart = new ArrayList<ASTExpr>();
             strpart.add(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 2));
             exprpart.add((ASTExpr) visit(ctx.expression()));
-            for(var expr:ctx.midfstringUnit())
-            {
+            for (var expr : ctx.midfstringUnit()) {
                 strpart.add(expr.FStringLiteral().getText().substring(1, expr.FStringLiteral().getText().length() - 1));
                 exprpart.add((ASTExpr) visit(expr.expression()));
             }
             strpart.add(ctx.FomatStringR().getText().substring(1, ctx.FomatStringR().getText().length() - 1));
-            var fstringExpr = ASTFstring.builder().pos(new position(ctx.start)).strpart(strpart).exprpart(exprpart).build();
-            for(var expr:exprpart)
-            {
+            var fstringExpr = ASTFstring.builder().pos(new position(ctx.start)).strpart(strpart).exprpart(exprpart)
+                    .build();
+            for (var expr : exprpart) {
                 expr.setParent(fstringExpr);
             }
             return fstringExpr;

@@ -1,5 +1,5 @@
 grammar Mx;
-import Lexer;
+import MxGrammerLexer;
 @header {package Compiler.Src.Grammer;}
 program: (funDef | classDef | varDef)* EOF;
 type: Int | Bool | String | Void | Identifier;
@@ -43,7 +43,7 @@ forstatement:
 returnstatement: Return expression? Semi;
 breakstatement: Break Semi;
 continuestatement: Continue Semi;
-expressionstatement: expression Semi;
+expressionstatement: expression (Comma expression)* Semi;
 
 constarray: Lbrace (expression)? (Comma expression)* Rbrace;
 arrayUnit: Lbracket (expression)? Rbracket;
@@ -56,14 +56,14 @@ expression:
 	| expression LParen callArgs? RParen				# callExpr
 	| expression op = Member Identifier					# memberExpr
 	| expression arrayUnit								# arrayExpr
-	| expression op = (Selfadd | Selfsub)				# preunaryExpr
+	| expression op = (Selfadd | Selfsub)				# unaryExpr
 	| <assoc = right>op = (
 		Selfadd
 		| Selfsub
 		| Not
 		| LogicNot
 		| Sub
-	) expression # unaryExpr
+	) expression # preunaryExpr
 
 	//BinaryExpr
 	| expression op = (Mul | Div | Mod) expression								# binaryExpr

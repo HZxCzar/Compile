@@ -16,6 +16,14 @@ public class GlobalScope extends BaseScope implements BasicType {
         super(parent, info);
         this.funcs = new TreeMap<String, FuncInfo>();
         this.classes = new TreeMap<String, ClassInfo>();
+        for(FuncInfo func:BasicType)
+        {
+            this.funcs.put(func.getName(), func);
+        }
+        for(ClassInfo cls:BasicType)
+        {
+            this.classes.put(cls.getName(), cls);
+        }
     }
 
     @Override
@@ -44,13 +52,25 @@ public class GlobalScope extends BaseScope implements BasicType {
     }
 
     @Override
-    public boolean containsFuncs(String name) {
-        return funcs.containsKey(name);
+    public FuncInfo containsFuncs(String name) {
+        if(funcs.containsKey(name))
+        {
+            return funcs.get(name);
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
-    public boolean containsClasses(String name) {
-        return classes.containsKey(name);
+    public ClassInfo containsClasses(String name) {
+        if(classes.containsKey(name))
+        {
+            return classes.get(name);
+        }
+        else{
+            return null;
+        };
     }
 
     @Override

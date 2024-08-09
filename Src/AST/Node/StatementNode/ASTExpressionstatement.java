@@ -1,5 +1,7 @@
 package Compiler.Src.AST.Node.StatementNode;
 
+import java.util.ArrayList;
+
 import AST.ASTNode;
 import AST.ASTVisitor;
 import Compiler.Src.Util.Info.StmtInfo;
@@ -9,7 +11,7 @@ import Compiler.Src.AST.Node.Statement.ASTStatement;
 @lombok.Getter
 @lombok.Setter
 public class ASTExpressionstatement extends ASTStatement {
-    private final ASTExpr expr;
+    private final ArrayList<ASTExpr> expr;
     @Override
     public <T> T accept(ASTVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);

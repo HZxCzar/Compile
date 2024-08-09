@@ -40,9 +40,14 @@ public class ClassScope extends BaseScope {
     }
 
     @Override
-    public boolean containsFuncs(String name)
-    {
-        return funcs.containsKey(name);
+    public FuncInfo containsFuncs(String name) {
+        if(funcs.containsKey(name))
+        {
+            return funcs.get(name);
+        }
+        else{
+            return null;
+        }
     }
 
     @Override
