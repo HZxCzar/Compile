@@ -4,9 +4,11 @@ import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
 import Compiler.Src.Util.Info.*;
 import Compiler.Src.Util.Error.*;
+import lombok.Getter;
+import lombok.Setter;
 @lombok.experimental.SuperBuilder
-@lombok.Getter
-@lombok.Setter
+@Getter
+@Setter
 public class ASTDef extends ASTNode {
     private BaseInfo info;
     @Override

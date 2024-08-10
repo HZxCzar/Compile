@@ -8,18 +8,14 @@ import Compiler.Src.AST.Node.DefNode.*;
 import Compiler.Src.AST.Node.ExprNode.*;
 import Compiler.Src.AST.Node.ExprNode.ExprUnitNode.*;
 import Compiler.Src.AST.Node.StatementNode.*;
-import Compiler.Src.Grammer.MxBaseVisitor;
-import Compiler.Src.Grammer.MxParser;
+import Compiler.Src.Grammer.*;
 import Compiler.Src.Util.position;
 import Compiler.Src.Util.Error.ASTError;
 import Compiler.Src.Util.Info.ClassInfo;
 import Compiler.Src.Util.Info.FuncInfo;
 import Compiler.Src.Util.Info.TypeInfo;
 import Compiler.Src.Util.Info.VarInfo;
-import lombok.*;
 
-@lombok.Getter
-@lombok.Setter
 public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitProgram(MxParser.ProgramContext ctx) {
@@ -29,7 +25,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                 defines.add((ASTDef) visit(def));
             } else if (def instanceof MxParser.VarDefContext) {
                 var varDefs = (ASTVarstatement) visit(def);
-                for (var varDef : varDefs.getVarDefs()) {
+                for (ASTVarDef varDef : varDefs.getVarDefs()) {
                     defines.add(varDef);
                 }
             }
