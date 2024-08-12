@@ -1,5 +1,6 @@
 package Compiler.Src.Util.Info;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import Compiler.Src.AST.Node.DefNode.*;
@@ -12,6 +13,7 @@ public class FuncInfo extends BaseInfo {
     {
         super(name);
         this.functype=type;
+        this.params = new ArrayList<TypeInfo>();
         for(TypeInfo parm:params)
         {
             this.params.add(parm);

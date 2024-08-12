@@ -22,7 +22,7 @@ public class ASTWhilestatement extends ASTStatement {
         }
     }
 
-    public LoopScope getScope() {
+    public LoopScope findScope() {
         return getScope();
     }
 }

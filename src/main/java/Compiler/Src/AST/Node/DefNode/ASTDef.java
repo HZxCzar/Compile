@@ -16,7 +16,7 @@ public class ASTDef extends ASTNode {
         return visitor.visit(this);
     }
     
-    public String getName()
+    public String findName()
     {
         return getInfo().getName();
     }

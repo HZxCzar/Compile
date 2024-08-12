@@ -15,13 +15,14 @@ public class TypeInfo extends BaseInfo {
         }
     }
 
-    public boolean equals(BaseInfo rhs)
+    @Override
+    public boolean equals(Object rhs)
     {
         if(!(rhs instanceof TypeInfo))
         {
             return false;
         }
-        if(this.getName()==rhs.getName() && this.getDepth()==((TypeInfo)rhs).getDepth())
+        if(this.getName().equals(((TypeInfo)rhs).getName()) && this.depth==((TypeInfo)rhs).depth)
         {
             return true;
         }

@@ -21,7 +21,7 @@ public interface BasicType {
     FuncInfo printlnIntFunc = new FuncInfo("printlnInt", voidType, intType);
     FuncInfo getStringFunc = new FuncInfo("getString", stringType);
     FuncInfo getIntFunc = new FuncInfo("getInt", intType);
-    FuncInfo toStringFunc = new FuncInfo("toString", stringType);
+    FuncInfo toStringFunc = new FuncInfo("toString", stringType, intType);
 
     FuncInfo arraySize = new FuncInfo("size",intType);
     FuncInfo stringLengthFunc = new FuncInfo("length", intType);

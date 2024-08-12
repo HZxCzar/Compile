@@ -23,7 +23,7 @@ public class ASTForstatement extends ASTStatement {
         }
     }
 
-    public LoopScope getScope() {
+    public LoopScope findscope() {
         return getScope();
     }
 }

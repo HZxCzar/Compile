@@ -23,7 +23,7 @@ public class ASTRoot extends ASTNode {
         return visitor.visit(this);
     }
 
-    public BaseScope getScope() {
+    public BaseScope findScope() {
         return Gscope;
     }
 

@@ -21,7 +21,7 @@ public class ASTBlockstatement extends ASTStatement {
         }
     }
 
-    public BaseScope getScope() {
+    public BaseScope findscope() {
         return getScope();
     }
 }

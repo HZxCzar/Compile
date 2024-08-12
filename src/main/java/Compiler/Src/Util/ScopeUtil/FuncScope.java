@@ -38,4 +38,8 @@ public class FuncScope extends BaseScope {
         }
         return null;
     }
+
+    public boolean isExited() {
+        return Exit;
+    }
 }

@@ -8,4 +8,11 @@ abstract public class BaseError extends RuntimeException {
     public BaseError(String msg) {
       this.message = msg;
     }
+
+    public boolean hasError() {
+      if(message != null && !message.equals("")) {
+        return true;
+      }
+      return false;
+    }
 }

@@ -19,10 +19,10 @@ public class ClassInfo extends BaseInfo {
         this.vars = new TreeMap<String, VarInfo>();
         this.funcs = new TreeMap<String, FuncInfo>();
         for (ASTVarDef v : vars) {
-            this.vars.put(v.getName(), (VarInfo) v.getInfo());
+            this.vars.put(v.findName(), (VarInfo) v.getInfo());
         }
         for (ASTFuncDef func : funcs) {
-            this.funcs.put(func.getName(), (FuncInfo) func.getInfo());
+            this.funcs.put(func.findName(), (FuncInfo) func.getInfo());
         }
     }
 

@@ -28,11 +28,11 @@ public class ASTIfstatement extends ASTStatement {
         }
     }
 
-    public BaseScope getIfScope() {
+    public BaseScope findIfScope() {
         return getIfScope();
     }
 
-    public BaseScope getElseScope() {
+    public BaseScope findElseScope() {
         return getElseScope();
     }
 }

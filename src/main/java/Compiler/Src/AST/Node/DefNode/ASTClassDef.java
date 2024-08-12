@@ -27,7 +27,7 @@ public class ASTClassDef extends ASTDef {
         }
     }
 
-    public ClassScope getScope() {
+    public ClassScope findScope() {
         return getClassScope();
     }
 }

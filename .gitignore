@@ -1,1 +1,4 @@
 /target/
+/testcases/
+/src/main/antlr/
+/src/test/

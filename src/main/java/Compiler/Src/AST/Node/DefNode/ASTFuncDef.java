@@ -25,7 +25,7 @@ public class ASTFuncDef extends ASTDef {
         }
     }
 
-    public FuncScope getScope() {
+    public FuncScope findScope() {
         return getFuncscope();
     }
 }

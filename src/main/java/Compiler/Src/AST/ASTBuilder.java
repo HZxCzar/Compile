@@ -170,7 +170,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitIfstatement(MxParser.IfstatementContext ctx) {
         // var judge = ctx.expression();
-        ASTIfstatement Ifstmt = ASTIfstatement.builder().pos(new position(ctx.start))
+        ASTIfstatement Ifstmt = ASTIfstatement.builder().pos(new position(ctx.start)).judge((ASTExpr)visit(ctx.expression()))
                 .ifstmt((ASTStatement) visit(ctx.statement(0)))
                 .elsestmt(ctx.statement().size() > 1 ? (ASTStatement) visit(ctx.statement(1)) : null).build();
         Ifstmt.getJudge().setParent(Ifstmt);
@@ -414,6 +414,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         } else if (ctx.atom().Null() != null) {
             atomType = ASTAtomExpr.Type.NULL;
         } else if (ctx.atom().Identifier() != null) {
+            // System.err.println("AtomExpr "+ctx.getText());
             atomType = ASTAtomExpr.Type.INDENTIFIER;
         } else if (ctx.atom().StringLiteral() != null) {
             atomType = ASTAtomExpr.Type.STRING;
