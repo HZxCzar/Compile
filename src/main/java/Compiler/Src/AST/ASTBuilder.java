@@ -88,8 +88,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                     .build();
         } else if (ctx.classBuild().size() == 1) {
             var constru = ctx.classBuild(0);
-            if (constru.Identifier() != ctx.Identifier()) {
-                throw new ASTError("Class constructor has a different name to class " + ctx.Identifier() + ctx.start);
+            if (!constru.Identifier().getText().equals(ctx.Identifier().getText())) {
+                throw new ASTError("Class constructor has a different name to class " + ctx.Identifier() +' '+ (new position(ctx.classBuild(0).start).str()));
             }
             constructor = ASTFuncDef.builder().pos(new position(constru.start))
                     .info(new FuncInfo(ctx.Identifier().getText(), new TypeInfo("void", 0), new ArrayList<>()))
@@ -108,7 +108,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         }
         var funcs = new ArrayList<ASTFuncDef>();
         for (var Fs : ctx.funDef()) {
-            if (Fs.Identifier() == ctx.Identifier()) {
+            if (Fs.Identifier().getText().equals(ctx.Identifier().getText())) {
                 throw new ASTError(
                         "Function name can not be the same with its Class's name " + ctx.Identifier() + ctx.start);
             }

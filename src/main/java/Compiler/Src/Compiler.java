@@ -14,7 +14,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws Exception {
         try {
-            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));
+            CharStream input = CharStreams.fromStream(System.in);//new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -29,6 +29,6 @@ public class Compiler {
             System.err.println(e.getMessage());
             System.exit(1);
         }
-        System.out.println("Compile Successfully");
+        // System.out.println("Compile Successfully");
     }
 }
