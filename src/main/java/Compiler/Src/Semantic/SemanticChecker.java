@@ -69,18 +69,36 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         VarInfo info = (VarInfo) node.getInfo();
         if (!ValidVarType(info.getType())) {
             throw new SMCError("Invalid type\n");
-        } else if (currentScope.contains(node.findName())) {
-            throw new SMCError("redefination\n");
+        } else if ((currentScope instanceof GlobalScope && currentScope.containsFuncs(node.findName()) != null)
+                || (currentScope.containsVars(node.findName()) != null)) {
+            throw new SMCError("redefination\n" + node.getPos().str());
         } else {
             if (node.getInitexpr() != null) {
                 msg.append(node.getInitexpr().accept(this));
                 BaseInfo type = node.getInitexpr().getInfo().getDepTypeInfo();
-                if ((!(type instanceof TypeInfo) || !((TypeInfo) type).equals(info.getType()))
-                        && !((info.getType().getDepth() > 0 || (!info.getType().equals(GlobalScope.intType)
-                                && !info.getType().equals(GlobalScope.boolType)
-                                && !info.getType().equals(GlobalScope.stringType)))
-                                && ((TypeInfo) type).equals(GlobalScope.nullType))) {
+                // if ((!(type instanceof TypeInfo) || !((TypeInfo)
+                // type).equals(info.getType()))
+                // && !((info.getType().getDepth() > 0 ||
+                // (!info.getType().equals(GlobalScope.intType)
+                // && !info.getType().equals(GlobalScope.boolType)
+                // && !info.getType().equals(GlobalScope.stringType)))
+                // && ((TypeInfo) type).equals(GlobalScope.nullType))
+                // && !(node.getInitexpr() instanceof ASTAtomExpr
+                // && ((ASTAtomExpr) node.getInitexpr()).getConstarray() != null))
+                if (!LRTypeCheck(info.getType(), type) && !(node.getInitexpr() instanceof ASTAtomExpr
+                        && ((ASTAtomExpr) node.getInitexpr()).getConstarray() != null)) {
                     throw new SMCError("Incorrect assignment\n" + node.getPos().str());
+                }
+                if (node.getInitexpr() instanceof ASTAtomExpr
+                        && ((ASTAtomExpr) node.getInitexpr()).getConstarray() != null) {
+                    ASTAtomExpr rightAtom = (ASTAtomExpr) node.getInitexpr();
+                    if (info.getType().getDepth() < ((TypeInfo) rightAtom.getInfo().getType()).getDepth()) {
+                        throw new SMCError("vardef: constarray too large\n");
+                    }
+                    if (!rightAtom.getInfo().getType().getName().equals("void")
+                            && !info.getType().getName().equals(rightAtom.getInfo().getType().getName())) {
+                        throw new SMCError("vardef: constarray type not match\n");
+                    }
                 }
             }
             currentScope.declare(new VarInfo(node.findName(), info.getType()));
@@ -113,13 +131,30 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         if (!(LexprInfo instanceof ExprInfo || RexprInfo instanceof ExprInfo)) {
             throw new SMCError("Have none ExprInfo expression\n");
         }
-        if (!((ExprInfo) LexprInfo).getDepTypeInfo().equals(((ExprInfo) RexprInfo).getDepTypeInfo())
-                && !((((ExprInfo) LexprInfo).getDepTypeInfo().getDepth() > 0
-                        || (!((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.intType)
-                                && !((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.boolType)
-                                && !((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.stringType)))
-                        && ((ExprInfo) RexprInfo).getDepTypeInfo().equals(GlobalScope.nullType))) {
+        if (!LRTypeCheck(((ExprInfo) LexprInfo).getDepTypeInfo(), ((ExprInfo) RexprInfo).getDepTypeInfo())
+                && !(node.getRight() instanceof ASTAtomExpr
+                        && ((ASTAtomExpr) node.getRight()).getConstarray() != null)) {
+            // if (!((ExprInfo) LexprInfo).getDepTypeInfo().equals(((ExprInfo)
+            // RexprInfo).getDepTypeInfo())
+            // && !((((ExprInfo) LexprInfo).getDepTypeInfo().getDepth() > 0
+            // || (!((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.intType)
+            // && !((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.boolType)
+            // && !((ExprInfo) LexprInfo).getDepTypeInfo().equals(GlobalScope.stringType)))
+            // && ((ExprInfo) RexprInfo).getDepTypeInfo().equals(GlobalScope.nullType))
+            // && !(node.getRight() instanceof ASTAtomExpr
+            // && ((ASTAtomExpr) node.getRight()).getConstarray() != null)) {
             throw new SMCError("lhs and rhs is not the same type\n");
+        }
+        if (node.getRight() instanceof ASTAtomExpr && ((ASTAtomExpr) node.getRight()).getConstarray() != null) {
+            ASTAtomExpr rightAtom = (ASTAtomExpr) node.getRight();
+            if (((ExprInfo) LexprInfo).getDepTypeInfo().getDepth() < ((TypeInfo) rightAtom.getInfo().getType())
+                    .getDepth()) {
+                throw new SMCError("constarray too large\n");
+            }
+            if (!rightAtom.getInfo().getType().getName().equals("void") && !((ExprInfo) LexprInfo).getDepTypeInfo()
+                    .getName().equals(rightAtom.getInfo().getType().getName())) {
+                throw new SMCError("constarray type not match\n");
+            }
         }
         if (!((ExprInfo) LexprInfo).isLvalue()) {
             throw new SMCError("left hand side is a left value\n");
@@ -193,12 +228,18 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         } else {
             throw new SMCError("Invalid Rtype\n");
         }
-
-        if (!Ltype.equals(Rtype)
-                && !((Ltype.getDepth() > 0 || (!Ltype.equals(GlobalScope.intType) && !Ltype.equals(GlobalScope.boolType)
-                        && !Ltype.equals(GlobalScope.stringType))) && Rtype.equals(GlobalScope.nullType))) {
+        if (!LRTypeCheck(Ltype, Rtype)) {
             throw new SMCError("Invalid BinarryExpr between different Type\n" + node.getPos().str());
         }
+
+        // if (!Ltype.equals(Rtype)
+        // && !((Ltype.getDepth() > 0 || (!Ltype.equals(GlobalScope.intType) &&
+        // !Ltype.equals(GlobalScope.boolType)
+        // && !Ltype.equals(GlobalScope.stringType))) &&
+        // Rtype.equals(GlobalScope.nullType))) {
+        // throw new SMCError("Invalid BinarryExpr between different Type\n" +
+        // node.getPos().str());
+        // }
 
         if (Ltype.getDepth() > 0) {
             if (!(node.getOp().equals("==") || node.getOp().equals("!="))) {
@@ -258,11 +299,15 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
             if (recv == null) {
                 throw new SMCError("invalid params in callExpr\n");
             }
-            if (!recv.equals(type) && !(recv.equals(GlobalScope.nullType) && (type.getDepth() > 0
-                    || (!type.equals(GlobalScope.intType) && !type.equals(GlobalScope.boolType)
-                            && !type.equals(GlobalScope.stringType)))) && !type.equals(GlobalScope.thisType)) {
-                throw new SMCError("args not match with input\n"+node.getPos().str());
+            if (!LRTypeCheck(type, recv) && !type.equals(GlobalScope.thisType)) {
+                throw new SMCError("args not match with input\n" + node.getPos().str());
             }
+            // if (!recv.equals(type) && !(recv.equals(GlobalScope.nullType) && (type.getDepth() > 0
+            //         || (!type.equals(GlobalScope.intType) && !type.equals(GlobalScope.boolType)
+            //                 && !type.equals(GlobalScope.stringType))))
+            //         && !type.equals(GlobalScope.thisType)) {
+            //     throw new SMCError("args not match with input\n" + node.getPos().str());
+            // }
         }
         node.setInfo(new ExprInfo("callExpr", ((FuncInfo) functype).getFunctype(), false));
         return msg;
@@ -284,7 +329,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
             throw new SMCError("Ques is not a boolean type\n");
         }
         // if (!leftType.equals(rightType) || ) {
-        //     throw new SMCError("Lhs and Rhs type not match in conditionalExpr\n");
+        // throw new SMCError("Lhs and Rhs type not match in conditionalExpr\n");
         // }
 
         node.setInfo(new ExprInfo("conditionalExpr", leftType, false));
@@ -341,11 +386,12 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         }
         if (node.getConstarray() != null) {
             msg.append(node.getConstarray().accept(this));
-            if (!((TypeInfo) node.getConstarray().getInfo().getDepTypeInfo()).getName().equals("int")) {
-                throw new SMCError("constarray need to contain Integer\n");
-            }
-            if (node.getType().getDepth() != node.getConstarray().getInfo().getDepTypeInfo().getDepth()) {
+            if (node.getType().getDepth() < node.getConstarray().getInfo().getDepTypeInfo().getDepth()) {
                 throw new SMCError("array size not match");
+            }
+            if (!node.getConstarray().getInfo().getDepTypeInfo().getName().equals("void")
+                    && !node.getType().equals(node.getConstarray().getInfo().getDepTypeInfo())) {
+                throw new SMCError("constarray not match\n");
             }
         }
         node.setInfo(new ExprInfo("newExpr", node.getType(), true));
@@ -405,25 +451,63 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
 
     public SMCError visit(ASTConstarray node) throws BaseError {
         SMCError msg = new SMCError();
-        int depth = -1;
+        int depth = 0;
+        int maxmaze = 0;
+        TypeInfo typecheck = null;
         for (ASTExpr unit : node.getExpr()) {
+            int tmpmaze = 0, tmpdep = 0;
+            TypeInfo tmptype = GlobalScope.voidType;
             msg.append(unit.accept(this));
+
             if (!(unit.getInfo().getType() instanceof TypeInfo)) {
                 throw new SMCError("constarray only contains TypeInfo\n");
             }
-            int size = ((TypeInfo) unit.getInfo().getType()).getDepth();
-            if (!((TypeInfo) unit.getInfo().getType()).getName().equals("int")) {
-                throw new SMCError("constarray only contains Integer\n");
+            tmptype = (TypeInfo) ((ASTAtomExpr) unit).getInfo().getType();
+            if (unit.getInfo().getName().equals("atomExpr")) {
+                if (unit instanceof ASTAtomExpr) {
+                    if (((ASTAtomExpr) unit).getConstarray() == null) {
+                        tmpmaze = 1;
+                        tmpdep = 1;
+                    } else {
+                        tmpmaze = ((ASTAtomExpr) unit).getConstarray().getMaze() + 1;
+                        tmpdep = ((ASTAtomExpr) unit).getConstarray().getDep() == 0 ? 0
+                                : ((ASTAtomExpr) unit).getConstarray().getDep() + 1;
+                    }
+                } else {
+                    throw new SMCError("constarray Atom error\n");
+                }
+            } else {
+                tmpmaze = 1;
+                tmpdep = 1;
+                tmptype = (TypeInfo) unit.getInfo().getType();
             }
-            if (depth != -1 && depth != size) {
-                throw new SMCError("each expr in costarray must have the same depth\n");
+            if (!tmptype.getName().equals(GlobalScope.voidType.getName()) && typecheck != null
+                    && !tmptype.equals(typecheck)) {
+                throw new SMCError("different type in const array\n");
+            } else if (tmpdep > 0 && depth > 0 && tmpdep != depth) {
+                throw new SMCError("each expr in costarray must have the same depth\n" + unit.getPos().str());
             } else if (((ExprInfo) unit.getInfo()).isLvalue()) {
                 throw new SMCError("constarray shouldn't contain Lvalue expression\n");
             }
-            depth = size;
+            if (tmpdep > 0) {
+                depth = tmpdep;
+            }
+            if (!tmptype.getName().equals(GlobalScope.voidType.getName())) {
+                typecheck = tmptype;
+            }
+            if (tmpmaze > maxmaze) {
+                maxmaze = tmpmaze;
+            }
         }
-        depth = depth + 1;
-        node.setInfo(new ExprInfo("constarrayExpr", new TypeInfo(GlobalScope.intType.getName(), depth), false));
+        // depth = depth + 1;
+        if (maxmaze == 0) {
+            maxmaze = 1;
+        }
+        node.setDep(depth);
+        node.setMaze(maxmaze);
+        node.setInfo(new ExprInfo("constarrayExpr",
+                new TypeInfo(typecheck != null ? typecheck.getName() : GlobalScope.voidType.getName(), maxmaze),
+                false));
         return msg;
     }
 
@@ -478,7 +562,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         for (ASTExpr unit : node.getExpr()) {
             msg.append(unit.accept(this));
             // if (unit.getInfo().getName().equals("atomExpr")) {
-            //     throw new SMCError("incomplete expression which is atom\n");
+            // throw new SMCError("incomplete expression which is atom\n");
             // }
         }
         return msg;

@@ -1,4 +1,7 @@
 package Compiler.Src.Util.Info;
+
+// import Compiler.Src.Util.ScopeUtil.GlobalScope;
+
 @lombok.Getter
 @lombok.Setter
 public class TypeInfo extends BaseInfo {

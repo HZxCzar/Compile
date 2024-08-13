@@ -461,7 +461,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (var unit : ctx.expression()) {
             units.add((ASTExpr) visit(unit));
         }
-        ASTConstarray constarrayExpr = ASTConstarray.builder().pos(new position(ctx.start)).expr(units).build();
+        ASTConstarray constarrayExpr = ASTConstarray.builder().pos(new position(ctx.start)).expr(units).maze(0).dep(0).build();
         for (var unit : units) {
             unit.setParent(constarrayExpr);
         }
@@ -472,13 +472,15 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     public ASTNode visitFstring(MxParser.FstringContext ctx) {
         var strpart = new ArrayList<String>();
         var exprpart = new ArrayList<ASTExpr>();
-        if (ctx.FStringLiteral() != null) {
+        if (ctx.basestring != null) {
             strpart.add(ctx.FStringLiteral().getText().substring(2, ctx.FStringLiteral().getText().length() - 2));
             return ASTFstring.builder().pos(new position(ctx.start))
                     .strpart(strpart)
                     .exprpart(null).build();
         } else {
-            strpart.add(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 2));
+            // System.err.println(ctx.FomatStringL().getText());
+            // System.err.println(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 1));
+            strpart.add(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 1));
             exprpart.add((ASTExpr) visit(ctx.expression()));
             for (var expr : ctx.midfstringUnit()) {
                 strpart.add(expr.FomatStringM().getText().substring(1, expr.FomatStringM().getText().length() - 1));

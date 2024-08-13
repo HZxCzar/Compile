@@ -44,6 +44,14 @@ public class BaseScope {
         // return null;
     }
 
+    public VarInfo containsVars(String name) throws ScopeError {
+        if(vars.containsKey(name))
+        {
+            return vars.get(name);
+        }
+        return null;
+    }
+
     public BaseInfo BackSearch(String name)
     {
         if(vars.containsKey(name))

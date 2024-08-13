@@ -2,6 +2,7 @@ package Compiler.Src.AST;
 
 import Compiler.Src.AST.Node.*;
 import Compiler.Src.AST.Node.DefNode.*;
+import Compiler.Src.AST.Node.ExprNode.ExprUnitNode.*;
 import Compiler.Src.AST.Node.ExprNode.*;
 import Compiler.Src.AST.Node.StatementNode.*;
 import Compiler.Src.Util.Error.*;
@@ -15,6 +16,8 @@ public interface ASTVisitor<T> {
     public T visit(ASTClassDef node) throws BaseError;
     public T visit(ASTVarDef node) throws BaseError;
 
+    public T visit(ASTConstarray node) throws BaseError;
+    public T visit(ASTFstring node) throws BaseError;
     public T visit(ASTNewExpr node) throws BaseError;
     public T visit(ASTMemberExpr node) throws BaseError;
     public T visit(ASTCallExpr node) throws BaseError;

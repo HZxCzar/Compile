@@ -9,6 +9,7 @@ import Compiler.Src.Util.Error.*;
 @lombok.Getter
 @lombok.Setter
 public class ASTConstarray extends ASTExpr {
+    private int maze,dep;
     private ArrayList<ASTExpr> expr;
     @Override
     public <T> T accept(ASTVisitor<T> visitor) throws BaseError {
