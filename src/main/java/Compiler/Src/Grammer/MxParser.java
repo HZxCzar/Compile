@@ -1715,7 +1715,9 @@ public class MxParser extends Parser {
 		public ExpressionContext expression() {
 			return getRuleContext(ExpressionContext.class,0);
 		}
-		public TerminalNode Identifier() { return getToken(MxParser.Identifier, 0); }
+		public AtomContext atom() {
+			return getRuleContext(AtomContext.class,0);
+		}
 		public TerminalNode Member() { return getToken(MxParser.Member, 0); }
 		public MemberExprContext(ExpressionContext ctx) { copyFrom(ctx); }
 		@Override
@@ -2181,7 +2183,7 @@ public class MxParser extends Parser {
 						setState(299);
 						((MemberExprContext)_localctx).op = match(Member);
 						setState(300);
-						match(Identifier);
+						atom();
 						}
 						break;
 					case 12:
@@ -2703,7 +2705,7 @@ public class MxParser extends Parser {
 		".\u0017\u0000\u0127\u0126\u0001\u0000\u0000\u0000\u0127\u0128\u0001\u0000"+
 		"\u0000\u0000\u0128\u0129\u0001\u0000\u0000\u0000\u0129\u0132\u0005\u001c"+
 		"\u0000\u0000\u012a\u012b\n\u000e\u0000\u0000\u012b\u012c\u0005\u0018\u0000"+
-		"\u0000\u012c\u0132\u00057\u0000\u0000\u012d\u012e\n\r\u0000\u0000\u012e"+
+		"\u0000\u012c\u0132\u00032\u0019\u0000\u012d\u012e\n\r\u0000\u0000\u012e"+
 		"\u0132\u0003,\u0016\u0000\u012f\u0130\n\f\u0000\u0000\u0130\u0132\u0007"+
 		"\t\u0000\u0000\u0131\u0106\u0001\u0000\u0000\u0000\u0131\u0109\u0001\u0000"+
 		"\u0000\u0000\u0131\u010c\u0001\u0000\u0000\u0000\u0131\u010f\u0001\u0000"+

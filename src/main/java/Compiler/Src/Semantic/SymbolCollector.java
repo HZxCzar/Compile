@@ -24,7 +24,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
         for (ASTDef def : node.getDefNodes()) {
             if (def instanceof ASTClassDef || def instanceof ASTFuncDef) {
                 if (currentScope.contains(def.findName())) {
-                    throw new SBCError(def.findName() + " is redefined" + def.getPos());
+                    throw new SBCError("Multiple Definitions\n");
                 } else {
                     currentScope.declare(def.getInfo());
                 }
@@ -47,7 +47,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
         SBCError msg = new SBCError();
         for (ASTFuncDef def : node.getFuncs()) {
             if (currentScope.contains(def.findName())) {
-                throw new SBCError(def.findName() + " is redefined" + def.getPos());
+                throw new SBCError("Multiple Definitions\n");
             } else {
                 msg.append(def.accept(this));
                 currentScope.declare(def.getInfo());
@@ -71,7 +71,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
             }
         }
         if (!ValidFuncType(((FuncInfo) node.getInfo()).getFunctype())) {
-            throw new SBCError("Invalid ReturnType for Function " + node.findName());
+            throw new SBCError("Invalid Type\n");
         }
         SBCError msg = new SBCError();
         // for (var def : node.getParams())// Only accept params
@@ -85,9 +85,9 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
     public SBCError visit(ASTVarDef node) throws BaseError {
         VarInfo info = (VarInfo) node.getInfo();
         if (!ValidVarType(info.getType())) {
-            throw new SBCError("Invalid VarType\n");
+            throw new SBCError("Invalid Type\n");
         } else if (currentScope.contains(node.findName())) {
-            throw new SBCError("Redefination of " + node.findName() + "\n");
+            throw new SBCError("Multiple Definitions\n");
         } else {
             currentScope.declare(new VarInfo(node.findName(), info.getType()));
         }

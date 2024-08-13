@@ -332,7 +332,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitMemberExpr(MxParser.MemberExprContext ctx) {
         ASTMemberExpr memberExpr = ASTMemberExpr.builder().pos(new position(ctx.start))
-                .member((ASTExpr) visit(ctx.expression())).memberName(ctx.Identifier().getText()).build();
+                .member((ASTExpr) visit(ctx.expression())).memberName(ctx.atom().getText()).build();
         memberExpr.getMember().setParent(memberExpr);
         return memberExpr;
     }

@@ -13,6 +13,6 @@ public class MxErrorListener extends BaseErrorListener {
       String msg,
       RecognitionException e) {
 
-    throw new ASTError( msg+ (new position(line, charPositionInLine)).str() );
+    throw new ASTError("Invalid Identifier");
   }
 }

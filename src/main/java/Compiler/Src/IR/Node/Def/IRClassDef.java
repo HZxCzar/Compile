@@ -1,4 +1,4 @@
-package Compiler.Src.IR.IRNode.Def;
+package Compiler.Src.IR.Node.Def;
 
 public class IRClassDef extends IRDef {
     

@@ -1,4 +1,4 @@
-package Compiler.Src.IR.IRNode.Entity;
+package Compiler.Src.IR.Entity;
 
 public class IRLiteral extends IREntity {
     

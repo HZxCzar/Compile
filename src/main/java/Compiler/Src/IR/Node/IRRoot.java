@@ -1,4 +1,4 @@
-package Compiler.Src.IR.IRNode;
+package Compiler.Src.IR.Node;
 
 public class IRRoot extends IRNode {
 }

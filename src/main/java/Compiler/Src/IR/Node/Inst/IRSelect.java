@@ -1,4 +1,4 @@
-package Compiler.Src.IR.IRNode.Inst;
+package Compiler.Src.IR.Node.Inst;
 
 public class IRSelect extends IRInst {
     
