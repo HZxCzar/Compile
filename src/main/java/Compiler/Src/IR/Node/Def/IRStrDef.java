@@ -1,15 +1,15 @@
 package Compiler.Src.IR.Node.Def;
 
 import Compiler.Src.IR.IRVisitor;
-import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.Util.Error.BaseError;
 
-
-@lombok.Getter
-public class IRGlobalDef extends IRDef {
-    private IRVariable vars;
-    public IRGlobalDef(IRVariable vars) {
-        this.vars = vars;
+public class IRStrDef extends IRDef {
+    public String name;
+    public String value_old;
+    public String value;
+    public IRStrDef(String name, String value_old) {
+        this.name = name;
+        this.value_old = value_old;
     }
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
