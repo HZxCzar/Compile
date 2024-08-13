@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 import Compiler.Src.Util.Error.*;
 import Compiler.Src.AST.Node.StatementNode.*;
+import Compiler.Src.AST.Node.Util.ASTScopedNode;
 import Compiler.Src.Util.Info.FuncInfo;
 import Compiler.Src.AST.ASTVisitor;
 import Compiler.Src.Util.ScopeUtil.*;
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter
-public class ASTFuncDef extends ASTDef {
+public class ASTFuncDef extends ASTDef implements ASTScopedNode {
     private FuncScope funcscope;
     private final ArrayList<ASTVarDef> params;
     private final ASTBlockstatement blockedBody;
@@ -19,13 +20,19 @@ public class ASTFuncDef extends ASTDef {
         return visitor.visit(this);
     }
 
+    @Override
     public void addScope(BaseScope scope) {
         if (this.funcscope == null) {
             this.funcscope = new FuncScope(scope, (FuncInfo) getInfo());
         }
     }
 
-    public FuncScope findScope() {
+    @Override
+    public BaseScope getScope() {
         return getFuncscope();
     }
+
+    // public FuncScope findScope() {
+    //     return getFuncscope();
+    // }
 }

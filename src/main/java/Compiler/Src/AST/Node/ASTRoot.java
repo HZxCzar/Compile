@@ -4,13 +4,14 @@ import java.util.ArrayList;
 
 import Compiler.Src.AST.ASTVisitor;
 import Compiler.Src.AST.Node.DefNode.ASTDef;
+import Compiler.Src.AST.Node.Util.ASTScopedNode;
 import Compiler.Src.Util.Error.*;
 import Compiler.Src.Util.ScopeUtil.*;
 
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter
-public class ASTRoot extends ASTNode {
+public class ASTRoot extends ASTNode implements ASTScopedNode {
     public GlobalScope Gscope;
     public ArrayList<ASTDef> DefNodes;
 
@@ -23,10 +24,12 @@ public class ASTRoot extends ASTNode {
         return visitor.visit(this);
     }
 
-    public BaseScope findScope() {
+    @Override
+    public BaseScope getScope() {
         return Gscope;
     }
 
+    @Override
     public void addScope(BaseScope scope) {
         if (this.Gscope == null) {
             this.Gscope = new GlobalScope();

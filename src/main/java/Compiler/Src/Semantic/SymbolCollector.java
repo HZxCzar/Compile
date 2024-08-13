@@ -19,7 +19,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
 
     public SBCError visit(ASTRoot node) throws BaseError {
         node.addScope(null);
-        enterScope(node.findScope());
+        enterScope(node.getScope());
         SBCError msg = new SBCError();
         for (ASTDef def : node.getDefNodes()) {
             if (def instanceof ASTClassDef || def instanceof ASTFuncDef) {
@@ -35,7 +35,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
                 msg.append(def.accept(this));
             }
         }
-        if (node.findScope().containsFuncs("main") == null) {
+        if (node.getScope().containsFuncs("main") == null) {
             throw new SBCError("Main function is not defined at " + node.getPos().str());
         }
         return msg;
@@ -43,7 +43,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
 
     public SBCError visit(ASTClassDef node) throws BaseError {
         node.addScope(currentScope);
-        enterScope((ClassScope) node.findScope());
+        enterScope((ClassScope) node.getScope());
         SBCError msg = new SBCError();
         for (ASTFuncDef def : node.getFuncs()) {
             if (currentScope.contains(def.findName())) {
@@ -62,7 +62,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
 
     public SBCError visit(ASTFuncDef node) throws BaseError {
         node.addScope(currentScope);
-        enterScope((FuncScope) node.findScope());
+        enterScope((FuncScope) node.getScope());
         if (node.findName().equals("main")) {
             if (node.getParams().size() > 0) {
                 throw new SBCError("Main function can not have args\n");

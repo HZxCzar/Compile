@@ -21,7 +21,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
 
     public SMCError visit(ASTRoot node) throws BaseError {
         node.addScope(null);
-        enterScope((GlobalScope) node.findScope());
+        enterScope((GlobalScope) node.getScope());
         SMCError msg = new SMCError();
         for (ASTDef def : node.getDefNodes()) {
             msg.append(def.accept(this));
@@ -35,7 +35,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
 
     public SMCError visit(ASTClassDef node) throws BaseError {
         node.addScope(currentScope);
-        enterScope((ClassScope) node.findScope());
+        enterScope((ClassScope) node.getScope());
         SMCError msg = new SMCError();
         msg.append(node.getConstructor().accept(this));
         for (ASTFuncDef def : node.getFuncs()) {
@@ -48,7 +48,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
     public SMCError visit(ASTFuncDef node) throws BaseError// 处理传参
     {
         node.addScope(currentScope);
-        enterScope((FuncScope) node.findScope());
+        enterScope((FuncScope) node.getScope());
         SMCError msg = new SMCError();
         for (ASTVarDef param : node.getParams()) {
             msg.append(param.accept(this));
