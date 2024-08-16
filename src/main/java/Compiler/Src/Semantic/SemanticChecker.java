@@ -388,7 +388,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         if (node.getConstarray() != null) {
             msg.append(node.getConstarray().accept(this));
             if (node.getType().getDepth() < node.getConstarray().getInfo().getDepTypeInfo().getDepth()) {
-                throw new SMCError("Invalid Type\n");
+                throw new SMCError("Type Mismatch\n");
             }
             if (!node.getConstarray().getInfo().getDepTypeInfo().getName().equals("void")
                     && !node.getType().equals(node.getConstarray().getInfo().getDepTypeInfo())) {
