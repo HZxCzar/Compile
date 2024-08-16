@@ -184,7 +184,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
             // System.err.println(node.getPos().str());
             BaseInfo info = currentScope.BackSearch(node.getValue());
             if (info == null) {
-                throw new SMCError("Undefined Indentifier\n");
+                throw new SMCError("Undefined Identifier\n");
             } else if (info instanceof VarInfo) {
                 node.setInfo(new ExprInfo("atomExpr", info, true));
             } else if (info instanceof FuncInfo) {
@@ -388,7 +388,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         if (node.getConstarray() != null) {
             msg.append(node.getConstarray().accept(this));
             if (node.getType().getDepth() < node.getConstarray().getInfo().getDepTypeInfo().getDepth()) {
-                throw new SMCError("Dimension Out Of Bound\n");
+                throw new SMCError("Invalid Type\n");
             }
             if (!node.getConstarray().getInfo().getDepTypeInfo().getName().equals("void")
                     && !node.getType().equals(node.getConstarray().getInfo().getDepTypeInfo())) {
