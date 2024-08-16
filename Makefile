@@ -9,4 +9,4 @@ build:
 	chmod +x bin/*.jar
 
 run:
-	java -cp bin/my-project-1.0.0.jar Compiler.Src.Compiler
+	mvn exec:java

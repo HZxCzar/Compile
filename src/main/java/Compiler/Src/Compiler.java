@@ -1,6 +1,9 @@
 package Compiler.Src;
 
 import java.io.FileInputStream;
+import java.io.IOException;
+
+import javax.management.RuntimeErrorException;
 
 import org.antlr.v4.runtime.*;
 
@@ -12,7 +15,7 @@ import Compiler.Src.Util.Error.*;
 import Compiler.Src.Util.MxErrorListener;
 
 public class Compiler {
-    public static void main(String[] args) throws Exception {
+    public static void main(String[] args) throws IOException {
         try {
             CharStream input = CharStreams.fromStream(System.in);//new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
@@ -29,6 +32,6 @@ public class Compiler {
             System.out.println(e.getMessage());
             System.exit(1);
         }
-        System.out.println("Compile Successfully");
+        // System.out.println("Compile Successfully");
     }
 }
