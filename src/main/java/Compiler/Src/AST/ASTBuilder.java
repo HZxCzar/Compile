@@ -478,8 +478,6 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                     .strpart(strpart)
                     .exprpart(null).build();
         } else {
-            // System.err.println(ctx.FomatStringL().getText());
-            // System.err.println(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 1));
             strpart.add(ctx.FomatStringL().getText().substring(2, ctx.FomatStringL().getText().length() - 1));
             exprpart.add((ASTExpr) visit(ctx.expression()));
             for (var expr : ctx.midfstringUnit()) {

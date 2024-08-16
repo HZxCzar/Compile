@@ -1,6 +1,7 @@
 /target/
 /testcases/
-/src/main/antlr/
+/src/main/antlr/*
+!/src/main/antlr/*.g4
 /src/test/
 /bin
 /.vscode

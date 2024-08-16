@@ -1,6 +1,6 @@
 grammar Mx;
 import MxGrammerLexer;
-@header {package Compiler.Src.Grammer;}
+// @header {package Compiler.Src.Grammer;}
 program: (funDef | classDef | varDef)* EOF;
 type: Int | Bool | String | Void | Identifier;
 
@@ -16,8 +16,6 @@ funDef:
 funVarDef: typeVarDef atomVarDef;
 funParaList: funVarDef (',' funVarDef)*;
 
-
-
 statement:
 	blockstatement
 	| varDef
@@ -30,8 +28,7 @@ statement:
 	| expressionstatement
 	| emptystatement;
 
-
-emptystatement:Semi;
+emptystatement: Semi;
 
 ifstatement:
 	If LParen expression RParen statement (Else ( statement))?;
@@ -54,7 +51,7 @@ expression:
 	New type (arrayUnit)* (LParen RParen)? constarray?	# newExpr
 	| LParen expression RParen							# parenExpr
 	| expression LParen callArgs? RParen				# callExpr
-	| expression op = Member Identifier					# memberExpr
+	| expression op = Member atom					# memberExpr
 	| expression arrayUnit								# arrayExpr
 	| expression op = (Selfadd | Selfsub)				# unaryExpr
 	| <assoc = right>op = (
@@ -93,9 +90,7 @@ atom:
 	| constarray;
 
 fstring:
-	(
-		FomatStringL expression midfstringUnit* FomatStringR
-	)
-	| FStringLiteral;
+	(FomatStringL expression midfstringUnit* FomatStringR)
+	| basestring = FStringLiteral;
 
 midfstringUnit: FomatStringM expression;

@@ -25,8 +25,8 @@ public class MxParser extends Parser {
 		Void=35, Bool=36, Int=37, String=38, New=39, Class=40, Null=41, True=42, 
 		False=43, This=44, If=45, Else=46, For=47, While=48, Break=49, Continue=50, 
 		Return=51, WhiteSpace=52, LineComment=53, BlockComment=54, Identifier=55, 
-		Integer=56, FomatStringL=57, FomatStringR=58, FomatStringM=59, FStringLiteral=60, 
-		StringLiteral=61;
+		Integer=56, StringLiteral=57, FomatStringL=58, FomatStringR=59, FomatStringM=60, 
+		FStringLiteral=61;
 	public static final int
 		RULE_program = 0, RULE_type = 1, RULE_classDef = 2, RULE_typeVarDef = 3, 
 		RULE_varDef = 4, RULE_atomVarDef = 5, RULE_classBuild = 6, RULE_blockstatement = 7, 
@@ -68,8 +68,8 @@ public class MxParser extends Parser {
 			"Semi", "Comma", "Lbrace", "Rbrace", "Void", "Bool", "Int", "String", 
 			"New", "Class", "Null", "True", "False", "This", "If", "Else", "For", 
 			"While", "Break", "Continue", "Return", "WhiteSpace", "LineComment", 
-			"BlockComment", "Identifier", "Integer", "FomatStringL", "FomatStringR", 
-			"FomatStringM", "FStringLiteral", "StringLiteral"
+			"BlockComment", "Identifier", "Integer", "StringLiteral", "FomatStringL", 
+			"FomatStringR", "FomatStringM", "FStringLiteral"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -613,7 +613,7 @@ public class MxParser extends Parser {
 			setState(114);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3715398200850399236L) != 0)) {
+			while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2850707072395264004L) != 0)) {
 				{
 				{
 				setState(111);
@@ -1197,7 +1197,7 @@ public class MxParser extends Parser {
 			setState(175);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3711000152191811588L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846309023736676356L) != 0)) {
 				{
 				setState(174);
 				forinit();
@@ -1209,7 +1209,7 @@ public class MxParser extends Parser {
 			setState(179);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 				{
 				setState(178);
 				((ForstatementContext)_localctx).condition = expression(0);
@@ -1221,7 +1221,7 @@ public class MxParser extends Parser {
 			setState(183);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 				{
 				setState(182);
 				((ForstatementContext)_localctx).update = expression(0);
@@ -1275,7 +1275,7 @@ public class MxParser extends Parser {
 			setState(190);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 				{
 				setState(189);
 				expression(0);
@@ -1474,7 +1474,7 @@ public class MxParser extends Parser {
 			setState(212);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 				{
 				setState(211);
 				expression(0);
@@ -1542,7 +1542,7 @@ public class MxParser extends Parser {
 			setState(225);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 				{
 				setState(224);
 				expression(0);
@@ -1951,9 +1951,9 @@ public class MxParser extends Parser {
 			case This:
 			case Identifier:
 			case Integer:
+			case StringLiteral:
 			case FomatStringL:
 			case FStringLiteral:
-			case StringLiteral:
 				{
 				_localctx = new AtomExprContext(_localctx);
 				_ctx = _localctx;
@@ -2163,7 +2163,7 @@ public class MxParser extends Parser {
 						setState(295);
 						_errHandler.sync(this);
 						_la = _input.LA(1);
-						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 3710999636795736068L) != 0)) {
+						if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 2846308508340600836L) != 0)) {
 							{
 							setState(294);
 							callArgs();
@@ -2718,21 +2718,21 @@ public class MxParser extends Parser {
 		"\u0000\u0000\u01341\u0001\u0000\u0000\u0000\u0135\u0133\u0001\u0000\u0000"+
 		"\u0000\u0136\u0140\u00058\u0000\u0000\u0137\u0140\u0005*\u0000\u0000\u0138"+
 		"\u0140\u0005+\u0000\u0000\u0139\u0140\u0005,\u0000\u0000\u013a\u0140\u0005"+
-		")\u0000\u0000\u013b\u0140\u00057\u0000\u0000\u013c\u0140\u0005=\u0000"+
+		")\u0000\u0000\u013b\u0140\u00057\u0000\u0000\u013c\u0140\u00059\u0000"+
 		"\u0000\u013d\u0140\u00034\u001a\u0000\u013e\u0140\u0003*\u0015\u0000\u013f"+
 		"\u0136\u0001\u0000\u0000\u0000\u013f\u0137\u0001\u0000\u0000\u0000\u013f"+
 		"\u0138\u0001\u0000\u0000\u0000\u013f\u0139\u0001\u0000\u0000\u0000\u013f"+
 		"\u013a\u0001\u0000\u0000\u0000\u013f\u013b\u0001\u0000\u0000\u0000\u013f"+
 		"\u013c\u0001\u0000\u0000\u0000\u013f\u013d\u0001\u0000\u0000\u0000\u013f"+
 		"\u013e\u0001\u0000\u0000\u0000\u01403\u0001\u0000\u0000\u0000\u0141\u0142"+
-		"\u00059\u0000\u0000\u0142\u0146\u00030\u0018\u0000\u0143\u0145\u00036"+
+		"\u0005:\u0000\u0000\u0142\u0146\u00030\u0018\u0000\u0143\u0145\u00036"+
 		"\u001b\u0000\u0144\u0143\u0001\u0000\u0000\u0000\u0145\u0148\u0001\u0000"+
 		"\u0000\u0000\u0146\u0144\u0001\u0000\u0000\u0000\u0146\u0147\u0001\u0000"+
 		"\u0000\u0000\u0147\u0149\u0001\u0000\u0000\u0000\u0148\u0146\u0001\u0000"+
-		"\u0000\u0000\u0149\u014a\u0005:\u0000\u0000\u014a\u014d\u0001\u0000\u0000"+
-		"\u0000\u014b\u014d\u0005<\u0000\u0000\u014c\u0141\u0001\u0000\u0000\u0000"+
+		"\u0000\u0000\u0149\u014a\u0005;\u0000\u0000\u014a\u014d\u0001\u0000\u0000"+
+		"\u0000\u014b\u014d\u0005=\u0000\u0000\u014c\u0141\u0001\u0000\u0000\u0000"+
 		"\u014c\u014b\u0001\u0000\u0000\u0000\u014d5\u0001\u0000\u0000\u0000\u014e"+
-		"\u014f\u0005;\u0000\u0000\u014f\u0150\u00030\u0018\u0000\u01507\u0001"+
+		"\u014f\u0005<\u0000\u0000\u014f\u0150\u00030\u0018\u0000\u01507\u0001"+
 		"\u0000\u0000\u0000 ;=JLV_gr{\u0088\u0095\u00a0\u00aa\u00af\u00b3\u00b7"+
 		"\u00be\u00cd\u00d4\u00da\u00e1\u00ea\u00f3\u00f8\u00fb\u0104\u0127\u0131"+
 		"\u0133\u013f\u0146\u014c";
