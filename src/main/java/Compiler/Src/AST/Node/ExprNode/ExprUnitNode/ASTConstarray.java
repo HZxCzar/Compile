@@ -17,6 +17,7 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 public class ASTConstarray extends ASTExpr {
     private int maze, dep;
     private ArrayList<ASTExpr> expr;
+    private IREntity dest;
 
     @Override
     public <T> T accept(ASTVisitor<T> visitor) throws BaseError {

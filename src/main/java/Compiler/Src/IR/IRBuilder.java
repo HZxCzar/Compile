@@ -159,14 +159,28 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
     public IRNode visit(ASTConstarray node) throws BaseError {
         enterASTNode(node);
         var instList = new IRStmt();
-        var args = node.collectArgs(strDefs);
-        var typename = TypeInfo2Name((TypeInfo) node.getInfo().getType());
-        typename = typename.equals("void") ? "ptr" : typename;
-        var typesize = new IRLiteral(GlobalScope.irIntType, name2Size.get(typename).toString());
-        args.add(0,typesize);
-        var dest = new IRVariable(GlobalScope.irPtrType, "%constarray." + (++counter.allocaCount));
-        instList.addInsts(new IRCall(dest, GlobalScope.irPtrType, "__malloc_const_array", args));
-        instList.setDest(dest);
+        // var args = node.collectArgs(strDefs);
+        // var typename = TypeInfo2Name((TypeInfo) node.getInfo().getType());
+        // typename = typename.equals("void") ? "ptr" : typename;
+        // var typesize = new IRLiteral(GlobalScope.irIntType, name2Size.get(typename).toString());
+        // args.add(0,typesize);
+        // var dest = new IRVariable(GlobalScope.irPtrType, "%constarray." + (++counter.allocaCount));
+        // instList.addInsts(new IRCall(dest, GlobalScope.irPtrType, "__malloc_const_array", args));
+        // instList.setDest(dest);
+        if(node.getMaze()==1)
+        {
+            var argnum=node.getExpr().size();
+            if(argnum==0)
+            {
+                var dest=new IRVariable(GlobalScope.irPtrType,"%constarray."+node.getExpr().size()+"."+node.getDep()+"."+(++counter.constarrayCount));
+                
+                instList.setDest(dest);
+                return instList;
+            }
+        }
+        else{
+            var dest=new IRVariable(GlobalScope.irPtrType,"%constarray."+node.getExpr().size()+"."+node.getDep()+"."+(++counter.constarrayCount));
+        }
         exitASTNode(node);
         return instList;
     }
