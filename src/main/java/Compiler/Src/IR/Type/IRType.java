@@ -22,4 +22,14 @@ public class IRType {
       this.typeName = "ptr";
     }
   }
+
+  @Override
+  public boolean equals(Object rhs)
+  {
+      if(rhs instanceof IRType)
+      {
+          return this.typeName.equals(((IRType)rhs).getTypeName());
+      }
+      return false;
+  }
 }
