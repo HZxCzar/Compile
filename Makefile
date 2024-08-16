@@ -3,10 +3,7 @@
 all: build
 
 build:
-	mvn clean compile package
-	mkdir -p bin
-	cp target/*.jar bin/
-	chmod +x bin/*.jar
+	mvn clean compile
 
 run:
 	mvn exec:java

@@ -231,7 +231,9 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 instList.setDest(dest);
             }
             else if(node.getConstarray()!=null){
-                
+                var constarrayStmts = (IRStmt) node.getConstarray().accept(this);
+                instList.addBlockInsts(constarrayStmts);
+                instList.setDest(constarrayStmts.getDest());
             }
         }
         exitASTNode(node);
