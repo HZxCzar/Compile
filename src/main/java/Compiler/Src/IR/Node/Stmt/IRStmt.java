@@ -6,6 +6,7 @@ import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Node.IRNode;
 import Compiler.Src.IR.Node.Inst.IRInst;
+import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.Util.Error.BaseError;
 
 @lombok.Getter
@@ -33,6 +34,15 @@ public class IRStmt extends IRNode {
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+
+    public IRLabel getLastLabel() {
+        for (var i = insts.size() - 1; i >= 0; --i) {
+          if (insts.get(i) instanceof IRLabel) {
+            return (IRLabel) insts.get(i);
+          }
+        }
+        return null;
+      }
 
     public void addFront(IRInst node) {
         insts.add(0, node);

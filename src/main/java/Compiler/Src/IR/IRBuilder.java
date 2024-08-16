@@ -13,7 +13,7 @@ import Compiler.Src.IR.Entity.*;
 import Compiler.Src.IR.Node.*;
 import Compiler.Src.IR.Node.Def.*;
 import Compiler.Src.IR.Node.Inst.*;
-import Compiler.Src.IR.Node.Stmt.IRStmt;
+import Compiler.Src.IR.Node.Stmt.*;
 import Compiler.Src.IR.Type.*;
 import Compiler.Src.IR.Util.IRControl;
 import Compiler.Src.IR.Util.IRCounter;
@@ -162,31 +162,151 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         // var args = node.collectArgs(strDefs);
         // var typename = TypeInfo2Name((TypeInfo) node.getInfo().getType());
         // typename = typename.equals("void") ? "ptr" : typename;
-        // var typesize = new IRLiteral(GlobalScope.irIntType, name2Size.get(typename).toString());
+        // var typesize = new IRLiteral(GlobalScope.irIntType,
+        // name2Size.get(typename).toString());
         // args.add(0,typesize);
-        // var dest = new IRVariable(GlobalScope.irPtrType, "%constarray." + (++counter.allocaCount));
-        // instList.addInsts(new IRCall(dest, GlobalScope.irPtrType, "__malloc_const_array", args));
+        // var dest = new IRVariable(GlobalScope.irPtrType, "%constarray." +
+        // (++counter.allocaCount));
+        // instList.addInsts(new IRCall(dest, GlobalScope.irPtrType,
+        // "__malloc_const_array", args));
         // instList.setDest(dest);
-        if(node.getMaze()==1)
-        {
-            var argnum=node.getExpr().size();
-            if(argnum==0)
-            {
-                var dest=new IRVariable(GlobalScope.irPtrType,"%constarray."+node.getExpr().size()+"."+node.getDep()+"."+(++counter.constarrayCount));
-                
-                instList.setDest(dest);
+        // if (node.getDest() == null) {
+        // var dest = new IRVariable(GlobalScope.irPtrType, "%constarray." +
+        // node.getExpr().size() + "."
+        // + node.getDep() + "." + (++counter.constarrayCount));
+        // var allocaVar = new IRVariable(GlobalScope.irIntType, "%alloca." +
+        // (++counter.allocaCount));
+        // var stmts = alloca_unit(GlobalScope.nullType, allocaVar);
+        // instList.addBlockInsts(stmts);
+        // instList.setDest(dest);
+        // node.setDest(dest);
+        // }
+        IRVariable mallocDest = null;
+        if (node.getDest() == null) {
+            mallocDest = new IRVariable(GlobalScope.irPtrType, "%constarray." + node.getExpr().size() + "."
+                    + node.getDep() + "." + (++counter.constarrayCount));
+            instList.setDest(mallocDest);
+        } else {
+            mallocDest = node.getDest();
+        }
+        var argnum = node.getExpr().size();
+        if (node.getMaze() == 1) {
+            if (argnum == 0) {
+                var mallocStmt = alloca_unit(GlobalScope.nullType, mallocDest);
+                instList.addBlockInsts(mallocStmt);
                 return instList;
             }
+            else{
+                var innerType = new TypeInfo(node.getExpr().get(0).getInfo().getType().getName(),0);
+                for(int i=0;i<argnum;++i)
+                {
+                    var fetchargs = new ArrayList<IREntity>();
+                    var offset = new IRLiteral(GlobalScope.irIntType, String.valueOf(i));
+                    fetchargs.add(offset);
+                    var dest = new IRVariable(GlobalScope.irPtrType,
+                        "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
+                                + (++counter.constarrayCount));
+                    var fetchInst = new IRGetelementptr(dest, GlobalScope.irPtrType, mallocDest, fetchargs);
+                    instList.addInsts(fetchInst);
+                    instList.addBlockInsts(alloca_unit(innerType, dest));
+                }
+            }
+        } else {
+            // have parent
+            var info = new ArrayList<IREntity>();
+            var arraySize = new IRLiteral(GlobalScope.irIntType, String.valueOf(argnum));
+            info.add(arraySize);
+            instList.addInsts(new IRCall(mallocDest, GlobalScope.irPtrType, "__malloc_array_", info));
+            for (int i = 0; i < argnum; i++) {
+                var fetchargs = new ArrayList<IREntity>();
+                var offset = new IRLiteral(GlobalScope.irIntType, String.valueOf(i));
+                fetchargs.add(offset);
+                var dest = new IRVariable(GlobalScope.irPtrType,
+                        "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
+                                + (++counter.constarrayCount));
+                var fetchInst = new IRGetelementptr(dest, GlobalScope.irPtrType, mallocDest, fetchargs);
+                instList.addInsts(fetchInst);
+                var constUnit = ((ASTAtomExpr) node.getExpr().get(i)).getConstarray();
+                constUnit.setDest(dest);
+                instList.addBlockInsts((IRStmt) constUnit.accept(this));
+            }
         }
-        else{
-            var dest=new IRVariable(GlobalScope.irPtrType,"%constarray."+node.getExpr().size()+"."+node.getDep()+"."+(++counter.constarrayCount));
-        }
+        instList.setDest(mallocDest);
         exitASTNode(node);
         return instList;
     }
 
     @Override
     public IRNode visit(ASTFstring node) throws BaseError {
+        enterASTNode(node);
+        var instList = new IRStmt();
+        var dest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
+        // var former = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
+        for(int i=0;i<node.getStrpart().size();++i)
+        {
+            var strDest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
+            var str = new IRStrDef(strDest, node.getStrpart().get(i));
+            strDefs.add(str);
+            var lhsStr=new IRVariable(GlobalScope.irPtrType,"%lhs."+(++counter.loadCount));
+            var rhsStr=new IRVariable(GlobalScope.irPtrType,"%rhs."+(++counter.loadCount));
+            var strAdd=new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+            instList.addInsts(new IRLoad(lhsStr,dest));
+            instList.addInsts(new IRLoad(rhsStr,strDest));
+            var args1=new ArrayList<IREntity>();
+            args1.add(lhsStr);
+            args1.add(rhsStr);
+            instList.addInsts(new IRCall(strAdd,GlobalScope.irPtrType, "__string_concat", args1));
+            instList.addInsts(new IRStore(dest,strAdd));
+
+
+            if(node.getExprpart()!=null)
+            {
+                var expr=node.getExprpart().get(i);
+                var exprInst=(IRStmt)expr.accept(this);
+                instList.addBlockInsts(exprInst);
+                var rhsExpr=exprInst.getDest();
+                if(rhsExpr.getType().getTypeName().equals("i1"))
+                {
+                    var dest1=new IRVariable(GlobalScope.irPtrType,"%FstringRes."+(++counter.loadCount));
+                    var cond=new IRStmt();
+                    cond.addInsts(new IRIcmp(dest1,"eq",GlobalScope.irBoolType,rhsExpr,new IRLiteral(GlobalScope.irBoolType,"1")));
+                    var trueExpr=new IRStmt();
+                    var falseExpr=new IRStmt();
+
+                    var resStr=new IRVariable(GlobalScope.irPtrType,"%resStr."+(++counter.loadCount));
+                    //TODO: add trueExpr and falseExpr
+                    var args2=new ArrayList<IREntity>();
+                    var TurestrDest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
+                    var Turestr = new IRStrDef(TurestrDest,"true");
+                    strDefs.add(Turestr);
+                    var lhsStr2=new IRVariable(GlobalScope.irPtrType,"%lhs."+(++counter.loadCount));
+                    trueExpr.addInsts(new IRLoad(lhsStr2,dest));
+                    args2.add(lhsStr2);
+                    args2.add(TurestrDest);
+                    trueExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType, "__string_concat", args2));
+
+                    var args3=new ArrayList<IREntity>();
+                    var FalsestrDest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
+                    var Falsestr = new IRStrDef(FalsestrDest,"false");
+                    strDefs.add(Falsestr);
+                    falseExpr.addInsts(new IRLoad(lhsStr2,dest));
+                    args3.add(lhsStr2);
+                    args3.add(FalsestrDest);
+                    falseExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType, "__string_concat", args3));
+
+                    instList.addBlockInsts(new IRIf(0,cond,trueExpr,falseExpr));
+                    instList.addInsts(new IRStore(dest,resStr));
+                }
+                else if(rhsExpr.getType().getTypeName().equals("i32"))
+                {
+                    //TODO: add int
+                }
+                else
+                {
+                    throw new IRError("Fstring can only concat int or bool");
+                }
+            }
+        }
         return new IRNode();
     }
 
@@ -196,55 +316,59 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var instList = new IRStmt();
         var newtype = node.getType();
         if (newtype.getDepth() == 0) {
-            var allocaVar = new IRVariable(GlobalScope.irIntType, "%alloca." + (++counter.allocaCount));
-            var stmts = alloca_unit(newtype,allocaVar);
+            var allocaVar = new IRVariable(GlobalScope.irPtrType, "%alloca." + (++counter.allocaCount));
+            var stmts = alloca_unit(newtype, allocaVar);
             instList.addBlockInsts(stmts);
             instList.setDest(allocaVar);
         } else {
             // var instList1 = new IRStmt();
             // var args = new ArrayList<IREntity>();
             // for (var sizeinfo : node.getSize()) {
-            //     var irSizeinfo = (IRStmt) sizeinfo.accept(this);
-            //     instList1.addBlockInsts(irSizeinfo);
-            //     args.add(irSizeinfo.getDest());
+            // var irSizeinfo = (IRStmt) sizeinfo.accept(this);
+            // instList1.addBlockInsts(irSizeinfo);
+            // args.add(irSizeinfo.getDest());
             // }
-            // var typesize = new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(newtype)).toString());
-            // var typedepth = new IRLiteral(GlobalScope.irIntType, String.valueOf(newtype.getDepth()));
-            // var typeinited = new IRLiteral(GlobalScope.irIntType, String.valueOf(args.size()));
+            // var typesize = new IRLiteral(GlobalScope.irIntType,
+            // name2Size.get(TypeInfo2Name(newtype)).toString());
+            // var typedepth = new IRLiteral(GlobalScope.irIntType,
+            // String.valueOf(newtype.getDepth()));
+            // var typeinited = new IRLiteral(GlobalScope.irIntType,
+            // String.valueOf(args.size()));
             // args.add(0, typesize);
             // args.add(1, typedepth);
             // args.add(2, typeinited);
             // var dest = new IRVariable(GlobalScope.irPtrType,
-            //         "%new." + newtype.getName() + "." + (++counter.allocaCount));
-            // var allocaCall = new IRCall(dest, GlobalScope.irPtrType, "__array_alloca", args);
+            // "%new." + newtype.getName() + "." + (++counter.allocaCount));
+            // var allocaCall = new IRCall(dest, GlobalScope.irPtrType, "__array_alloca",
+            // args);
             // instList1.addInsts(allocaCall);
             // instList1.setDest(dest);
             // var instList2 = new IRStmt();
             // if (node.getConstarray() != null) {
-            //     var constarrayStmts = (IRStmt) node.getConstarray().accept(this);
-            //     instList2.addBlockInsts(constarrayStmts);
-            //     instList2.addInsts(new IRStore(dest, constarrayStmts.getDest()));
-            //     instList2.setDest(dest);
+            // var constarrayStmts = (IRStmt) node.getConstarray().accept(this);
+            // instList2.addBlockInsts(constarrayStmts);
+            // instList2.addInsts(new IRStore(dest, constarrayStmts.getDest()));
+            // instList2.setDest(dest);
             // }
             // instList.addBlockInsts(instList1);
             // instList.addBlockInsts(instList2);
             // instList.setDest(dest);
-            if(node.getSize()!=null)
-            {
-                var depth=node.getType().getDepth();
+            if (node.getSize() != null) {
+                var depth = node.getType().getDepth();
                 var args = new ArrayList<IREntity>();
-                for(var sizeinfo:node.getSize())
-                {
+                for (var sizeinfo : node.getSize()) {
                     var irSizeinfo = (IRStmt) sizeinfo.accept(this);
                     instList.addBlockInsts(irSizeinfo);
                     args.add(irSizeinfo.getDest());
                 }
-                var innerType = new TypeInfo(node.getType().getName(),0);
-                var dest=new IRVariable(GlobalScope.irPtrType,"%new."+node.getType().getName()+"."+(++counter.allocaCount));
+                var innerType = new TypeInfo(node.getType().getName(), 0);
+                var dest = new IRVariable(GlobalScope.irPtrType,
+                        "%new." + node.getType().getName() + "." + (++counter.allocaCount));
+                // var stmts = alloca_unit(GlobalScope.nullType, dest);
+                // instList.addBlockInsts(stmts);
                 instList.addBlockInsts(initArray(args, depth, 0, innerType, dest));
                 instList.setDest(dest);
-            }
-            else if(node.getConstarray()!=null){
+            } else if (node.getConstarray() != null) {
                 var constarrayStmts = (IRStmt) node.getConstarray().accept(this);
                 instList.addBlockInsts(constarrayStmts);
                 instList.setDest(constarrayStmts.getDest());
@@ -257,7 +381,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
     @Override
     public IRNode visit(ASTMemberExpr node) throws BaseError {
         enterASTNode(node);
-        
+
         return new IRNode();
     }
 
