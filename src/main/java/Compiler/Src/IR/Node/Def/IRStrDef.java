@@ -1,14 +1,17 @@
 package Compiler.Src.IR.Node.Def;
 
 import Compiler.Src.IR.IRVisitor;
+import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.Util.Error.BaseError;
 
-public class IRStrDef extends IRDef {
-    public String name;
+
+@lombok.Getter
+@lombok.Setter
+public class IRStrDef extends IRGlobalDef {
     public String value_old;
     public String value;
-    public IRStrDef(String name, String value_old) {
-        this.name = name;
+    public IRStrDef(IRVariable dest, String value_old) {
+        super(dest);
         this.value_old = value_old;
     }
     @Override

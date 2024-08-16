@@ -16,7 +16,7 @@ public class IRIf extends IRStmt  {
     private IRLabel condLabel, bodyLabel, elseLabel;
 
     public IRIf(ArrayList<IRInst> insts, IREntity dest) {
-        super(insts, dest);
+        // super(insts, dest);
     }
 
     public static int addCount() {

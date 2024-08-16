@@ -6,5 +6,7 @@ public class IRCounter {
     public int callCount = 0;
     public int elementCount = 0;
     public int loadCount = 0;
+    public int constarrayCount = 0;
     public static int strCount = 0;
+    public int ArrayCount = 0;
 }

@@ -6,6 +6,7 @@ import Compiler.Src.Util.Error.BaseError;
 
 
 @lombok.Getter
+@lombok.Setter
 public class IRGlobalDef extends IRDef {
     private IRVariable vars;
     public IRGlobalDef(IRVariable vars) {

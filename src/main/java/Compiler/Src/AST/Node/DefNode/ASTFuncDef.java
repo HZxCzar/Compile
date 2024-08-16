@@ -8,6 +8,8 @@ import Compiler.Src.AST.Node.Util.ASTScopedNode;
 import Compiler.Src.Util.Info.FuncInfo;
 import Compiler.Src.AST.ASTVisitor;
 import Compiler.Src.Util.ScopeUtil.*;
+import Compiler.Src.Util.Info.TypeInfo;
+
 @lombok.experimental.SuperBuilder
 @lombok.Getter
 @lombok.Setter
@@ -15,6 +17,7 @@ public class ASTFuncDef extends ASTDef implements ASTScopedNode {
     private FuncScope funcscope;
     private final ArrayList<ASTVarDef> params;
     private final ASTBlockstatement blockedBody;
+
     @Override
     public <T> T accept(ASTVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
@@ -32,7 +35,7 @@ public class ASTFuncDef extends ASTDef implements ASTScopedNode {
         return getFuncscope();
     }
 
-    // public FuncScope findScope() {
-    //     return getFuncscope();
-    // }
+    public TypeInfo getReturnType() {
+        return ((FuncInfo) getInfo()).getFunctype();
+    }
 }

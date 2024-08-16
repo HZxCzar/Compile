@@ -1,6 +1,8 @@
 package Compiler.Src.Util;
 
+import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Info.*;
+import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 public interface BasicType {
 
@@ -23,22 +25,26 @@ public interface BasicType {
     FuncInfo getIntFunc = new FuncInfo("getInt", intType);
     FuncInfo toStringFunc = new FuncInfo("toString", stringType, intType);
 
-    FuncInfo arraySize = new FuncInfo("size",intType);
+    FuncInfo arraySize = new FuncInfo("size", intType);
     FuncInfo stringLengthFunc = new FuncInfo("length", intType);
     FuncInfo stringSubstringFunc = new FuncInfo("substring", stringType, intType, intType);
     FuncInfo stringParseintFunc = new FuncInfo("parseInt", intType);
     FuncInfo stringOrdFunc = new FuncInfo("ord", intType, intType);
-    
 
     FuncInfo[] BaseFuncs = { printFunc, printlnFunc, printIntFunc, printlnIntFunc, getStringFunc, getIntFunc,
-        toStringFunc };
+            toStringFunc };
 
-    
-    //BaseClass
+    // BaseClass
     ClassInfo intClass = new ClassInfo("int");
     ClassInfo boolClass = new ClassInfo("bool");
-    ClassInfo stringClass = new ClassInfo("string", stringLengthFunc, stringSubstringFunc, stringParseintFunc, stringOrdFunc);
-    
-    
+    ClassInfo stringClass = new ClassInfo("string", stringLengthFunc, stringSubstringFunc, stringParseintFunc,
+            stringOrdFunc);
+
     ClassInfo[] BaseClasses = { intClass, boolClass, stringClass };
+
+    // IR
+    IRType irVoidType = new IRType(GlobalScope.voidType);
+    IRType irIntType = new IRType(GlobalScope.intType);
+    IRType irBoolType = new IRType(GlobalScope.boolType);
+    IRType irPtrType = new IRType("ptr");
 }

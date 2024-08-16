@@ -36,18 +36,44 @@
           <version>3.1.0</version>
         </plugin>
         <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-compiler-plugin</artifactId>
-            <version>3.8.1</version>
+          <artifactId>maven-compiler-plugin</artifactId>
+          <version>3.8.0</version>
         </plugin>
         <plugin>
-          <groupId>org.codehaus.mojo</groupId>
-          <artifactId>exec-maven-plugin</artifactId>
-          <version>3.0.0</version>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.4.1</version>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>java</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <mainClass>Compiler.Src.Compiler</mainClass>
+                </configuration>
+            </plugin>
+        <plugin>
+          <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-shade-plugin</artifactId>
+          <version>2.4.3</version>
           <configuration>
-            <mainClass>Compiler.Src.Compiler</mainClass>
+            <transformers>
+              <transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                <mainClass>Compiler.Src.Compiler</mainClass>
+              </transformer>
+            </transformers>
           </configuration>
-        </plugin>
+          <executions>
+              <execution>
+                  <phase>package</phase>
+                  <goals>
+                     <goal>shade</goal>
+                  </goals>
+              </execution>
+          </executions>
+         </plugin>
     </plugins>
 </build>
 

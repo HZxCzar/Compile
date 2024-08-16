@@ -26,9 +26,9 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
         } catch (BaseError e) {
-            System.err.println(e.getMessage());
+            System.out.println(e.getMessage());
             System.exit(1);
         }
-        // System.out.println("Compile Successfully");
+        System.out.println("Compile Successfully");
     }
 }

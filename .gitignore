@@ -2,3 +2,5 @@
 /testcases/
 /src/main/antlr/
 /src/test/
+/bin
+/.vscode
