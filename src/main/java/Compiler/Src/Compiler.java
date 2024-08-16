@@ -17,7 +17,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(System.in);//new FileInputStream("src/test/mx/input.mx")
+            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));//new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());

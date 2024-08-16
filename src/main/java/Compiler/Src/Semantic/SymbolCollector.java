@@ -71,7 +71,7 @@ public class SymbolCollector extends ScopeControl implements ASTVisitor<SBCError
             }
         }
         if (!ValidFuncType(((FuncInfo) node.getInfo()).getFunctype())) {
-            throw new SBCError("Undefined Identifier\n");
+            throw new SBCError("Invalid Identifier\n");
         }
         SBCError msg = new SBCError();
         // for (var def : node.getParams())// Only accept params
