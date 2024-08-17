@@ -51,7 +51,7 @@ expression:
 	New type (arrayUnit)* (LParen RParen)? constarray?	# newExpr
 	| LParen expression RParen							# parenExpr
 	| expression LParen callArgs? RParen				# callExpr
-	| expression op = Member atom					# memberExpr
+	| expression op = Member atom						# memberExpr
 	| expression arrayUnit								# arrayExpr
 	| expression op = (Selfadd | Selfsub)				# unaryExpr
 	| <assoc = right>op = (

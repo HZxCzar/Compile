@@ -15,6 +15,12 @@ public class IRPhi extends IRInst {
     private IRType type;
     private ArrayList<IREntity> vals;
     private ArrayList<IRLabel> labels;
+    public IRPhi(IRVariable dest, IRType type, ArrayList<IREntity> vals, ArrayList<IRLabel> labels) {
+        this.dest = dest;
+        this.type = type;
+        this.vals = vals;
+        this.labels = labels;
+    }
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);

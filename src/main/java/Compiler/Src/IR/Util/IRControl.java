@@ -164,10 +164,9 @@ public class IRControl {
         // var allocaVar = new IRVariable(GlobalScope.irIntType, "%alloca." +
         // (++counter.allocaCount));
         var args = new ArrayList<IREntity>();
-        if(type.equals(GlobalScope.nullType)){
-            args.add(new IRLiteral(GlobalScope.irIntType,"4"));
-        }
-        else{
+        if (type.equals(GlobalScope.nullType)) {
+            args.add(new IRLiteral(GlobalScope.irIntType, "4"));
+        } else {
             args.add(new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(type)).toString()));
         }
         var allocaCall = new IRCall(allocaVar, GlobalScope.irPtrType, "malloc", args);
@@ -235,7 +234,8 @@ public class IRControl {
             var updatemidVar2 = new IRVariable(GlobalScope.irIntType,
                     "%initArray.update2." + depth + (++counter.ArrayCount));
             update.addInsts(new IRLoad(updatemidVar, initVar));
-            update.addInsts(new IRArith(updatemidVar2, "add", updatemidVar, new IRLiteral(GlobalScope.irIntType, "1")));
+            update.addInsts(new IRArith(updatemidVar2, "add", GlobalScope.irIntType, updatemidVar,
+                    new IRLiteral(GlobalScope.irIntType, "1")));
             update.addInsts(new IRStore(initVar, updatemidVar2));
             var fetchDest = new IRVariable(GlobalScope.irPtrType,
                     "%initArray.fetchDest." + depth + (++counter.ArrayCount));

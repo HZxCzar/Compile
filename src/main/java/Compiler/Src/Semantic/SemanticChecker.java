@@ -254,7 +254,7 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
                     || node.getOp().equals("||"))) {
                 throw new SMCError("Invalid Type\n");
             }
-        } else if (Ltype.equals(GlobalScope.stringType) || Ltype.equals(GlobalScope.stringType)) {
+        } else if (Ltype.equals(GlobalScope.stringType) || Rtype.equals(GlobalScope.stringType)) {
             if (!(node.getOp().equals("==") || node.getOp().equals("!=") || node.getOp().equals("+")
                     || node.getOp().equals("<") || node.getOp().equals(">") || node.getOp().equals("<=")
                     || node.getOp().equals(">="))) {
@@ -328,6 +328,9 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         }
         if (!quesType.equals(GlobalScope.boolType)) {
             throw new SMCError("Ques is not a boolean type\n");
+        }
+        if (!LRTypeCheck(leftType, rightType)) {
+            throw new SMCError("Type Mismatch\n");
         }
         // if (!leftType.equals(rightType) || ) {
         // throw new SMCError("Lhs and Rhs type not match in conditionalExpr\n");

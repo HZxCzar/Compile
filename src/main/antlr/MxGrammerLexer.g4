@@ -70,14 +70,10 @@ LineComment: '//' ~[\r\n]* -> skip;
 BlockComment: '/*' .*? '*/' -> skip;
 
 // Characters
-Identifier: [a-zA-Z_] [a-zA-Z_0-9]*; //注意长度限制64
+Identifier: [a-zA-Z] [a-zA-Z_0-9]*; //注意长度限制64
 
 //Integer
 Integer: '0' | [1-9] [0-9]*;
-
-//String
-StringLiteral: '"' (Stringchar)*? '"';
-fragment Stringchar: [ -~] | '\\n' | '\\\\' | '\\"';
 
 //FomatString
 FomatStringL: 'f"' Fomatstring* '$';
@@ -85,5 +81,9 @@ FomatStringR: '$' Fomatstring* '"';
 FomatStringM: '$' Fomatstring* '$';
 FStringLiteral: 'f"' ( Fomatstring)*? '"';
 fragment Fomatstring: (
-		~["$] |'\\n' | '\\\\' | '\\"'
-	) (~["{}] | '\\n' | '\\\\' | '\\"')*?;
+		'\\n' | '\\\\' | '\\"'|'$$'|~["$] 
+	) ( '\\n' | '\\\\' | '\\"'|'$$'|~["$] )*;
+
+//String
+StringLiteral: '"' (Stringchar)*? '"';
+fragment Stringchar: '\\n' | '\\\\' | '\\"' | [ -~];

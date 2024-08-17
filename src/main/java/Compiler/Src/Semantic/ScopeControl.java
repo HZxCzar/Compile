@@ -79,6 +79,12 @@ public class ScopeControl {
         return true;
       }
     }
+    if (!rhstype.equals(GlobalScope.intType) && !rhstype.equals(GlobalScope.boolType)
+        && !rhstype.equals(GlobalScope.stringType)) {
+      if (lhstype.equals(GlobalScope.nullType)) {
+        return true;
+      }
+    }
     return lhstype.equals(rhstype);
   }
 }

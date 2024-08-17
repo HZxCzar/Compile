@@ -15,8 +15,9 @@ public class IRArith extends IRInst {
     private IREntity lhs, rhs;
     private IRVariable dest;
 
-    public IRArith(IRVariable dest, String op, IREntity lhs, IREntity rhs) {
+    public IRArith(IRVariable dest, String op,IRType type, IREntity lhs, IREntity rhs) {
         this.dest = dest;
+        this.type = type;
         this.lhs = lhs;
         this.rhs = rhs;
         this.op = op;
