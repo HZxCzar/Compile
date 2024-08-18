@@ -13,13 +13,26 @@ public class IRRet extends IRInst {
     private IRType type;
     private IREntity value;
 
-    public IRRet(){
-        this.voidtype = true;
-        this.type=GlobalScope.irVoidType;
-        this.value=null;
+    public IRRet(IREntity value) {
+        this.voidtype = false;
+        this.type = value.getType();
+        this.value = value;
     }
+
+    public IRRet() {
+        this.voidtype = true;
+        this.type = GlobalScope.irVoidType;
+        this.value = null;
+    }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        if(voidtype) return "ret void";
+        return "ret " + type.toString() + " " + value.toString();
     }
 }

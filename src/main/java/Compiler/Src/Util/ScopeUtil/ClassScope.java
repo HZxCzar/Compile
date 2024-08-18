@@ -40,29 +40,33 @@ public class ClassScope extends BaseScope {
 
     @Override
     public FuncInfo containsFuncs(String name) {
-        if(funcs.containsKey(name))
-        {
+        if (funcs.containsKey(name)) {
             return funcs.get(name);
-        }
-        else{
+        } else {
             return null;
         }
     }
 
     @Override
-    public BaseInfo BackSearch(String name)
-    {
-        if(vars.containsKey(name))
-        {
+    public BaseInfo BackSearch(String name) {
+        if (vars.containsKey(name)) {
             return vars.get(name);
-        }
-        else if(funcs.containsKey(name))
-        {
+        } else if (funcs.containsKey(name)) {
             return funcs.get(name);
-        }
-        else if(this.parent!=null)
-        {
+        } else if (this.parent != null) {
             return parent.BackSearch(name);
+        }
+        return null;
+    }
+
+    @Override
+    public BaseInfo IRBackSearch(String name) {
+        if (IRvars.containsKey(name)) {
+            return IRvars.get(name);
+        } else if (funcs.containsKey(name)) {
+            return funcs.get(name);
+        } else if (this.parent != null) {
+            return parent.IRBackSearch(name);
         }
         return null;
     }

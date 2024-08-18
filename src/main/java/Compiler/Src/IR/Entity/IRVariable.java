@@ -8,4 +8,9 @@ public class IRVariable extends IREntity {
     public IRVariable(IRType type, String value) {
         super(type, value);
     }
+
+    @Override
+    public String toString() {
+        return getType().toString() + " " + getValue();
+    }
 }

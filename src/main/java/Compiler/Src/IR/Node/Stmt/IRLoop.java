@@ -45,4 +45,9 @@ public class IRLoop extends IRStmt {
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+
+    @Override
+    public String toString() {
+        throw new Error("IRLoop.toString() is not implemented");
+    }
 }

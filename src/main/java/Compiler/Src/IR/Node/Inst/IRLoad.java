@@ -12,13 +12,20 @@ public class IRLoad extends IRInst {
     private IRType type;
     private IRVariable dest;
     private IREntity ptr;
+
     public IRLoad(IRVariable dest, IREntity ptr) {
         this.type = dest.getType();
         this.dest = dest;
         this.ptr = ptr;
     }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return dest.getValue() + " = load " + type.toString() + ", " + ptr.toString();
     }
 }

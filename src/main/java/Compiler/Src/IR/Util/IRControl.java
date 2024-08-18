@@ -36,6 +36,7 @@ public class IRControl {
         this.counter = new IRCounter();
         this.initFunc = new IRFuncDef("main.global.init", new ArrayList<IRVariable>(), GlobalScope.irVoidType,
                 new ArrayList<IRBlock>());
+        this.initFunc.getBlockstmts().add(new IRBlock(new IRLabel("entry")));
         this.strDefs = new ArrayList<IRStrDef>();
         this.name2Size = new TreeMap<>();
         name2Size.put("i1", 1);
@@ -61,7 +62,7 @@ public class IRControl {
     }
 
     public void enterASTIfNode(ASTIfstatement node, String kind) {
-        if (kind.equals("then")) {
+        if (kind.equals("if")) {
             currentScope = node.getIfScope();
         } else if (kind.equals("else")) {
             currentScope = node.getElseScope();
@@ -135,7 +136,7 @@ public class IRControl {
         // enterblock.setReturnInst(firstblock.getReturnInst());
         var enterBranch2start = new IRLabel("start");
         enterblock.setReturnInst(
-                new IRBranch(new IRVariable(GlobalScope.irBoolType, "true"), enterBranch2start, enterBranch2start));
+                new IRBranch(enterBranch2start));
         blocks.add(0, enterblock);
         return blocks;
     }

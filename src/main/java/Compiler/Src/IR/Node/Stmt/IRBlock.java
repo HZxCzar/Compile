@@ -15,19 +15,22 @@ public class IRBlock extends IRStmt {
 
     private IRInst returnInst;
 
-    public static int count = 0;
-
     public IRBlock(IRLabel labelName) {
     this.labelName = labelName;
     this.returnInst = null;
   }
 
-    public static int addCount() {
-        return ++count;
-    }
-
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        String str=labelName.toString() + ":\n";
+        for (var inst : getInsts()) {
+            str += "  " + inst.toString() + "\n";
+        }
+        return str;
     }
 }

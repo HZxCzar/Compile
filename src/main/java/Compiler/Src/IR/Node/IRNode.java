@@ -7,4 +7,8 @@ public class IRNode {
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+    @Override
+    public String toString() {
+        return "IRNode should not be printed";
+    }
 }

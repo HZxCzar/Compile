@@ -11,17 +11,25 @@ import Compiler.Src.Util.Error.BaseError;
 public class IRIcmp extends IRInst {
     private String cond;
     private IRType type;
-    private IREntity lhs,rhs;
+    private IREntity lhs, rhs;
     private IRVariable dest;
-    public IRIcmp(IRVariable dest,String cond, IRType type, IREntity lhs, IREntity rhs) {
+
+    public IRIcmp(IRVariable dest, String cond, IRType type, IREntity lhs, IREntity rhs) {
         this.cond = cond;
         this.type = type;
         this.lhs = lhs;
         this.rhs = rhs;
         this.dest = dest;
     }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return dest.getValue() + " = icmp " + cond + " " + lhs.getType().toString() + " " + lhs.getValue() + ", "
+                + rhs.getValue();
     }
 }

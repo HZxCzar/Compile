@@ -8,6 +8,7 @@ import Compiler.Src.IR.Node.IRNode;
 import Compiler.Src.IR.Node.Inst.IRInst;
 import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.Util.Error.BaseError;
+import Compiler.Src.Util.Error.IRError;
 
 @lombok.Getter
 @lombok.Setter
@@ -16,10 +17,9 @@ public class IRStmt extends IRNode {
     private IREntity dest;
     private IREntity destAddr;
 
-    // public IRStmt(ArrayList<IRInst> insts, IREntity dest) {
-    //     this.insts = insts;
-    //     this.dest = dest;
-    // }
+    public IRStmt() {
+        insts = new ArrayList<IRInst>();
+    }
 
     public void addInsts(IRInst inst) {
         insts.add(inst);
@@ -46,5 +46,10 @@ public class IRStmt extends IRNode {
 
     public void addFront(IRInst node) {
         insts.add(0, node);
+    }
+
+    @Override
+    public String toString() {
+        throw new IRError("IRStmt.toString() is not implemented");
     }
 }

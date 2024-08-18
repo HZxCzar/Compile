@@ -15,7 +15,7 @@ public class IRArith extends IRInst {
     private IREntity lhs, rhs;
     private IRVariable dest;
 
-    public IRArith(IRVariable dest, String op,IRType type, IREntity lhs, IREntity rhs) {
+    public IRArith(IRVariable dest, String op, IRType type, IREntity lhs, IREntity rhs) {
         this.dest = dest;
         this.type = type;
         this.lhs = lhs;
@@ -26,5 +26,11 @@ public class IRArith extends IRInst {
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        return dest.getValue() + " = " + op + " " + lhs.getType().toString() + " " + lhs.getValue() + ", "
+                + rhs.getValue();
     }
 }

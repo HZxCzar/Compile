@@ -7,6 +7,7 @@ import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.Util.Error.BaseError;
+import Compiler.Src.Util.Error.IRError;
 
 
 @lombok.Getter
@@ -48,5 +49,10 @@ public class IRIf extends IRStmt  {
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        throw new IRError("IRIf.toString() is not implemented");
     }
 }

@@ -5,7 +5,7 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Setter
 @lombok.Getter
-public class IREntity{
+public abstract class IREntity{
     protected IRType type;
     protected String value;
     public IREntity(IRType type, String value) {
@@ -19,4 +19,6 @@ public class IREntity{
         this.type = type;
         this.value = value;
     }
+
+    public abstract String toString();
 }

@@ -25,4 +25,16 @@ public class IRPhi extends IRInst {
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+
+    @Override
+  public String toString() {
+    var str = dest.getValue() + " = phi " + type.toString() + " ";
+    for (int i = 0; i < vals.size(); i++) {
+      str += "[ " + vals.get(i).toString() + ", " + labels.get(i).toString() + " ]";
+      if (i != vals.size() - 1) {
+        str += ", ";
+      }
+    }
+    return str;
+  }
 }

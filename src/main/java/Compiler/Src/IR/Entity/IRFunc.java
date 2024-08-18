@@ -13,4 +13,9 @@ public class IRFunc extends IREntity {
         this.caller = caller;
         this.returnType = returnType;
     }
+
+    @Override
+    public String toString(){
+        return "@" + getValue();
+    }
 }

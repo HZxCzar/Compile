@@ -10,7 +10,6 @@ import Compiler.Src.Util.Error.BaseError;
 @lombok.Getter
 @lombok.Setter
 public class IRStore extends IRInst {
-    private IRType type;
     private IRVariable dest;
     private IREntity src;
     public IRStore(IRVariable dest, IREntity src) {
@@ -21,4 +20,9 @@ public class IRStore extends IRInst {
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+
+    @Override
+  public String toString() {
+    return "store " + src.toString() + ", " + dest.toString();
+  }
 }

@@ -27,6 +27,19 @@ public class BaseScope {
             scopedep=0;
         }
     }
+    public LoopScope LastLoop()
+    {
+        BaseScope scope=this;
+        if(scope instanceof LoopScope)
+        {
+            return (LoopScope)scope;
+        }
+        else if(scope.parent!=null)
+        {
+            return scope.parent.LastLoop();
+        }
+        return null;
+    }
 
     public boolean contains(String name) {
         return vars.containsKey(name);

@@ -8,4 +8,15 @@ public class IRStructType extends IRType {
         super(typeName);
         this.members = members;
     }
+    @Override
+  public String toString() {
+    String str="{ ";
+    for (int i = 0; i < members.size(); i++) {
+      str += members.get(i).toString();
+      if (i != members.size() - 1)
+        str += ", ";
+    }
+    str += " }";
+    return str;
+  }
 }

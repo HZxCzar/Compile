@@ -16,20 +16,40 @@ public class IRCall extends IRInst {
     private IRType type;
     private String funcName;
     private ArrayList<IREntity> args;
+
     public IRCall(String funcName, ArrayList<IREntity> args) {
-    this.type = GlobalScope.irVoidType;
-    this.dest = null;
-    this.funcName = funcName;
-    this.args = args;
-  }
+        this.type = GlobalScope.irVoidType;
+        this.dest = null;
+        this.funcName = funcName;
+        this.args = args;
+    }
+
     public IRCall(IRVariable dest, IRType type, String funcName, ArrayList<IREntity> args) {
         this.dest = dest;
         this.type = type;
         this.funcName = funcName;
         this.args = args;
     }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        String str = (dest == null ? "" : dest.getValue() + " = ") + "call " + type.toString();
+        if (funcName.equals("__array_alloca")) {
+            str += " (i32, i32, i32, ...)";
+        }
+        str += " @" + funcName + "(" ;
+        for(int i=0;i<args.size();i++){
+            str += args.get(i).getType().toString() + " " + args.get(i).getValue();
+            if(i != args.size()-1){
+                str += ", ";
+            }
+        }
+        str += ")";
+        return str;
     }
 }

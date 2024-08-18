@@ -9,4 +9,8 @@ public class IRLabel extends IRInst{
     public IRLabel(String label) {
         this.label = label;
     }
+    @Override
+    public String toString() {
+        return label+":\n";
+    }
 }
