@@ -89,7 +89,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         } else if (ctx.classBuild().size() == 1) {
             var constru = ctx.classBuild(0);
             if (!constru.Identifier().getText().equals(ctx.Identifier().getText())) {
-                throw new ASTError("Class constructor has a different name to class " + ctx.Identifier() +' '+ (new position(ctx.classBuild(0).start).str()));
+                throw new ASTError("Class constructor has a different name to class " + ctx.Identifier() + ' '
+                        + (new position(ctx.classBuild(0).start).str()));
             }
             constructor = ASTFuncDef.builder().pos(new position(constru.start))
                     .info(new FuncInfo(ctx.Identifier().getText(), new TypeInfo("void", 0), new ArrayList<>()))
@@ -170,7 +171,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitIfstatement(MxParser.IfstatementContext ctx) {
         // var judge = ctx.expression();
-        ASTIfstatement Ifstmt = ASTIfstatement.builder().pos(new position(ctx.start)).judge((ASTExpr)visit(ctx.expression()))
+        ASTIfstatement Ifstmt = ASTIfstatement.builder().pos(new position(ctx.start))
+                .judge((ASTExpr) visit(ctx.expression()))
                 .ifstmt((ASTStatement) visit(ctx.statement(0)))
                 .elsestmt(ctx.statement().size() > 1 ? (ASTStatement) visit(ctx.statement(1)) : null).build();
         Ifstmt.getJudge().setParent(Ifstmt);
@@ -196,21 +198,20 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
     @Override
     public ASTNode visitForstatement(MxParser.ForstatementContext ctx) {
         ASTForstatement forstmt = null;
-        if (ctx.forinit() != null) {
-            if (ctx.forinit().expression() != null) {
-                forstmt = ASTForstatement.builder().pos(new position(ctx.start)).Varinit(null)
-                        .Exprinit((ASTExpr) visit(ctx.forinit().expression()))
-                        .cond(ctx.condition != null ? (ASTExpr) visit(ctx.condition) : null)
-                        .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
-                        .stmts((ASTStatement) visit(ctx.statement())).build();
-            } else {
-                forstmt = ASTForstatement.builder().pos(new position(ctx.start))
-                        .Varinit((ASTVarstatement) visit(ctx.forinit().varDef()))
-                        .Exprinit(null)
-                        .cond(ctx.condition != null ? (ASTExpr) visit(ctx.condition) : null)
-                        .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
-                        .stmts((ASTStatement) visit(ctx.statement())).build();
-            }
+        // if (ctx.forinit() != null) {
+        if (ctx.forinit().expression() != null) {
+            forstmt = ASTForstatement.builder().pos(new position(ctx.start)).Varinit(null)
+                    .Exprinit((ASTExpr) visit(ctx.forinit().expression()))
+                    .cond(ctx.condition != null ? (ASTExpr) visit(ctx.condition) : null)
+                    .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
+                    .stmts((ASTStatement) visit(ctx.statement())).build();
+        } else if (ctx.forinit().varDef() != null) {
+            forstmt = ASTForstatement.builder().pos(new position(ctx.start))
+                    .Varinit((ASTVarstatement) visit(ctx.forinit().varDef()))
+                    .Exprinit(null)
+                    .cond(ctx.condition != null ? (ASTExpr) visit(ctx.condition) : null)
+                    .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
+                    .stmts((ASTStatement) visit(ctx.statement())).build();
         } else {
             forstmt = ASTForstatement.builder().pos(new position(ctx.start))
                     .Varinit(null)
@@ -219,6 +220,14 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                     .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
                     .stmts((ASTStatement) visit(ctx.statement())).build();
         }
+        // } else {
+        // forstmt = ASTForstatement.builder().pos(new position(ctx.start))
+        // .Varinit(null)
+        // .Exprinit(null)
+        // .cond(ctx.condition != null ? (ASTExpr) visit(ctx.condition) : null)
+        // .step(ctx.update != null ? (ASTExpr) visit(ctx.update) : null)
+        // .stmts((ASTStatement) visit(ctx.statement())).build();
+        // }
         if (forstmt.getVarinit() != null) {
             forstmt.getVarinit().setParent(forstmt);
         }
@@ -461,7 +470,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         for (var unit : ctx.expression()) {
             units.add((ASTExpr) visit(unit));
         }
-        ASTConstarray constarrayExpr = ASTConstarray.builder().pos(new position(ctx.start)).expr(units).maze(0).dep(0).build();
+        ASTConstarray constarrayExpr = ASTConstarray.builder().pos(new position(ctx.start)).expr(units).maze(0).dep(0)
+                .build();
         for (var unit : units) {
             unit.setParent(constarrayExpr);
         }
@@ -485,7 +495,8 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
                 exprpart.add((ASTExpr) visit(expr.expression()));
             }
             strpart.add(ctx.FomatStringR().getText().substring(1, ctx.FomatStringR().getText().length() - 1));
-            ASTFstring fstringExpr = ASTFstring.builder().pos(new position(ctx.start)).strpart(strpart).exprpart(exprpart)
+            ASTFstring fstringExpr = ASTFstring.builder().pos(new position(ctx.start)).strpart(strpart)
+                    .exprpart(exprpart)
                     .build();
             for (var expr : exprpart) {
                 expr.setParent(fstringExpr);

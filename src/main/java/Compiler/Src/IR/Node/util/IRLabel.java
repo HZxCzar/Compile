@@ -11,6 +11,6 @@ public class IRLabel extends IRInst{
     }
     @Override
     public String toString() {
-        return label+":\n";
+        return label;
     }
 }

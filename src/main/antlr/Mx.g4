@@ -33,9 +33,9 @@ emptystatement: Semi;
 ifstatement:
 	If LParen expression RParen statement (Else ( statement))?;
 whilestatement: While LParen expression RParen statement;
-forinit: ( expression | varDef);
+forinit: (expression? Semi) | varDef;
 forstatement:
-	For LParen forinit? Semi condition = expression? Semi update = expression? RParen statement;
+	For LParen forinit condition = expression? Semi update = expression? RParen statement;
 
 returnstatement: Return expression? Semi;
 breakstatement: Break Semi;

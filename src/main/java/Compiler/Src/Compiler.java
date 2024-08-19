@@ -1,7 +1,9 @@
 package Compiler.Src;
 
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.PrintStream;
 
 import javax.management.RuntimeErrorException;
 
@@ -21,7 +23,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));//new FileInputStream("src/test/mx/input.mx")
+            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));// new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -33,7 +35,10 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
-            new IRCodegen().visit((IRRoot)irProgram);
+            // new IRCodegen().visit((IRRoot) irProgram);
+            var output = new PrintStream(new FileOutputStream("src/test/mx/output.ll"));
+            output.println(irProgram);
+            output.close();
         } catch (BaseError e) {
             System.out.println(e.getMessage());
             System.exit(1);

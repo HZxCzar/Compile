@@ -27,10 +27,11 @@ public class IRBlock extends IRStmt {
 
     @Override
     public String toString() {
-        String str=labelName.toString() + ":\n";
+        String str=labelName.toString()+":\n";
         for (var inst : getInsts()) {
             str += "  " + inst.toString() + "\n";
         }
+        str+="\n";
         return str;
     }
 }

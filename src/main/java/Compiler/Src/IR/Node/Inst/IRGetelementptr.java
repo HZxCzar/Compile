@@ -11,13 +11,13 @@ import Compiler.Src.Util.Error.BaseError;
 @lombok.Getter
 @lombok.Setter
 public class IRGetelementptr extends IRInst {
-  private IRType type;
+  private String type;
   private IRVariable dest;
   private IREntity ptr;
   private ArrayList<IREntity> infolist;
 
   // private ArrayList<IRVariable> indexlist;
-  public IRGetelementptr(IRVariable dest, IRType type, IREntity ptr, ArrayList<IREntity> info) {
+  public IRGetelementptr(IRVariable dest, String type, IREntity ptr, ArrayList<IREntity> info) {
     this.type = type;
     this.dest = dest;
     this.ptr = ptr;

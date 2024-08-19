@@ -5,6 +5,7 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+import java.util.jar.Attributes.Name;
 
 import Compiler.Src.AST.Node.ASTNode;
 import Compiler.Src.AST.Node.ExprNode.ASTAssignExpr;
@@ -105,12 +106,12 @@ public class IRControl {
         if (scope instanceof GlobalScope) {
             return "@" + name;
         }
-        return "%" + name + ".depth." + scope.getScopedep();
+        return "%" + name + ".depth." + scope.getScopedep() + ".tags." + scope.GetTagsString();
     }
 
     public ArrayList<IRBlock> stmt2block(IRStmt stmts, IRType rType) {
         var blocks = new ArrayList<IRBlock>();
-        blocks.add(0, new IRBlock(new IRLabel("")));
+        blocks.add(0, new IRBlock(new IRLabel("start")));
         var enterblock = new IRBlock(new IRLabel("entry"));
         for (var inst : stmts.getInsts()) {
             if (inst instanceof IRLabel) {
@@ -123,6 +124,7 @@ public class IRControl {
                     continue;
                 }
                 if (inst instanceof IRRet || inst instanceof IRBranch) {
+                    blocks.get(blocks.size() - 1).addInsts(inst);
                     blocks.get(blocks.size() - 1).setReturnInst(inst);
                 } else if (inst instanceof IRAlloca) {
                     enterblock.addInsts(inst);
@@ -135,6 +137,7 @@ public class IRControl {
         // enterblock.addBlockInsts(firstblock);
         // enterblock.setReturnInst(firstblock.getReturnInst());
         var enterBranch2start = new IRLabel("start");
+        enterblock.addInsts(new IRBranch(enterBranch2start));
         enterblock.setReturnInst(
                 new IRBranch(enterBranch2start));
         blocks.add(0, enterblock);
@@ -170,7 +173,7 @@ public class IRControl {
         } else {
             args.add(new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(type)).toString()));
         }
-        var allocaCall = new IRCall(allocaVar, GlobalScope.irPtrType, "malloc", args);
+        var allocaCall = new IRCall(allocaVar, GlobalScope.irPtrType, "_malloc", args);
         instList.addInsts(allocaCall);
         if (!type.isDefined()) {
             var constructorargs = new ArrayList<IREntity>();
@@ -206,24 +209,25 @@ public class IRControl {
         var body = new IRStmt();
         // var mallocDest = new IRVariable(GlobalScope.irPtrType,
         // "%initArray.mallocDest." + depth + (++counter.ArrayCount));
-        if (depth != args.size()) {
+        if (depth != args.size() - 1) {
             var info = new ArrayList<IREntity>();
-            var arraySize = new IRVariable(GlobalScope.irIntType,
-                    "%initArray.arraySize." + depth + (++counter.ArrayCount));
-            info.add(arraySize);
-            init.addInsts(new IRLoad(arraySize, args.get(depth)));
-            init.addInsts(new IRCall(mallocDest, GlobalScope.irPtrType, "__malloc_array_", info));
+            info.add(args.get(depth));
+            info.add(new IRLiteral(GlobalScope.irIntType, "4"));
+            var tmpdest = new IRVariable(mallocDest.getType(),
+                    "%initArray.tmpdest." + depth + (++counter.ArrayCount));
+            init.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
+            init.addInsts(new IRStore(mallocDest, tmpdest));
 
             var initVar = new IRVariable(GlobalScope.irPtrType,
                     getVarName("%initArray." + depth + (++counter.ArrayCount), currentScope));
             init.addInsts(new IRAlloca(initVar, GlobalScope.irIntType));
-            var initbeg = new IRLiteral(GlobalScope.irIntType, "0");
-            var cmpTarg = new IRVariable(GlobalScope.irIntType,
-                    "%initArray.midArray." + depth + (++counter.ArrayCount));
+            // var initbeg = new IRLiteral(GlobalScope.irIntType, "0");
+            // var cmpTarg = new IRVariable(GlobalScope.irIntType,
+            // "%initArray.midArray." + depth + (++counter.ArrayCount));
             // var initmidVar= new IRVariable(GlobalScope.irIntType, "%initArray.midArray."
             // + depth + (++counter.ArrayCount));
-            init.addInsts(new IRStore(initVar, initbeg));
-            init.addInsts(new IRLoad(cmpTarg, args.get(depth)));
+            init.addInsts(new IRStore(initVar, args.get(depth)));
+            // init.addInsts(new IRLoad(cmpTarg, args.get(depth)));
             var condDest = new IRVariable(GlobalScope.irBoolType, "%cond." + depth + (++counter.ArrayCount));
             var condmidVar = new IRVariable(GlobalScope.irIntType, "%cond.midArray." + depth + (++counter.ArrayCount));
             cond.addInsts(new IRLoad(condmidVar, initVar));
@@ -235,7 +239,7 @@ public class IRControl {
             var updatemidVar2 = new IRVariable(GlobalScope.irIntType,
                     "%initArray.update2." + depth + (++counter.ArrayCount));
             update.addInsts(new IRLoad(updatemidVar, initVar));
-            update.addInsts(new IRArith(updatemidVar2, "add", GlobalScope.irIntType, updatemidVar,
+            update.addInsts(new IRArith(updatemidVar2, "sub", GlobalScope.irIntType, updatemidVar,
                     new IRLiteral(GlobalScope.irIntType, "1")));
             update.addInsts(new IRStore(initVar, updatemidVar2));
             var fetchDest = new IRVariable(GlobalScope.irPtrType,
@@ -245,19 +249,30 @@ public class IRControl {
             body.addInsts(new IRLoad(offset, initVar));
             var fetchargs = new ArrayList<IREntity>();
             fetchargs.add(offset);
-            var fetch = new IRGetelementptr(fetchDest, GlobalScope.irPtrType, mallocDest, fetchargs);
+            var fetch = new IRGetelementptr(fetchDest, GlobalScope.irPtrType.typeName, mallocDest, fetchargs);
             body.addInsts(fetch);
             body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest));
             var LoopNode = new IRLoop(depth, init, cond, update, body);
             stmts.addBlockInsts(LoopNode);
         } else {
-            if (depth < full_length) {
+            var tmpdest = new IRVariable(mallocDest.getType(),
+                    "%initArray.tmpdest." + depth + (++counter.ArrayCount));
+            if (depth < full_length-1) {
                 // 未完全定义
-                stmts.addBlockInsts(alloca_unit(GlobalScope.nullType, mallocDest));
+                var info = new ArrayList<IREntity>();
+                info.add(args.get(depth));
+                info.add(new IRLiteral(GlobalScope.irIntType, "4"));
+                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
+                // stmts.addBlockInsts(alloca_unit(GlobalScope.nullType, tmpdest));
             } else {
                 // 完全定义
-                stmts.addBlockInsts(alloca_unit(innerType, mallocDest));
+                var info = new ArrayList<IREntity>();
+                info.add(args.get(depth));
+                info.add(new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(innerType)).toString()));
+                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
+                // stmts.addBlockInsts(alloca_unit(innerType, tmpdest));
             }
+            stmts.addInsts(new IRStore(mallocDest, tmpdest));
         }
         stmts.setDest(mallocDest);
         return stmts;

@@ -33,6 +33,6 @@ public class IRRet extends IRInst {
     @Override
     public String toString() {
         if(voidtype) return "ret void";
-        return "ret " + type.toString() + " " + value.toString();
+        return "ret " + type.toString() + " " + value.getValue();
     }
 }

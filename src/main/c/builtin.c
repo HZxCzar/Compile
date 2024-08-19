@@ -20,8 +20,7 @@ void *_malloc(int size) {
     return malloc(size);
 }
 
-int *__malloc_array_(int length) { // size 为每个元素占几个字节，length 为数组长度
-    int size = sizeof(void*);
+int *__malloc_array_(int length,int size) { // size 为每个元素占几个字节，length 为数组长度
     int *tmp = (int *) malloc(size * length + 4);
     tmp[0] = length;
     return tmp + 1;

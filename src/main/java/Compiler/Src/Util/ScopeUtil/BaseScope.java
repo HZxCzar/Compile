@@ -1,5 +1,6 @@
 package Compiler.Src.Util.ScopeUtil;
 
+import java.util.ArrayList;
 import java.util.TreeMap;
 
 import Compiler.Src.Util.Info.*;
@@ -12,6 +13,9 @@ public class BaseScope {
     protected BaseScope parent;
     protected BaseInfo info;
     protected int scopedep;
+    protected int num;
+    protected int childnum;
+    protected ArrayList<Integer> tags;
     protected TreeMap<String, VarInfo> vars;
     protected TreeMap<String, VarInfo> IRvars;
 
@@ -20,13 +24,37 @@ public class BaseScope {
         this.info = info;
         this.vars = new TreeMap<String, VarInfo>();
         this.IRvars = new TreeMap<String, VarInfo>();
+        this.childnum = 0;
+        this.tags=new ArrayList<Integer>();
         if(parent!=null){
-            scopedep=parent.scopedep+1;
+            this.num=++parent.childnum;
+            this.scopedep=parent.scopedep+1;
+            for(var tag:parent.tags)
+            {
+                tags.add(tag);
+            }
         }
         else{
-            scopedep=0;
+            this.scopedep=0;
+            this.num=0;
         }
+        tags.add(this.num);
     }
+
+    public String GetTagsString()
+    {
+        String str="";
+        for(int i=0;i<tags.size();++i)
+        {
+            str+=tags.get(i);
+            if(i!=tags.size()-1)
+            {
+                str+=".";
+            }
+        }
+        return str;
+    }
+
     public LoopScope LastLoop()
     {
         BaseScope scope=this;
