@@ -99,7 +99,8 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             if (!param.findName().equals("this")) {
                 currentScope.IRdeclare(param.findName());
             }
-            params.add(new IRVariable(new IRType(param.getVarType()), getVarName(param.findName(), currentScope)+".param"));
+            params.add(new IRVariable(new IRType(param.getVarType()),
+                    getVarName(param.findName(), currentScope) + ".param"));
         }
         var stmts = new IRStmt();
         stmts.addBlockInsts((IRStmt) node.getBlockedBody().accept(this));
@@ -296,7 +297,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var args1 = new ArrayList<IREntity>();
             args1.add(lhsStr);
             args1.add(rhsStr);
-            instList.addInsts(new IRCall(strAdd, GlobalScope.irPtrType, "__string_concat", args1));
+            instList.addInsts(new IRCall(strAdd, GlobalScope.irPtrType, "__string.concat", args1));
             instList.addInsts(new IRStore(dest, strAdd));
 
             if (node.getExprpart() != null) {
@@ -316,7 +317,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                     args2.add(lhsStr2);
                     args2.add(boolstr);
                     var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
-                    instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string_concat", args2));
+                    instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
                     instList.addInsts(new IRStore(dest, boolstrAdd));
                     // var dest1=new
                     // IRVariable(GlobalScope.irPtrType,"%FstringRes."+(++counter.loadCount));
@@ -367,7 +368,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                     args2.add(lhsStr2);
                     args2.add(intstr);
                     var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
-                    instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string_concat", args2));
+                    instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
                     instList.addInsts(new IRStore(dest, strAdd));
                 } else {
                     throw new IRError("Fstring can only concat int or bool");
@@ -456,12 +457,12 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var memberType = node.getMember().getInfo().getDepTypeInfo();
         var caller = (IRVariable) memberInst.getDest();
         if (memberType.getDepth() > 0) {
-            instList.setDest(new IRFunc("__builtin_array_size", caller, GlobalScope.irIntType));
+            instList.setDest(new IRFunc("__builtin_array.size", caller, GlobalScope.irIntType));
         } else if (memberType.equals(GlobalScope.stringType)) {
             if (node.getMemberName().equals("substring")) {
-                instList.setDest(new IRFunc("__string_substring", caller, GlobalScope.irPtrType));
+                instList.setDest(new IRFunc("__string.substring", caller, GlobalScope.irPtrType));
             } else {
-                instList.setDest(new IRFunc("__string_" + node.getMemberName(), caller, GlobalScope.irIntType));
+                instList.setDest(new IRFunc("__string." + node.getMemberName(), caller, GlobalScope.irIntType));
             }
         } else {
             var classInfo = (ClassInfo) globalScope.containsClasses(memberType.getName());
@@ -646,10 +647,10 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             args.add(lhs);
             args.add(rhs);
             if (node.getOp().equals("+")) {
-                instList.addInsts(new IRCall(dest, resType, "__string_concat", args));
+                instList.addInsts(new IRCall(dest, resType, "__string.concat", args));
             } else {
                 var Middest = new IRVariable(GlobalScope.irIntType, "%Mid." + (++counter.arithCount));
-                instList.addInsts(new IRCall(Middest, GlobalScope.irIntType, "__string_compare", args));
+                instList.addInsts(new IRCall(Middest, GlobalScope.irIntType, "__string.compare", args));
                 var op = node.getOp();
                 if (op.equals("==")) {
                     instList.addInsts(new IRIcmp(dest, "eq", GlobalScope.irIntType, Middest,
@@ -759,7 +760,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var args = new ArrayList<IREntity>();
             args.add(lhsAddr);
             args.add(rhs);
-            instList.addInsts(new IRCall("__string_copy", args));
+            instList.addInsts(new IRCall("__string.copy", args));
         } else {
             instList.addInsts(new IRStore(lhsAddr, rhs));
         }

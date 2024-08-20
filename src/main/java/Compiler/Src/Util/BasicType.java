@@ -63,24 +63,24 @@ public interface BasicType {
         IRFuncDef irGetIntFunc = new IRFuncDef("getInt", irIntType, new ArrayList<IRType>());
         IRFuncDef irToStringFunc = new IRFuncDef("toString", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irIntType)));
-        IRFuncDef irMallocFunc = new IRFuncDef("malloc", irPtrType, new ArrayList<IRType>(Arrays.asList(irIntType)));
+        IRFuncDef irMallocFunc = new IRFuncDef("_malloc", irPtrType, new ArrayList<IRType>(Arrays.asList(irIntType)));
         IRFuncDef irMallocArrayFunc = new IRFuncDef("__malloc_array", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irIntType, irIntType)));
-        IRFuncDef irArraySizeFunc = new IRFuncDef("__builtin_array_size", irIntType,
+        IRFuncDef irArraySizeFunc = new IRFuncDef("__builtin_array.size", irIntType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType)));
-        IRFuncDef irStringLengthFunc = new IRFuncDef("__string_length", irIntType,
+        IRFuncDef irStringLengthFunc = new IRFuncDef("__string.length", irIntType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType)));
-        IRFuncDef irStringSubstringFunc = new IRFuncDef("__string_substring", irPtrType,
+        IRFuncDef irStringSubstringFunc = new IRFuncDef("__string.substring", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType, irIntType, irIntType)));
-        IRFuncDef irStringParseintFunc = new IRFuncDef("__string_parseInt", irIntType,
+        IRFuncDef irStringParseintFunc = new IRFuncDef("__string.parseInt", irIntType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType)));
-        IRFuncDef irStringOrdFunc = new IRFuncDef("__string_ord", irIntType,
+        IRFuncDef irStringOrdFunc = new IRFuncDef("__string.ord", irIntType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType, irIntType)));
-        IRFuncDef irStringCompareFunc = new IRFuncDef("__string_compare", irIntType,
+        IRFuncDef irStringCompareFunc = new IRFuncDef("__string.compare", irIntType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType, irPtrType)));
-        IRFuncDef irStringConcatFunc = new IRFuncDef("__string_concat", irPtrType,
+        IRFuncDef irStringConcatFunc = new IRFuncDef("__string.concat", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType, irPtrType)));
-        IRFuncDef irStringCopyFunc = new IRFuncDef("__string_copy", irVoidType,
+        IRFuncDef irStringCopyFunc = new IRFuncDef("__string.copy", irVoidType,
                         new ArrayList<IRType>(Arrays.asList(irPtrType, irPtrType)));
 
         ArrayList<IRFuncDef> irBuiltInFuncs = new ArrayList<>(Arrays.asList(

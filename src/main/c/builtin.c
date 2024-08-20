@@ -44,7 +44,7 @@ char *toString(int i) {
   return s;
 }
 
-int _string_length(char *s) {
+int __string_length(char *s) {
   int i = 0;
   while (s[i] != '\0') {
     ++i;
@@ -52,7 +52,7 @@ int _string_length(char *s) {
   return i;
 }
 
-char *_string_substring(char *s, int left, int right) {
+char *__string_substring(char *s, int left, int right) {
   int len = right - left;
   char *result = (char *) malloc(sizeof(char) * (len + 1));
   for (int i = 0; i < len; i++) {
@@ -62,7 +62,7 @@ char *_string_substring(char *s, int left, int right) {
   return result;
 }
 
-int _string_parseInt(char *s) {
+int __string_parseInt(char *s) {
   int result = 0;
   int i = 0;
   if (s[0] == '-') 
@@ -78,9 +78,9 @@ int _string_parseInt(char *s) {
   return result;
 }
 
-int _string_ord(char *s, int i) { return s[i]; }
+int __string_ord(char *s, int i) { return s[i]; }
 
-int _string_compare(char *s1, char *s2) {
+int __string_compare(char *s1, char *s2) {
   int i = 0;
   while (s1[i] != '\0' && s2[i] != '\0') {
     if (s1[i] != s2[i]) {
@@ -91,9 +91,9 @@ int _string_compare(char *s1, char *s2) {
   return s1[i] - s2[i];
 }
 
-char *_string_concat(char *s1, char *s2) {
-  int len1 = _string_length(s1);
-  int len2 = _string_length(s2);
+char *__string_concat(char *s1, char *s2) {
+  int len1 = __string_length(s1);
+  int len2 = __string_length(s2);
   char *result = (char *) malloc(sizeof(char) * (len1 + len2 + 1));
   for (int i = 0; i < len1; i++) {
     result[i] = s1[i];
@@ -105,12 +105,11 @@ char *_string_concat(char *s1, char *s2) {
   return result;
 }
 
-char * _string_copy(char *s) {
-  int len = _string_length(s);
-  char *result = (char *) malloc(sizeof(char) * (len + 1));
+void __string_copy(char **s1, char *s2) {
+  int len = __string_length(s2);
+  *s1 = (char *)malloc(sizeof(char) * (len + 1));
   for (int i = 0; i < len; i++) {
-    result[i] = s[i];
+    (*s1)[i] = s2[i];
   }
-  result[len] = '\0';
-  return result;
+  (*s1)[len] = '\0';
 }
