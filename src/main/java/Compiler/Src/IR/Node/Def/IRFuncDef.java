@@ -4,9 +4,14 @@ import java.util.ArrayList;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IRVariable;
+import Compiler.Src.IR.Node.Inst.IRAlloca;
 import Compiler.Src.IR.Node.Stmt.IRBlock;
+import Compiler.Src.IR.Node.Stmt.IRStmt;
+import Compiler.Src.IR.Node.Inst.IRStore;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
+import Compiler.Src.Util.Error.IRError;
+import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Getter
 @lombok.Setter
@@ -23,6 +28,18 @@ public class IRFuncDef extends IRDef {
         this.returnType = returnType;
         this.blockstmts = blockstmts;
         this.isBuiltIn = false;
+        if (blockstmts.size() != 0) {
+            var entryBlock = blockstmts.get(0);
+            if (params.size() > 0) {
+                var instList = new IRStmt();
+                for (var param : params) {
+                    var paramPtr = new IRVariable(GlobalScope.irPtrType, param.getValue().replace(".param", ""));
+                    instList.addInsts(new IRAlloca(paramPtr, param.getType()));
+                    instList.addInsts(new IRStore(paramPtr, param));
+                }
+                entryBlock.addFrontBlockInsts(instList);
+            }
+        }
     }
 
     public IRFuncDef(String name, IRType returnType, ArrayList<IRType> params) {

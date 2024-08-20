@@ -16,17 +16,23 @@ public class IRRoot extends IRNode {
         defs = new ArrayList<IRGlobalDef>();
         funcs = new ArrayList<IRFuncDef>();
     }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }
+
     public void addDef(IRGlobalDef def) {
         defs.add(def);
-      }
-    
-      public void addFunc(IRFuncDef func) {
+    }
+
+    public void addFunc(IRFuncDef func) {
         funcs.add(func);
-      }
+    }
+
+    public void addFunc(IRFuncDef func, int index) {
+        funcs.add(index, func);
+    }
 
     @Override
     public String toString() {
@@ -34,11 +40,11 @@ public class IRRoot extends IRNode {
         for (var def : defs) {
             str += def.toString() + "\n";
         }
-        str+="\n";
+        str += "\n";
         for (var func : BasicType.irBuiltInFuncs) {
             str += func.toString() + "\n";
         }
-        str+="\n";
+        str += "\n";
         for (var func : funcs) {
             str += func.toString() + "\n\n";
         }

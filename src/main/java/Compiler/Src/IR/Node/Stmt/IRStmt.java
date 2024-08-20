@@ -48,6 +48,11 @@ public class IRStmt extends IRNode {
         insts.add(0, node);
     }
 
+    public void addFrontBlockInsts(IRStmt insts)
+    {
+        this.insts.addAll(0,insts.getInsts());
+    }
+
     @Override
     public String toString() {
         throw new IRError("IRStmt.toString() is not implemented");

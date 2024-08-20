@@ -5,3 +5,7 @@
 /src/test/
 /bin
 /.vscode
+/scrips
+/ravel
+*.sh
+test

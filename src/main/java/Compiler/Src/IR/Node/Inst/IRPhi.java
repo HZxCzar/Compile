@@ -30,7 +30,7 @@ public class IRPhi extends IRInst {
   public String toString() {
     var str = dest.getValue() + " = phi " + type.toString() + " ";
     for (int i = 0; i < vals.size(); i++) {
-      str += "[ " + vals.get(i).toString() + ", " + labels.get(i).toString() + " ]";
+      str += "[ " + vals.get(i).getValue() + ", %" + labels.get(i).toString() + " ]";
       if (i != vals.size() - 1) {
         str += ", ";
       }

@@ -35,10 +35,11 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
-            // new IRCodegen().visit((IRRoot) irProgram);
-            var output = new PrintStream(new FileOutputStream("src/test/mx/output.ll"));
+            new IRCodegen().visit((IRRoot) irProgram);
+            var output = new PrintStream(new FileOutputStream("src/test/mx/output.ll"));//new FileOutputStream("src/test/mx/output.ll")
             output.println(irProgram);
             output.close();
+            // System.out.println(irProgram);
         } catch (BaseError e) {
             System.out.println(e.getMessage());
             System.exit(1);

@@ -215,9 +215,12 @@ public class IRControl {
             info.add(new IRLiteral(GlobalScope.irIntType, "4"));
             var tmpdest = new IRVariable(mallocDest.getType(),
                     "%initArray.tmpdest." + depth + (++counter.ArrayCount));
-            init.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
-            init.addInsts(new IRStore(mallocDest, tmpdest));
-
+            init.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
+            if (mallocDest != null) {
+                init.addInsts(new IRStore(mallocDest, tmpdest));
+            } else {
+                mallocDest = tmpdest;
+            }
             var initVar = new IRVariable(GlobalScope.irPtrType,
                     getVarName("%initArray." + depth + (++counter.ArrayCount), currentScope));
             init.addInsts(new IRAlloca(initVar, GlobalScope.irIntType));
@@ -255,24 +258,28 @@ public class IRControl {
             var LoopNode = new IRLoop(depth, init, cond, update, body);
             stmts.addBlockInsts(LoopNode);
         } else {
-            var tmpdest = new IRVariable(mallocDest.getType(),
+            var tmpdest = new IRVariable(GlobalScope.irPtrType,
                     "%initArray.tmpdest." + depth + (++counter.ArrayCount));
-            if (depth < full_length-1) {
+            if (depth < full_length - 1) {
                 // 未完全定义
                 var info = new ArrayList<IREntity>();
                 info.add(args.get(depth));
                 info.add(new IRLiteral(GlobalScope.irIntType, "4"));
-                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
+                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
                 // stmts.addBlockInsts(alloca_unit(GlobalScope.nullType, tmpdest));
             } else {
                 // 完全定义
                 var info = new ArrayList<IREntity>();
                 info.add(args.get(depth));
                 info.add(new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(innerType)).toString()));
-                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array_", info));
+                stmts.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
                 // stmts.addBlockInsts(alloca_unit(innerType, tmpdest));
             }
-            stmts.addInsts(new IRStore(mallocDest, tmpdest));
+            if (mallocDest == null) {
+                mallocDest = tmpdest;
+            } else {
+                stmts.addInsts(new IRStore(mallocDest, tmpdest));
+            }
         }
         stmts.setDest(mallocDest);
         return stmts;
