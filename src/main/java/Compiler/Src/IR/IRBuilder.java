@@ -79,7 +79,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 program.addFunc(funcDef);
             }
         }
-        var init = initFunc.getBlockstmts().get(0);
+        var init = initFunc.getBlockstmts().get(initFunc.getBlockstmts().size()-1);
         init.addInsts(new IRRet());
         init.setReturnInst(new IRRet());
         program.addFunc(initFunc, 0);
@@ -158,7 +158,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                     .right(node.getInitexpr()).build();
             var initInst = (IRStmt) initexpr.accept(this);
             if (currentScope instanceof GlobalScope) {
-                initFunc.getBlockstmts().get(0).addBlockInsts(initInst);
+                initFunc_add(initInst);
             } else {
                 instList.addBlockInsts(initInst);
             }
@@ -527,7 +527,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var index = IndexInst.getDest();
         var info = new ArrayList<IREntity>();
         info.add(index);
-        var destType = new IRType((TypeInfo) node.getArrayName().getInfo().getDepTypeInfo());
+        var destType = new IRType((TypeInfo) node.getInfo().getDepTypeInfo());
         var destAddr = new IRVariable(GlobalScope.irPtrType, "%index." + String.valueOf(++counter.loadCount));
         var dest = new IRVariable(destType,
                 "%load." + String.valueOf(++counter.loadCount));

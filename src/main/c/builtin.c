@@ -16,14 +16,15 @@ void printInt(int n) { printf("%d", n); }
 
 void printlnInt(int n) { printf("%d\n", n); }
 
-void *_malloc(int size) {
-    return malloc(size);
-}
+int __builtin_array_size(void *array) { return ((int *)array)[-1]; }
 
-int *__malloc_array(int length,int size) { // size 为每个元素占几个字节，length 为数组长度
-    int *tmp = (int *) malloc(size * length + 4);
-    tmp[0] = length;
-    return tmp + 1;
+void *_malloc(int size) { return malloc(size); }
+
+int *__malloc_array(int length,
+                    int size) { // size 为每个元素占几个字节，length 为数组长度
+  int *tmp = (int *)malloc(size * length + 4);
+  tmp[0] = length;
+  return tmp + 1;
 }
 
 char *getString() {
@@ -54,7 +55,7 @@ int __string_length(char *s) {
 
 char *__string_substring(char *s, int left, int right) {
   int len = right - left;
-  char *result = (char *) malloc(sizeof(char) * (len + 1));
+  char *result = (char *)malloc(sizeof(char) * (len + 1));
   for (int i = 0; i < len; i++) {
     result[i] = s[left + i];
   }
@@ -65,8 +66,7 @@ char *__string_substring(char *s, int left, int right) {
 int __string_parseInt(char *s) {
   int result = 0;
   int i = 0;
-  if (s[0] == '-') 
-  {
+  if (s[0] == '-') {
     i = 1;
   }
   for (; s[i] != '\0'; i++) {
@@ -94,7 +94,7 @@ int __string_compare(char *s1, char *s2) {
 char *__string_concat(char *s1, char *s2) {
   int len1 = __string_length(s1);
   int len2 = __string_length(s2);
-  char *result = (char *) malloc(sizeof(char) * (len1 + len2 + 1));
+  char *result = (char *)malloc(sizeof(char) * (len1 + len2 + 1));
   for (int i = 0; i < len1; i++) {
     result[i] = s1[i];
   }
@@ -112,4 +112,5 @@ void __string_copy(char **s1, char *s2) {
     (*s1)[i] = s2[i];
   }
   (*s1)[len] = '\0';
+  return;
 }

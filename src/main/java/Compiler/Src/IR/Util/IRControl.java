@@ -109,7 +109,7 @@ public class IRControl {
         return "%" + name + ".depth." + scope.getScopedep() + ".tags." + scope.GetTagsString();
     }
 
-    public ArrayList<IRBlock> stmt2block(IRStmt stmts, IRType rType) {
+    public ArrayList<IRBlock> stmt2block(IRStmt stmts, IRType irType) {
         var blocks = new ArrayList<IRBlock>();
         blocks.add(0, new IRBlock(new IRLabel("start")));
         var enterblock = new IRBlock(new IRLabel("entry"));
@@ -133,6 +133,18 @@ public class IRControl {
                 }
             }
         }
+        var lastblock = blocks.get(blocks.size() - 1);
+        if (lastblock.getReturnInst() == null) {
+            if (irType.equals(GlobalScope.irVoidType)) {
+                var ret = new IRRet();
+                lastblock.addInsts(ret);
+                lastblock.setReturnInst(ret);
+            } else {
+                var branch = new IRBranch(new IRLabel(lastblock.getLabelName().getLabel()));
+                lastblock.addInsts(branch);
+                lastblock.setReturnInst(branch);
+            }
+        }
         // var firstblock = blocks.get(0);
         // enterblock.addBlockInsts(firstblock);
         // enterblock.setReturnInst(firstblock.getReturnInst());
@@ -142,6 +154,33 @@ public class IRControl {
                 new IRBranch(enterBranch2start));
         blocks.add(0, enterblock);
         return blocks;
+    }
+
+    public void initFunc_add(IRStmt stmts) {
+        var blocks = initFunc.getBlockstmts();
+        var enterblock = initFunc.getBlockstmts().get(0);
+        for (var inst : stmts.getInsts()) {
+            if (inst instanceof IRLabel) {
+                var br = new IRBranch((IRLabel) inst);
+                if (blocks.get(blocks.size() - 1).getReturnInst() == null) {
+                    blocks.get(blocks.size() - 1).addInsts(inst);
+                    blocks.get(blocks.size() - 1).setReturnInst(br);
+                }
+                blocks.add(new IRBlock((IRLabel) inst));
+            } else {
+                if (blocks.get(blocks.size() - 1).getReturnInst() != null) {
+                    continue;
+                }
+                if (inst instanceof IRRet || inst instanceof IRBranch) {
+                    blocks.get(blocks.size() - 1).addInsts(inst);
+                    blocks.get(blocks.size() - 1).setReturnInst(inst);
+                } else if (inst instanceof IRAlloca) {
+                    enterblock.addFront(inst);
+                } else {
+                    blocks.get(blocks.size() - 1).addInsts(inst);
+                }
+            }
+        }
     }
 
     protected String TypeInfo2Name(TypeInfo type) {
@@ -178,7 +217,7 @@ public class IRControl {
         if (!type.isDefined()) {
             var constructorargs = new ArrayList<IREntity>();
             constructorargs.add(allocaVar);
-            var constructorCall = new IRCall("%class." + type.getName() + ".constructor", constructorargs);
+            var constructorCall = new IRCall("class.constructor." + type.getName(), constructorargs);
             instList.addInsts(constructorCall);
         }
         instList.setDest(allocaVar);
@@ -213,7 +252,7 @@ public class IRControl {
             var info = new ArrayList<IREntity>();
             info.add(args.get(depth));
             info.add(new IRLiteral(GlobalScope.irIntType, "4"));
-            var tmpdest = new IRVariable(mallocDest.getType(),
+            var tmpdest = new IRVariable(GlobalScope.irPtrType,
                     "%initArray.tmpdest." + depth + (++counter.ArrayCount));
             init.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
             if (mallocDest != null) {
@@ -221,28 +260,28 @@ public class IRControl {
             } else {
                 mallocDest = tmpdest;
             }
-            var initVar = new IRVariable(GlobalScope.irPtrType,
-                    getVarName("%initArray." + depth + (++counter.ArrayCount), currentScope));
+            var initVar = new IRVariable(GlobalScope.irPtrType, "%initArray." + depth + (++counter.ArrayCount));
+            var compTarg = args.get(depth);
             init.addInsts(new IRAlloca(initVar, GlobalScope.irIntType));
             // var initbeg = new IRLiteral(GlobalScope.irIntType, "0");
             // var cmpTarg = new IRVariable(GlobalScope.irIntType,
             // "%initArray.midArray." + depth + (++counter.ArrayCount));
             // var initmidVar= new IRVariable(GlobalScope.irIntType, "%initArray.midArray."
             // + depth + (++counter.ArrayCount));
-            init.addInsts(new IRStore(initVar, args.get(depth)));
+            init.addInsts(new IRStore(initVar, new IRLiteral(GlobalScope.irIntType, "0")));
             // init.addInsts(new IRLoad(cmpTarg, args.get(depth)));
             var condDest = new IRVariable(GlobalScope.irBoolType, "%cond." + depth + (++counter.ArrayCount));
             var condmidVar = new IRVariable(GlobalScope.irIntType, "%cond.midArray." + depth + (++counter.ArrayCount));
             cond.addInsts(new IRLoad(condmidVar, initVar));
-            cond.addInsts(new IRIcmp(condDest, "sgt", GlobalScope.irBoolType, condmidVar,
-                    new IRLiteral(GlobalScope.irIntType, "0")));
+            cond.addInsts(new IRIcmp(condDest, "slt", GlobalScope.irBoolType, condmidVar,
+                    compTarg));
             cond.setDest(condDest);
             var updatemidVar = new IRVariable(GlobalScope.irIntType,
                     "%initArray.update." + depth + (++counter.ArrayCount));
             var updatemidVar2 = new IRVariable(GlobalScope.irIntType,
                     "%initArray.update2." + depth + (++counter.ArrayCount));
             update.addInsts(new IRLoad(updatemidVar, initVar));
-            update.addInsts(new IRArith(updatemidVar2, "sub", GlobalScope.irIntType, updatemidVar,
+            update.addInsts(new IRArith(updatemidVar2, "add", GlobalScope.irIntType, updatemidVar,
                     new IRLiteral(GlobalScope.irIntType, "1")));
             update.addInsts(new IRStore(initVar, updatemidVar2));
             var fetchDest = new IRVariable(GlobalScope.irPtrType,
