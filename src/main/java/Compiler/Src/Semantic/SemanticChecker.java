@@ -398,6 +398,9 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
                 throw new SMCError("constarray not match\n");
             }
         }
+        if (node.getSize().size() == 0 && node.getConstarray() == null && node.getType().getDepth() != 0) {
+            throw new SMCError("Invalid newExpr\n");
+        }
         node.setInfo(new ExprInfo("newExpr", node.getType(), true));
         return msg;
     }

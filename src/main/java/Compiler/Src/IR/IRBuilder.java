@@ -238,7 +238,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                             "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
                                     + (++counter.constarrayCount));
                     var destType = new IRType(innerType);
-                    var fetchInst = new IRGetelementptr(dest, destType.typeName, mallocDest, fetchargs);
+                    var fetchInst = new IRGetelementptr(dest, destType.typeName, tmpdest, fetchargs);
                     instList.addInsts(fetchInst);
                     instList.addInsts(new IRStore(dest, computeDest));
                     // instList.addBlockInsts(alloca_unit(innerType, dest));
@@ -265,7 +265,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 var dest = new IRVariable(GlobalScope.irPtrType,
                         "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
                                 + (++counter.constarrayCount));
-                var fetchInst = new IRGetelementptr(dest, GlobalScope.irPtrType.typeName, mallocDest, fetchargs);
+                var fetchInst = new IRGetelementptr(dest, GlobalScope.irPtrType.typeName, tmpdest, fetchargs);
                 instList.addInsts(fetchInst);
                 var constUnit = ((ASTAtomExpr) node.getExpr().get(i)).getConstarray();
                 constUnit.setDest(dest);

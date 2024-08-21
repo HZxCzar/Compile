@@ -291,7 +291,7 @@ public class IRControl {
             body.addInsts(new IRLoad(offset, initVar));
             var fetchargs = new ArrayList<IREntity>();
             fetchargs.add(offset);
-            var fetch = new IRGetelementptr(fetchDest, GlobalScope.irPtrType.typeName, mallocDest, fetchargs);
+            var fetch = new IRGetelementptr(fetchDest, GlobalScope.irPtrType.typeName, tmpdest, fetchargs);
             body.addInsts(fetch);
             body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest));
             var LoopNode = new IRLoop(depth, init, cond, update, body);
