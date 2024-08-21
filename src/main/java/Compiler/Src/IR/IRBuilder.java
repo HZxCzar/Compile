@@ -474,6 +474,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 var destAddr = new IRVariable(GlobalScope.irPtrType,
                         "%.element." + String.valueOf(counter.elementCount++));
                 var args = new ArrayList<IREntity>();
+                args.add(new IRLiteral(GlobalScope.irIntType, "0"));
                 args.add(new IRLiteral(GlobalScope.irIntType, String.valueOf(offset)));
                 instList.addInsts(new IRGetelementptr(destAddr, "%class." + classInfo.getName(), caller, args));
                 var dest = new IRVariable(new IRType(((VarInfo) ExprInfo).getType()),
