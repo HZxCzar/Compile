@@ -123,6 +123,15 @@ public class BaseScope {
         return null;
     }
 
+    public BaseScope BackSearchScope(String name) {
+        if (vars.containsKey(name)) {
+            return this;
+        } else if (this.parent != null) {
+            return parent.BackSearchScope(name);
+        }
+        return null;
+    }
+
     public BaseInfo IRBackSearch(String name) {
         if (IRvars.containsKey(name)) {
             return IRvars.get(name);
@@ -137,6 +146,24 @@ public class BaseScope {
             return this;
         } else if (this.parent != null) {
             return parent.IRBackSearchScope(name);
+        }
+        return null;
+    }
+
+    public FuncScope IRBackSearchFuncScope() {
+        if (this instanceof FuncScope) {
+            return (FuncScope)this;
+        } else if (this.parent != null) {
+            return parent.IRBackSearchFuncScope();
+        }
+        return null;
+    }
+
+    public ClassScope IRBackSearchClassScope() {
+        if (this instanceof ClassScope) {
+            return (ClassScope)this;
+        } else if (this.parent != null) {
+            return parent.IRBackSearchClassScope();
         }
         return null;
     }

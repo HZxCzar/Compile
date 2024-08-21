@@ -94,4 +94,26 @@ public class GlobalScope extends BaseScope implements BasicType {
         }
         return null;
     }
+
+    @Override
+    public BaseScope BackSearchScope(String name)
+    {
+        if(vars.containsKey(name))
+        {
+            return this;
+        }
+        else if(funcs.containsKey(name))
+        {
+            return this;
+        }
+        else if(classes.containsKey(name))
+        {
+            return this;
+        }
+        else if(this.parent!=null)
+        {
+            return parent.BackSearchScope(name);
+        }
+        return null;
+    }
 }

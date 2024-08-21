@@ -60,6 +60,18 @@ public class ClassScope extends BaseScope {
     }
 
     @Override
+    public BaseScope BackSearchScope(String name) {
+        if (vars.containsKey(name)) {
+            return this;
+        } else if (funcs.containsKey(name)) {
+            return this;
+        } else if (this.parent != null) {
+            return parent.BackSearchScope(name);
+        }
+        return null;
+    }
+
+    @Override
     public BaseInfo IRBackSearch(String name) {
         if (IRvars.containsKey(name)) {
             return IRvars.get(name);
