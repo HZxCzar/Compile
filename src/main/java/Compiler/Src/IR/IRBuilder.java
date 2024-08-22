@@ -23,8 +23,6 @@ import Compiler.Src.Util.Info.FuncInfo;
 import Compiler.Src.Util.Info.TypeInfo;
 import Compiler.Src.Util.Info.VarInfo;
 import Compiler.Src.Util.ScopeUtil.*;
-import Compiler.Src.Util.ScopeUtil.GlobalScope;
-import Compiler.Src.Util.ScopeUtil.LoopScope;
 
 public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
     @Override
@@ -622,28 +620,66 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var resType = new IRType((TypeInfo) node.getInfo().getType());
         var dest = new IRVariable(resType, "%binary." + (++counter.arithCount));
         if (node.getOp().equals("&&") || node.getOp().equals("||")) {
-            var vals = new ArrayList<IREntity>();
-            var Labels = new ArrayList<IRLabel>();
+            var writeDest = new IRVariable(GlobalScope.irPtrType, "%writeDest." + (++counter.arithCount));
+            instList.addInsts(new IRAlloca(writeDest, GlobalScope.irBoolType));
+            var tmpdest = new IRVariable(resType, "%binary." + (++counter.arithCount));
+            if (!resType.equals(GlobalScope.irBoolType)) {
+                throw new IRError("Logical operator must be bool");
+            }
             if (node.getOp().equals("&&")) {
-                var ifInst = new IRIf(IRIf.addCount(), lhsInst, rhsInst, null);
+                var bodystmt = new IRStmt();
+                var elsestmt = new IRStmt();
+                bodystmt.addBlockInsts(rhsInst);
+                var rhsdest = rhsInst.getDest();
+                if (rhsdest.getType().equals(GlobalScope.irBoolType)) {
+                    bodystmt.addInsts(new IRIcmp(tmpdest, "eq", GlobalScope.irBoolType, rhsdest,
+                            new IRLiteral(GlobalScope.irBoolType, "true")));
+                } else if (rhsdest.getType().equals(GlobalScope.irIntType)) {
+                    bodystmt.addInsts(new IRIcmp(tmpdest, "ne", GlobalScope.irIntType, rhsdest,
+                            new IRLiteral(GlobalScope.irIntType, "0")));
+                } else {
+                    throw new IRError("Logical operator must be bool or int");
+                }
+                bodystmt.addInsts(new IRStore(writeDest, tmpdest));
+                // bodystmt.setDest(dest);
+                elsestmt.addInsts(new IRStore(writeDest, new IRLiteral(GlobalScope.irBoolType, "false")));
+                var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, elsestmt);
                 instList.addBlockInsts(ifInst);
-                var condLabel = ifInst.getCondLabel();
-                var bodyLabel = ifInst.getBodyLabel();
-                vals.add(new IRLiteral(GlobalScope.irBoolType, "false"));
-                Labels.add(condLabel);
-                vals.add(rhsInst.getDest());
-                Labels.add(bodyLabel);
-                instList.addInsts(new IRPhi(dest, resType, vals, Labels));
+                instList.addInsts(new IRLoad(dest, writeDest));
+                // var condLabel = ifInst.getCondLabel();
+                // var bodyLabel = ifInst.getBodyLabel();
+                // vals.add(new IRLiteral(GlobalScope.irBoolType, "false"));
+                // Labels.add(condLabel);
+                // vals.add(rhsInst.getDest());
+                // Labels.add(bodyLabel);
+                // instList.addInsts(new IRPhi(dest, resType, vals, Labels));
             } else {
-                var ifInst = new IRIf(IRIf.addCount(), lhsInst, null, rhsInst);
+                var bodystmt = new IRStmt();
+                var elsestmt = new IRStmt();
+                bodystmt.addInsts(new IRStore(writeDest, new IRLiteral(GlobalScope.irBoolType, "true")));
+                elsestmt.addBlockInsts(rhsInst);
+                var rhsdest = rhsInst.getDest();
+                if (rhsdest.getType().equals(GlobalScope.irBoolType)) {
+                    elsestmt.addInsts(new IRIcmp(tmpdest, "eq", GlobalScope.irBoolType, rhsdest,
+                            new IRLiteral(GlobalScope.irBoolType, "true")));
+                } else if (rhsdest.getType().equals(GlobalScope.irIntType)) {
+                    elsestmt.addInsts(new IRIcmp(tmpdest, "ne", GlobalScope.irIntType, rhsdest,
+                            new IRLiteral(GlobalScope.irIntType, "0")));
+                } else {
+                    throw new IRError("Logical operator must be bool or int");
+                }
+                elsestmt.addInsts(new IRStore(writeDest, tmpdest));
+                // elsestmt.setDest(dest);
+                var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, rhsInst);
                 instList.addBlockInsts(ifInst);
-                var condLabel = ifInst.getCondLabel();
-                var elseLabel = ifInst.getElseLabel();
-                vals.add(new IRLiteral(GlobalScope.irBoolType, "true"));
-                Labels.add(condLabel);
-                vals.add(rhsInst.getDest());
-                Labels.add(elseLabel);
-                instList.addInsts(new IRPhi(dest, resType, vals, Labels));
+                instList.addInsts(new IRLoad(dest, writeDest));
+                // var condLabel = ifInst.getCondLabel();
+                // var elseLabel = ifInst.getElseLabel();
+                // vals.add(new IRLiteral(GlobalScope.irBoolType, "true"));
+                // Labels.add(condLabel);
+                // vals.add(rhsInst.getDest());
+                // Labels.add(elseLabel);
+                // instList.addInsts(new IRPhi(dest, resType, vals, Labels));
             }
             instList.setDest(dest);
         } else if (((TypeInfo) node.getLeft().getInfo().getDepTypeInfo()).equals(GlobalScope.stringType)) {
@@ -742,17 +778,31 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var ifInsts = new IRIf(num, condInst, trueInst, falseInst);
             instList.addBlockInsts(ifInsts);
         } else {
-            var dest = new IRVariable(trueInst.getDest().getType(), "%cond." + (++counter.arithCount));
-            var ifInst = new IRIf(num, condInst, trueInst, falseInst);
-            var vals = new ArrayList<IREntity>();
-            var Labels = new ArrayList<IRLabel>();
-            vals.add(trueInst.getDest());
-            Labels.add(ifInst.getBodyLabel());
-            vals.add(falseInst.getDest());
-            Labels.add(ifInst.getElseLabel());
-            var phiInst = new IRPhi(dest, dest.getType(), vals, Labels);
+            // var dest = new IRVariable(trueInst.getDest().getType(), "%cond." +
+            // (++counter.arithCount));
+            var resType = trueInst.getDest().getType();
+            var wirteDest = new IRVariable(GlobalScope.irPtrType, "%cond." + (++counter.allocaCount));
+            instList.addInsts(new IRAlloca(wirteDest, resType));
+            // IRVariable dest = null;
+            var truestmt = new IRStmt();
+            truestmt.addBlockInsts(trueInst);
+            truestmt.addInsts(new IRStore(wirteDest, trueInst.getDest()));
+
+            var falsestmt = new IRStmt();
+            falsestmt.addBlockInsts(falseInst);
+            falsestmt.addInsts(new IRStore(wirteDest, falseInst.getDest()));
+            var ifInst = new IRIf(num, condInst, truestmt, falsestmt);
+            // var vals = new ArrayList<IREntity>();
+            // var Labels = new ArrayList<IRLabel>();
+            // vals.add(trueInst.getDest());
+            // Labels.add(ifInst.getBodyLabel());
+            // vals.add(falseInst.getDest());
+            // Labels.add(ifInst.getElseLabel());
+            // var phiInst = new IRPhi(dest, dest.getType(), vals, Labels);
             instList.addBlockInsts(ifInst);
-            instList.addInsts(phiInst);
+            // instList.addInsts(phiInst);
+            var dest = new IRVariable(resType, "%cond." + (++counter.loadCount));
+            instList.addInsts(new IRLoad(dest, wirteDest));
             instList.setDest(dest);
         }
         exitASTNode(node);
@@ -861,7 +911,8 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             instList.setDest(dest);
         } else if (node.getAtomType() == ASTAtomExpr.Type.CONSTARRAY) {
             // var irType = new IRType((TypeInfo) node.getConstarray().getInfo().getType());
-            // var dest = new IRVariable(irType, "@constarray." + (++counter.constarrayCount));
+            // var dest = new IRVariable(irType, "@constarray." +
+            // (++counter.constarrayCount));
             var constArrayInst = (IRStmt) node.getConstarray().accept(this);
             instList.addBlockInsts(constArrayInst);
             instList.setDest(constArrayInst.getDest());

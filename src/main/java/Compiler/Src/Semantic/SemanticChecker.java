@@ -271,7 +271,8 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
         }
         if (node.getOp().equals("<") || node.getOp().equals(">") || node.getOp().equals("<=")
                 || node.getOp().equals(">=")
-                || node.getOp().equals("==") || node.getOp().equals("!=")) {
+                || node.getOp().equals("==") || node.getOp().equals("!=") || node.getOp().equals("&&")
+                || node.getOp().equals("||")) {
             node.setInfo(new ExprInfo("binaryExpr", GlobalScope.boolType, false));
         } else {
             node.setInfo(new ExprInfo("binaryExpr", Ltype, false));
