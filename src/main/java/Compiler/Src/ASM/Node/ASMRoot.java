@@ -1,6 +1,8 @@
 package Compiler.Src.ASM.Node;
 
 import java.util.ArrayList;
+
+import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Node.Global.*;
 
 @lombok.Getter
@@ -19,5 +21,10 @@ public class ASMRoot extends ASMNode {
     @Override
     public String toString() {
         return "";
+    }
+
+    @Override
+    public <T> T accept(ASMVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

@@ -2,6 +2,7 @@ package Compiler.Src.ASM.Node.Global;
 
 import java.util.ArrayList;
 
+import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Node.ASMNode;
 import Compiler.Src.ASM.Node.Stmt.*;
 
@@ -21,5 +22,10 @@ public class ASMFuncDef extends ASMNode {
     @Override
     public String toString() {
         return "";
+    }
+
+    @Override
+    public <T> T accept(ASMVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }

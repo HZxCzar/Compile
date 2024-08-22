@@ -2,17 +2,17 @@ package Compiler.Src.ASM.Node.Inst.Presudo;
 
 import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Entity.ASMReg;
-import Compiler.Src.ASM.Node.Inst.ASMInst;
+import Compiler.Src.ASM.Node.ASMNode;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMLi extends ASMInst {
-    private ASMReg dest;
-    private int imm;
+public class ASMBezq extends ASMNode{
+    private ASMReg rs1;
+    private String Label;
 
-    public ASMLi(ASMReg dest, int imm) {
-        this.dest = dest;
-        this.imm = imm;
+    public ASMBezq(ASMReg rs1, String label) {
+        this.rs1 = rs1;
+        Label = label;
     }
 
     @Override

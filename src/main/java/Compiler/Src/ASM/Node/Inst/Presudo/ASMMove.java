@@ -6,13 +6,13 @@ import Compiler.Src.ASM.Node.Inst.ASMInst;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMLi extends ASMInst {
+public class ASMMove extends ASMInst {
     private ASMReg dest;
-    private int imm;
+    private ASMReg rs1;
 
-    public ASMLi(ASMReg dest, int imm) {
+    public ASMMove(ASMReg dest, ASMReg rs1) {
         this.dest = dest;
-        this.imm = imm;
+        this.rs1 = rs1;
     }
 
     @Override

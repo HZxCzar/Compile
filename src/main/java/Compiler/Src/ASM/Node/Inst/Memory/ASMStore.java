@@ -1,5 +1,6 @@
 package Compiler.Src.ASM.Node.Inst.Memory;
 
+import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Node.Inst.ASMInst;
 
 @lombok.Getter
@@ -18,5 +19,9 @@ public class ASMStore extends ASMInst {
     @Override
     public String toString() {
         return "";
+    }
+    @Override
+    public <T> T accept(ASMVisitor<T> visitor) {
+        return visitor.visit(this);
     }
 }
