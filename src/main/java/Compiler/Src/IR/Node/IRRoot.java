@@ -8,6 +8,8 @@ import Compiler.Src.IR.Node.Def.IRGlobalDef;
 import Compiler.Src.Util.BasicType;
 import Compiler.Src.Util.Error.BaseError;
 
+@lombok.Getter
+@lombok.Setter
 public class IRRoot extends IRNode {
     private ArrayList<IRGlobalDef> defs;
     private ArrayList<IRFuncDef> funcs;

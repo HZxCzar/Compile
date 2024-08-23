@@ -39,13 +39,10 @@ public class IRCall extends IRInst {
     @Override
     public String toString() {
         String str = (dest == null ? "" : dest.getValue() + " = ") + "call " + type.toString();
-        if (funcName.equals("__array_alloca")) {
-            str += " (i32, i32, i32, ...)";
-        }
-        str += " @" + funcName + "(" ;
-        for(int i=0;i<args.size();i++){
+        str += " @" + funcName + "(";
+        for (int i = 0; i < args.size(); i++) {
             str += args.get(i).getType().toString() + " " + args.get(i).getValue();
-            if(i != args.size()-1){
+            if (i != args.size() - 1) {
                 str += ", ";
             }
         }

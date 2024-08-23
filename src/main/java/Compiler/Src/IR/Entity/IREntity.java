@@ -1,6 +1,8 @@
 package Compiler.Src.IR.Entity;
 
+import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Type.IRType;
+import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Setter
@@ -21,4 +23,8 @@ public abstract class IREntity{
     }
 
     public abstract String toString();
+
+    public <T> T accept(IRVisitor<T> visitor) throws BaseError {
+    return visitor.visit(this);
+  }
 }

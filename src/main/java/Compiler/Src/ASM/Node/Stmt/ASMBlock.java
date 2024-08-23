@@ -1,6 +1,7 @@
 package Compiler.Src.ASM.Node.Stmt;
 
 import Compiler.Src.ASM.ASMVisitor;
+import Compiler.Src.ASM.Node.Inst.ASMInst;
 import Compiler.Src.ASM.Node.Util.ASMLabel;
 
 @lombok.Getter
@@ -17,5 +18,15 @@ public class ASMBlock extends ASMStmt {
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public String toString() {
+        String str = label.toString() + ":\n";
+        for (var inst : getInsts()) {
+            str += "  " + inst.toString() + "\n";
+        }
+        str += returnInst.toString();
+        return str;
     }
 }

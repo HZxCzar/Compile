@@ -17,8 +17,10 @@ public class ASMLi extends ASMInst {
 
     @Override
     public String toString() {
-        return "";
+        String str = "li " + dest.toString() + ", " + imm;
+        return str;
     }
+
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);

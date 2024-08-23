@@ -52,6 +52,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 var typename = "%class." + def.findName();
                 initSize(typename, defs);
                 var structtype = new IRStructType(typename, defs, aline);
+                structtype.setSize(name2Size.get(typename));
                 program.addDef(new IRGlobalDef(new IRVariable(structtype, typename)));
             }
         }
@@ -78,7 +79,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             }
         }
         var init = initFunc.getBlockstmts().get(initFunc.getBlockstmts().size() - 1);
-        init.addInsts(new IRRet());
+        // init.addInsts(new IRRet());
         init.setReturnInst(new IRRet());
         program.addFunc(initFunc, 0);
         for (var str : strDefs) {

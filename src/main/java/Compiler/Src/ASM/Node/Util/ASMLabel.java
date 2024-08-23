@@ -14,7 +14,7 @@ public class ASMLabel extends ASMInst {
 
     @Override
     public String toString() {
-        return label + ":";
+        return label;
     }
 
     @Override

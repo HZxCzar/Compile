@@ -5,10 +5,10 @@ import Compiler.Src.ASM.Node.ASMNode;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMStrDef extends ASMNode{
+public class ASMStrDef extends ASMNode {
     private String name;
     private String value;
-    
+
     public ASMStrDef(String name, String value) {
         this.name = name;
         this.value = value;
@@ -16,7 +16,9 @@ public class ASMStrDef extends ASMNode{
 
     @Override
     public String toString() {
-        return "";
+        String str = name + ":\n";
+        str += "  .string \"" + value + "\"\n";
+        return str;
     }
 
     @Override

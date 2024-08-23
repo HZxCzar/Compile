@@ -14,7 +14,8 @@ public class ASMJump extends ASMInst {
 
     @Override
     public String toString() {
-        return "";
+        String str = "j " + label;
+        return str;
     }
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {

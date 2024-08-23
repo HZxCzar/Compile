@@ -3,6 +3,7 @@ package Compiler.Src.ASM.Node.Inst.Control;
 import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Entity.ASMReg;
 import Compiler.Src.ASM.Node.Inst.ASMInst;
+import Compiler.Src.Util.Error.ASMError;
 
 @lombok.Getter
 @lombok.Setter
@@ -17,7 +18,7 @@ public class ASMBranch extends ASMInst {
 
     @Override
     public String toString() {
-        return "";
+        throw new ASMError("Branch instruction should not be printed");
     }
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {

@@ -124,7 +124,7 @@ public class IRControl {
                     continue;
                 }
                 if (inst instanceof IRRet || inst instanceof IRBranch) {
-                    blocks.get(blocks.size() - 1).addInsts(inst);
+                    // blocks.get(blocks.size() - 1).addInsts(inst);
                     blocks.get(blocks.size() - 1).setReturnInst(inst);
                 } else if (inst instanceof IRAlloca) {
                     enterblock.addInsts(inst);
@@ -137,11 +137,11 @@ public class IRControl {
         if (lastblock.getReturnInst() == null) {
             if (irType.equals(GlobalScope.irVoidType)) {
                 var ret = new IRRet();
-                lastblock.addInsts(ret);
+                // lastblock.addInsts(ret);
                 lastblock.setReturnInst(ret);
             } else {
                 var branch = new IRBranch(new IRLabel(lastblock.getLabelName().getLabel()));
-                lastblock.addInsts(branch);
+                // lastblock.addInsts(branch);
                 lastblock.setReturnInst(branch);
             }
         }
@@ -149,7 +149,7 @@ public class IRControl {
         // enterblock.addBlockInsts(firstblock);
         // enterblock.setReturnInst(firstblock.getReturnInst());
         var enterBranch2start = new IRLabel("start");
-        enterblock.addInsts(new IRBranch(enterBranch2start));
+        // enterblock.addInsts(new IRBranch(enterBranch2start));
         enterblock.setReturnInst(
                 new IRBranch(enterBranch2start));
         blocks.add(0, enterblock);
@@ -163,7 +163,7 @@ public class IRControl {
             if (inst instanceof IRLabel) {
                 var br = new IRBranch((IRLabel) inst);
                 if (blocks.get(blocks.size() - 1).getReturnInst() == null) {
-                    blocks.get(blocks.size() - 1).addInsts(inst);
+                    // blocks.get(blocks.size() - 1).addInsts(inst);
                     blocks.get(blocks.size() - 1).setReturnInst(br);
                 }
                 blocks.add(new IRBlock((IRLabel) inst));
@@ -172,7 +172,7 @@ public class IRControl {
                     continue;
                 }
                 if (inst instanceof IRRet || inst instanceof IRBranch) {
-                    blocks.get(blocks.size() - 1).addInsts(inst);
+                    // blocks.get(blocks.size() - 1).addInsts(inst);
                     blocks.get(blocks.size() - 1).setReturnInst(inst);
                 } else if (inst instanceof IRAlloca) {
                     enterblock.addFront(inst);

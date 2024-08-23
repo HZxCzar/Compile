@@ -17,8 +17,10 @@ public class ASMMove extends ASMInst {
 
     @Override
     public String toString() {
-        return "";
+        String str = "mv " + dest.toString() + ", " + rs1.toString();
+        return str;
     }
+
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);

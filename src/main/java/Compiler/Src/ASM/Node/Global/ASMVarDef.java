@@ -16,7 +16,9 @@ public class ASMVarDef extends ASMNode {
 
     @Override
     public String toString() {
-        return "";
+        String str = name + ":\n";
+        str += "  .word " + value + "\n";
+        return str;
     }
 
     @Override

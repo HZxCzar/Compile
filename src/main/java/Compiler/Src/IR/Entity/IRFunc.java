@@ -1,6 +1,8 @@
 package Compiler.Src.IR.Entity;
 
+import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Type.IRType;
+import Compiler.Src.Util.Error.BaseError;
 
 @lombok.Getter
 @lombok.Setter
@@ -15,7 +17,12 @@ public class IRFunc extends IREntity {
     }
 
     @Override
-    public String toString(){
+    public String toString() {
         return "@" + getValue();
+    }
+
+    @Override
+    public <T> T accept(IRVisitor<T> visitor) throws BaseError {
+        return visitor.visit(this);
     }
 }

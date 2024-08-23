@@ -20,7 +20,8 @@ public class ASMArithI extends ASMInst {
 
     @Override
     public String toString() {
-        return "";
+        String str = op + " " + dest.toString() + ", " + lhs.toString() + ", " + imm;
+        return str;
     }
 
     @Override

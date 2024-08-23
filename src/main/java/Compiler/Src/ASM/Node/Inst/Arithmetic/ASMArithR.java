@@ -17,7 +17,8 @@ public class ASMArithR extends ASMInst {
     }
     @Override
     public String toString() {
-        return "";
+        String str = op + " " + dest.toString() + ", " + lhs.toString() + ", " + rhs.toString();
+        return str;
     }
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {

@@ -13,7 +13,7 @@ public interface IRVisitor<T> {
     public T visit(IRFuncDef node) throws BaseError;
     public T visit(IRBlock node) throws BaseError;
     public T visit(IRGlobalDef node) throws BaseError;
-    // public T visit(IRStrDef node) throws BaseError;
+    public T visit(IRStrDef node) throws BaseError;
   
     public T visit(IRAlloca node) throws BaseError;
     public T visit(IRArith node) throws BaseError;
@@ -23,6 +23,7 @@ public interface IRVisitor<T> {
     public T visit(IRRet node) throws BaseError;
     public T visit(IRLoad node) throws BaseError;
     public T visit(IRPhi node) throws BaseError;
+    public T visit(IRIcmp node) throws BaseError;
     // public T visit(IRJump node) throws BaseError;
     public T visit(IRStore node) throws BaseError;
     // public T visit(IRCommentNode node) throws BaseError;

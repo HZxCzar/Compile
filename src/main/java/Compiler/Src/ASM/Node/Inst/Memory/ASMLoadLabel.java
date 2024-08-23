@@ -9,14 +9,18 @@ import Compiler.Src.ASM.Node.Inst.ASMInst;
 public class ASMLoadLabel extends ASMInst {
     ASMReg dest;
     String label;
+
     public ASMLoadLabel(ASMReg dest, String label) {
         this.dest = dest;
         this.label = label;
     }
+
     @Override
     public String toString() {
-        return "";
+        String str = "la " + dest.toString() + ", " + label;
+        return str;
     }
+
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
