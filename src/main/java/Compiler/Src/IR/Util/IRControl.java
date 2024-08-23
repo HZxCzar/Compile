@@ -5,17 +5,11 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
-import java.util.jar.Attributes.Name;
 
 import Compiler.Src.AST.Node.ASTNode;
-import Compiler.Src.AST.Node.ExprNode.ASTAssignExpr;
-import Compiler.Src.AST.Node.ExprNode.ASTAtomExpr;
-import Compiler.Src.AST.Node.ExprNode.ASTNewExpr;
-import Compiler.Src.AST.Node.StatementNode.ASTForstatement;
 import Compiler.Src.AST.Node.StatementNode.ASTIfstatement;
 import Compiler.Src.AST.Node.Util.ASTScopedNode;
 import Compiler.Src.Util.Error.*;
-import Compiler.Src.Util.Info.ExprInfo;
 import Compiler.Src.Util.Info.TypeInfo;
 import Compiler.Src.IR.Entity.*;
 import Compiler.Src.IR.Node.Def.IRFuncDef;

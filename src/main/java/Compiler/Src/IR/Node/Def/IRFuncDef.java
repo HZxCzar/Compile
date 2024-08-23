@@ -10,7 +10,6 @@ import Compiler.Src.IR.Node.Stmt.IRStmt;
 import Compiler.Src.IR.Node.Inst.IRStore;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
-import Compiler.Src.Util.Error.IRError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Getter

@@ -3,7 +3,6 @@ package Compiler.Src.ASM;
 import Compiler.Src.ASM.Entity.*;
 import Compiler.Src.ASM.Node.*;
 import Compiler.Src.ASM.Node.Global.*;
-import Compiler.Src.ASM.Node.Inst.*;
 import Compiler.Src.ASM.Node.Inst.Arithmetic.*;
 import Compiler.Src.ASM.Node.Inst.Control.*;
 import Compiler.Src.ASM.Node.Inst.Memory.*;

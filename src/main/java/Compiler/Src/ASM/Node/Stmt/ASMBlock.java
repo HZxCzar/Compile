@@ -1,7 +1,6 @@
 package Compiler.Src.ASM.Node.Stmt;
 
 import Compiler.Src.ASM.ASMVisitor;
-import Compiler.Src.ASM.Node.Inst.ASMInst;
 import Compiler.Src.ASM.Node.Util.ASMLabel;
 
 @lombok.Getter

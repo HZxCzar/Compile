@@ -1,7 +1,5 @@
 package Compiler.Src.IR.Node.Stmt;
 
-import java.util.ArrayList;
-
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Node.Inst.IRInst;
 import Compiler.Src.IR.Node.util.IRLabel;

@@ -1,6 +1,5 @@
 package Compiler.Src.Util.Info;
 
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 
 import Compiler.Src.AST.Node.DefNode.*;

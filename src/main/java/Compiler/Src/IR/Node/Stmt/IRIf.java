@@ -1,9 +1,6 @@
 package Compiler.Src.IR.Node.Stmt;
 
-import java.util.ArrayList;
-
 import Compiler.Src.IR.IRVisitor;
-import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.Util.Error.BaseError;

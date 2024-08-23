@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
-import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
 
 @lombok.Getter
