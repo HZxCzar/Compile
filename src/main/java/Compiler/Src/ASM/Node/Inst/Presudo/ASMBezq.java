@@ -25,4 +25,8 @@ public class ASMBezq extends ASMInst {
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    public void addFuncName(String funcName) {
+        Label = funcName + "." + Label;
+    }
 }

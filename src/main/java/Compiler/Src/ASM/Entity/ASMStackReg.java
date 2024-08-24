@@ -18,8 +18,8 @@ public class ASMStackReg extends ASMReg {
     }
 
     public ASMStackReg(ASMCounter counter) {
-        super("a0");
-        this.offset = counter.allocaCount++;
+        super("StackReg");
+        this.offset = (counter.allocaCount++)-2;
     }
 
     @Override

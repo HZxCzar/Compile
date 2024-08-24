@@ -32,7 +32,7 @@ public class ASMStmt extends ASMNode {
     public String toString() {
         String str = "";
         for (var inst : insts) {
-            str += "  "+inst.toString() + "\n";
+            str += "    "+inst.toString() + "\n";
         }
         return str;
     }

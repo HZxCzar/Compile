@@ -17,7 +17,7 @@ public class ASMStrDef extends ASMNode {
     @Override
     public String toString() {
         String str = name + ":\n";
-        str += "  .string \"" + value + "\"\n";
+        str += "    .string \"" + value + "\"\n";
         return str;
     }
 

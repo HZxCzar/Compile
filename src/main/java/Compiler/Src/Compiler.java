@@ -41,7 +41,7 @@ public class Compiler {
             output.println(irProgram);
             output.close();
             // System.out.println(irProgram);
-            var codegenOutput = new PrintStream(new FileOutputStream("src/test/mx/output.s"));
+            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
             ASMNode asmProgram = new ASMBuilder().visit((IRRoot) irProgram);
             codegenOutput.println(asmProgram);
             codegenOutput.close();

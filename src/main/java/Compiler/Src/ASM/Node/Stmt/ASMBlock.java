@@ -23,7 +23,7 @@ public class ASMBlock extends ASMStmt {
     public String toString() {
         String str = label.toString() + ":\n";
         for (var inst : getInsts()) {
-            str += "  " + inst.toString() + "\n";
+            str += "    " + inst.toString() + "\n";
         }
         str += returnInst.toString();
         return str;

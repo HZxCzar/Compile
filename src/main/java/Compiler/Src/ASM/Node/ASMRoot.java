@@ -21,15 +21,18 @@ public class ASMRoot extends ASMNode {
     @Override
     public String toString() {
         String str = "";
+        str += ".data\n";
         for (var var : vars) {
             str += var.toString() + "\n";
         }
         str+="\n";
+        str += ".rodata\n";
         for (var strUnit : strs) {
             str += strUnit.toString() + "\n";
         }
         str+="\n";
         for (var func : funcs) {
+            str += ".text\n";
             str += func.toString() + "\n";
         }
         return str;

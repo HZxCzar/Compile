@@ -11,7 +11,7 @@ public class ASMCounter {
 
     public ASMCounter() {
         funcCount++;
-        this.allocaCount = 0;
+        this.allocaCount = 2;
         this.name2reg = new TreeMap<String, ASMReg>();
     }
 }

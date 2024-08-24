@@ -48,8 +48,8 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var funcDef = new ASMFuncDef(node.getName(), node.getParams().size());
         counter = new ASMCounter();
         var paramCount = 0;
-        var paramSum = node.getParams().size();
         var initStmt = new ASMBlock(new ASMLabel(node.getName()));
+        var offsetStack = (4 * (node.getParams().size() - 8) + 15) / 16 * 16;
         for (var param : node.getParams()) {
             var paramInst = (ASMStmt) param.accept(this);
             var paramDest = paramInst.getDest();
@@ -58,7 +58,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                         new ASMStore("sw", getArgReg(paramCount), 4 * ((ASMStackReg) paramDest).getOffset(),
                                 regs.getSp()));
             } else {
-                initStmt.addInst(new ASMLoad("lw", regs.getT0(), 4 * (paramSum - paramCount - 1), regs.getGp()));
+                initStmt.addInst(new ASMLoad("lw", regs.getT0(), offsetStack - 4 * (paramCount - 7), regs.getT1()));
                 initStmt.addInst(
                         new ASMStore("sw", regs.getT0(), 4 * ((ASMStackReg) paramDest).getOffset(), regs.getSp()));
             }
@@ -109,10 +109,11 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var instList = new ASMStmt();
         var DestInst = (ASMStmt) node.getDest().accept(this);
         var allocaDest = DestInst.getDest();
+        var Dest = new ASMStackReg(counter);
         if (allocaDest instanceof ASMPhysicalReg) {
             throw new ASMError("not supose to use this in Naive ASM");
         }
-        instList.addInst(new ASMArithI("addi", regs.getA0(), regs.getSp(), ((ASMStackReg) allocaDest).getOffset()));
+        instList.addInst(new ASMArithI("addi", regs.getA0(), regs.getSp(), 4 * ((ASMStackReg) Dest).getOffset()));
         instList.addInst(new ASMStore("sw", regs.getA0(), 4 * ((ASMStackReg) allocaDest).getOffset(), regs.getSp()));
         return instList;
     }
@@ -197,10 +198,10 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                 InstList.addInst(new ASMArithR("slt", regs.getA0(), regs.getA1(), regs.getA2()));
             }
             case "sgt" -> {
-                InstList.addInst(new ASMArithR("sgt", regs.getA0(), regs.getA2(), regs.getA1()));
+                InstList.addInst(new ASMArithR("slt", regs.getA0(), regs.getA2(), regs.getA1()));
             }
             case "sle" -> {
-                InstList.addInst(new ASMArithR("sgt", regs.getA0(), regs.getA1(), regs.getA2()));
+                InstList.addInst(new ASMArithR("slt", regs.getA0(), regs.getA2(), regs.getA1()));
                 InstList.addInst(new ASMUnarry("seqz", regs.getA0(), regs.getA0()));
             }
             case "sge" -> {
@@ -249,12 +250,13 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             }
             ++argNum;
         }
+        var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {
-            InstList.addInst(new ASMArithI("addi", regs.getSp(), regs.getSp(), -4 * offset));
+            InstList.addInst(new ASMArithI("addi", regs.getSp(), regs.getSp(), -offsetStack));
         }
         InstList.addInst(new ASMCall(node.getFuncName()));
         if (offset != 0) {
-            InstList.addInst(new ASMArithI("addi", regs.getSp(), regs.getSp(), 4 * offset));
+            InstList.addInst(new ASMArithI("addi", regs.getSp(), regs.getSp(), offsetStack));
         }
         if (node.getDest() != null) {
             var destInst = (ASMStmt) node.getDest().accept(this);

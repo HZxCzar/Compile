@@ -21,4 +21,8 @@ public class ASMJump extends ASMInst {
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
+    public void addFuncName(String funcName) {
+        label = funcName + "." + label;
+    }
 }
