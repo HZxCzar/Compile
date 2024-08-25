@@ -298,84 +298,92 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             args1.add(rhsStr);
             instList.addInsts(new IRCall(strAdd, GlobalScope.irPtrType, "__string.concat", args1));
             instList.addInsts(new IRStore(dest, strAdd));
+            if (i != node.getStrpart().size() - 1) {
+                if (node.getExprpart() != null) {
+                    var expr = node.getExprpart().get(i);
+                    var exprInst = (IRStmt) expr.accept(this);
+                    instList.addBlockInsts(exprInst);
+                    var rhsExpr = exprInst.getDest();
+                    if (rhsExpr.getType().getTypeName().equals("i1")) {
+                        var boolstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
+                        var callargs = new ArrayList<IREntity>();
+                        callargs.add(rhsExpr);
+                        var call_bool_string = new IRCall(boolstr, GlobalScope.irPtrType, "__bool_to_string", callargs);
+                        instList.addInsts(call_bool_string);
+                        var args2 = new ArrayList<IREntity>();
+                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
+                        instList.addInsts(new IRLoad(lhsStr2, dest));
+                        args2.add(lhsStr2);
+                        args2.add(boolstr);
+                        var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
+                        instList.addInsts(new IRStore(dest, boolstrAdd));
+                        // var dest1=new
+                        // IRVariable(GlobalScope.irPtrType,"%FstringRes."+(++counter.loadCount));
+                        // var cond=new IRStmt();
+                        // cond.addInsts(new IRIcmp(dest1,"eq",GlobalScope.irBoolType,rhsExpr,new
+                        // IRLiteral(GlobalScope.irBoolType,"1")));
+                        // var trueExpr=new IRStmt();
+                        // var falseExpr=new IRStmt();
 
-            if (node.getExprpart() != null) {
-                var expr = node.getExprpart().get(i);
-                var exprInst = (IRStmt) expr.accept(this);
-                instList.addBlockInsts(exprInst);
-                var rhsExpr = exprInst.getDest();
-                if (rhsExpr.getType().getTypeName().equals("i1")) {
-                    var boolstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
-                    var callargs = new ArrayList<IREntity>();
-                    callargs.add(rhsExpr);
-                    var call_bool_string = new IRCall(boolstr, GlobalScope.irPtrType, "__bool_to_string", callargs);
-                    instList.addInsts(call_bool_string);
-                    var args2 = new ArrayList<IREntity>();
-                    var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-                    instList.addInsts(new IRLoad(lhsStr2, dest));
-                    args2.add(lhsStr2);
-                    args2.add(boolstr);
-                    var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
-                    instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
-                    instList.addInsts(new IRStore(dest, boolstrAdd));
-                    // var dest1=new
-                    // IRVariable(GlobalScope.irPtrType,"%FstringRes."+(++counter.loadCount));
-                    // var cond=new IRStmt();
-                    // cond.addInsts(new IRIcmp(dest1,"eq",GlobalScope.irBoolType,rhsExpr,new
-                    // IRLiteral(GlobalScope.irBoolType,"1")));
-                    // var trueExpr=new IRStmt();
-                    // var falseExpr=new IRStmt();
+                        // var resStr=new
+                        // IRVariable(GlobalScope.irPtrType,"%resStr."+(++counter.loadCount));
+                        // //TODO: add trueExpr and falseExpr
+                        // var args2=new ArrayList<IREntity>();
+                        // var TurestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
+                        // (++IRCounter.strCount));
+                        // var Turestr = new IRStrDef(TurestrDest,"true");
+                        // strDefs.add(Turestr);
+                        // var lhsStr2=new
+                        // IRVariable(GlobalScope.irPtrType,"%lhs."+(++counter.loadCount));
+                        // trueExpr.addInsts(new IRLoad(lhsStr2,dest));
+                        // args2.add(lhsStr2);
+                        // args2.add(TurestrDest);
+                        // trueExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType, "__string_concat",
+                        // args2));
 
-                    // var resStr=new
-                    // IRVariable(GlobalScope.irPtrType,"%resStr."+(++counter.loadCount));
-                    // //TODO: add trueExpr and falseExpr
-                    // var args2=new ArrayList<IREntity>();
-                    // var TurestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
-                    // (++IRCounter.strCount));
-                    // var Turestr = new IRStrDef(TurestrDest,"true");
-                    // strDefs.add(Turestr);
-                    // var lhsStr2=new
-                    // IRVariable(GlobalScope.irPtrType,"%lhs."+(++counter.loadCount));
-                    // trueExpr.addInsts(new IRLoad(lhsStr2,dest));
-                    // args2.add(lhsStr2);
-                    // args2.add(TurestrDest);
-                    // trueExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType, "__string_concat",
-                    // args2));
+                        // var args3=new ArrayList<IREntity>();
+                        // var FalsestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
+                        // (++IRCounter.strCount));
+                        // var Falsestr = new IRStrDef(FalsestrDest,"false");
+                        // strDefs.add(Falsestr);
+                        // falseExpr.addInsts(new IRLoad(lhsStr2,dest));
+                        // args3.add(lhsStr2);
+                        // args3.add(FalsestrDest);
+                        // falseExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType,
+                        // "__string_concat", args3));
 
-                    // var args3=new ArrayList<IREntity>();
-                    // var FalsestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
-                    // (++IRCounter.strCount));
-                    // var Falsestr = new IRStrDef(FalsestrDest,"false");
-                    // strDefs.add(Falsestr);
-                    // falseExpr.addInsts(new IRLoad(lhsStr2,dest));
-                    // args3.add(lhsStr2);
-                    // args3.add(FalsestrDest);
-                    // falseExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType,
-                    // "__string_concat", args3));
-
-                    // instList.addBlockInsts(new IRIf(0,cond,trueExpr,falseExpr));
-                    // instList.addInsts(new IRStore(dest,resStr));
-                } else if (rhsExpr.getType().getTypeName().equals("i32")) {
-                    var intstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
-                    var callargs = new ArrayList<IREntity>();
-                    callargs.add(rhsExpr);
-                    var call_int_string = new IRCall(intstr, GlobalScope.irPtrType, "__int_to_string", callargs);
-                    instList.addInsts(call_int_string);
-                    var args2 = new ArrayList<IREntity>();
-                    var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-                    instList.addInsts(new IRLoad(lhsStr2, dest));
-                    args2.add(lhsStr2);
-                    args2.add(intstr);
-                    var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
-                    instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
-                    instList.addInsts(new IRStore(dest, strAdd));
-                } else {
-                    throw new IRError("Fstring can only concat int or bool");
+                        // instList.addBlockInsts(new IRIf(0,cond,trueExpr,falseExpr));
+                        // instList.addInsts(new IRStore(dest,resStr));
+                    } else if (rhsExpr.getType().getTypeName().equals("i32")) {
+                        var intstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
+                        var callargs = new ArrayList<IREntity>();
+                        callargs.add(rhsExpr);
+                        var call_int_string = new IRCall(intstr, GlobalScope.irPtrType, "__int_to_string", callargs);
+                        instList.addInsts(call_int_string);
+                        var args2 = new ArrayList<IREntity>();
+                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
+                        instList.addInsts(new IRLoad(lhsStr2, dest));
+                        args2.add(lhsStr2);
+                        args2.add(intstr);
+                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
+                        instList.addInsts(new IRStore(dest, strAdd));
+                    } else {
+                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
+                        instList.addInsts(new IRLoad(lhsStr2, dest));
+                        var args2 = new ArrayList<IREntity>();
+                        args2.add(lhsStr2);
+                        args2.add(rhsExpr);
+                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
+                        instList.addInsts(new IRStore(dest, strAdd));
+                    }
                 }
             }
         }
         exitASTNode(node);
-        return new IRNode();
+        return instList;
     }
 
     @Override
