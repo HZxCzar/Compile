@@ -13,6 +13,7 @@ import Compiler.Src.ASM.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM.Node.Inst.Memory.ASMStore;
 import Compiler.Src.ASM.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM.Node.Inst.Presudo.ASMRet;
 
 @lombok.Getter
@@ -31,10 +32,20 @@ public class ASMFuncDef extends ASMNode {
     public void Formolize(ASMControl control) {
         var initBlock = blocks.get(0);
         var total = ((4 * (paramCount + control.getCounter().allocaCount)) + 15) / 16 * 16;
-        initBlock.addInst(0, new ASMArithI("addi", control.getRegs().getSp(), control.getRegs().getSp(), -total));
-        initBlock.addInst(1, new ASMStore("sw", control.getRegs().getRa(), total - 4, control.getRegs().getSp()));
-        initBlock.addInst(2, new ASMStore("sw", control.getRegs().getS0(), total - 8, control.getRegs().getSp()));
-        initBlock.addInst(3, new ASMArithI("addi", control.getRegs().getT1(), control.getRegs().getSp(), total));
+        initBlock.addInst(0, new ASMLi(control.getRegs().getT0(), -total));
+        initBlock.addInst(1,
+                new ASMArithR("add", control.getRegs().getSp(), control.getRegs().getSp(), control.getRegs().getT0()));
+        initBlock.addInst(2, new ASMLi(control.getRegs().getT0(), total - 4));
+        initBlock.addInst(3,
+                new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(), control.getRegs().getSp()));
+        initBlock.addInst(4, new ASMStore("sw", control.getRegs().getRa(), 0, control.getRegs().getT0()));
+        initBlock.addInst(5, new ASMLi(control.getRegs().getT0(), total - 8));
+        initBlock.addInst(6,
+                new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(), control.getRegs().getSp()));
+        initBlock.addInst(7, new ASMStore("sw", control.getRegs().getS0(), 0, control.getRegs().getT0()));
+        initBlock.addInst(8, new ASMLi(control.getRegs().getT0(), total));
+        initBlock.addInst(9,
+                new ASMArithR("add", control.getRegs().getS0(), control.getRegs().getSp(), control.getRegs().getT0()));
         var jumpStmt = new ASMStmt();
         var jumpInst = new ASMJump(name + "." + getBlocks().get(1).getLabel().getLabel());
         jumpStmt.addInst(jumpInst);
@@ -50,7 +61,7 @@ public class ASMFuncDef extends ASMNode {
                 var inst = block.getReturnInst().getInsts().get(j);
                 if (inst instanceof ASMJump) {
                     ((ASMJump) inst).addFuncName(name);
-                } 
+                }
                 if (inst instanceof ASMBezq) {
                     ((ASMBezq) inst).addFuncName(name);
                 }
@@ -59,15 +70,28 @@ public class ASMFuncDef extends ASMNode {
                         throw new ASMError("ret should be the last instruction in a block");
                     } else {
                         block.getReturnInst().addInst(j,
-                                new ASMLoad("lw", control.getRegs().getRa(), total - 4, control.getRegs().getSp()));
+                                new ASMLi(control.getRegs().getT0(), total - 4));
                         block.getReturnInst().addInst(j + 1,
-                                new ASMLoad("lw", control.getRegs().getS0(), total - 8, control.getRegs().getSp()));
+                                new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+                                        control.getRegs().getSp()));
                         block.getReturnInst().addInst(j + 2,
-                                new ASMArithI("addi", control.getRegs().getSp(), control.getRegs().getSp(),
-                                        total));
+                                new ASMLoad("lw", control.getRegs().getRa(), 0, control.getRegs().getT0()));
+
+                        block.getReturnInst().addInst(j + 3,
+                                new ASMLi(control.getRegs().getT0(), total - 8));
+                        block.getReturnInst().addInst(j + 4,
+                                new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+                                        control.getRegs().getSp()));
+                        block.getReturnInst().addInst(j + 5,
+                                new ASMLoad("lw", control.getRegs().getS0(), 0, control.getRegs().getT0()));
+                        block.getReturnInst().addInst(j + 6,
+                                new ASMLi(control.getRegs().getT0(), total));
+                        block.getReturnInst().addInst(j + 7,
+                                new ASMArithR("add", control.getRegs().getSp(), control.getRegs().getSp(),
+                                        control.getRegs().getT0()));
                     }
                     break;
-                } 
+                }
             }
             // var lastInst = block.getReturnInst().getInsts().get(size - 1);
             // if (lastInst instanceof ASMJump) {

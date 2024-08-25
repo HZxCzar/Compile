@@ -1,7 +1,10 @@
 package Compiler.Src;
 
+import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintStream;
 import org.antlr.v4.runtime.*;
@@ -22,8 +25,8 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));// new
-                                                                                                   // FileInputStream("src/test/mx/input.mx")
+            CharStream input = CharStreams.fromStream(System.in);// new
+                                                                 // FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
             lexer.addErrorListener(new MxErrorListener());
@@ -35,16 +38,30 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
-            new IRCodegen().visit((IRRoot) irProgram);
-            var output = new PrintStream(new FileOutputStream("src/test/mx/output.ll"));// new
-                                                                                        // FileOutputStream("src/test/mx/output.ll")
-            output.println(irProgram);
-            output.close();
+            // new IRCodegen().visit((IRRoot) irProgram);
+            // var output = new PrintStream(new
+            // FileOutputStream("src/test/mx/output.ll"));// new
+            // // FileOutputStream("src/test/mx/output.ll")
+            // output.println(irProgram);
+            // output.close();
             // System.out.println(irProgram);
-            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
+            // var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
             ASMNode asmProgram = new ASMBuilder().visit((IRRoot) irProgram);
-            codegenOutput.println(asmProgram);
-            codegenOutput.close();
+            // codegenOutput.println(asmProgram);
+            // codegenOutput.close();
+            // PrintStream builtinOutput = new PrintStream(new
+            // FileOutputStream("bin/builtin.s"));
+            // builtinOutput.println(asmProgram);
+            // builtinOutput.close();
+            String filePath = "bin/builtin.s"; // 文件路径
+
+            BufferedReader reader = new BufferedReader(new FileReader(filePath));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                System.out.println(line);
+            }
+            reader.close();
+            System.out.println(asmProgram);
         } catch (BaseError e) {
             System.out.println(e.getMessage());
             System.exit(1);

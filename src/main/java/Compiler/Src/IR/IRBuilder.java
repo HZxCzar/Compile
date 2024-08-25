@@ -671,7 +671,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 }
                 elsestmt.addInsts(new IRStore(writeDest, tmpdest));
                 // elsestmt.setDest(dest);
-                var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, rhsInst);
+                var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, elsestmt);
                 instList.addBlockInsts(ifInst);
                 instList.addInsts(new IRLoad(dest, writeDest));
                 // var condLabel = ifInst.getCondLabel();
