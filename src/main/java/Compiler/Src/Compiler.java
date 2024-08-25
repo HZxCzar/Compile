@@ -53,7 +53,7 @@ public class Compiler {
             // FileOutputStream("bin/builtin.s"));
             // builtinOutput.println(asmProgram);
             // builtinOutput.close();
-            String filePath = "bin/builtin.s"; // 文件路径
+            String filePath = "builtin.s"; // 文件路径
 
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String line;
