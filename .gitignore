@@ -1,5 +1,6 @@
 /target/
 /testcases/
+/testcases_BASE/
 /src/main/antlr/*
 !/src/main/antlr/*.g4
 /src/test/

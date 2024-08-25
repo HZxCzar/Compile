@@ -483,7 +483,7 @@ public class ASTBuilder extends MxBaseVisitor<ASTNode> {
         var strpart = new ArrayList<String>();
         var exprpart = new ArrayList<ASTExpr>();
         if (ctx.basestring != null) {
-            strpart.add(ctx.FStringLiteral().getText().substring(2, ctx.FStringLiteral().getText().length() - 2));
+            strpart.add(ctx.FStringLiteral().getText().substring(2, ctx.FStringLiteral().getText().length() - 1));
             return ASTFstring.builder().pos(new position(ctx.start))
                     .strpart(strpart)
                     .exprpart(null).build();

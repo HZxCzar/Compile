@@ -281,23 +281,32 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         enterASTNode(node);
         var instList = new IRStmt();
         var dest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
-        instList.setDest(dest);
+        // var destAddr = new IRVariable(GlobalScope.irPtrType, "%strAddr." + (++counter.allocaCount));
+        var baseStr = new IRStrDef(dest, "");
+        strDefs.add(baseStr);
+        // instList.setDestAddr(destAddr);
         // var former = new IRVariable(GlobalScope.irPtrType, "@str." +
         // (++IRCounter.strCount));
         for (int i = 0; i < node.getStrpart().size(); ++i) {
             var strDest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
             var str = new IRStrDef(strDest, node.getStrpart().get(i));
             strDefs.add(str);
-            var lhsStr = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-            var rhsStr = new IRVariable(GlobalScope.irPtrType, "%rhs." + (++counter.loadCount));
+            // var lhsStr = new IRVariable(GlobalScope.irPtrType, "%lhs." +
+            // (++counter.loadCount));
+            // var rhsStr = new IRVariable(GlobalScope.irPtrType, "%rhs." +
+            // (++counter.loadCount));
             var strAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
-            instList.addInsts(new IRLoad(lhsStr, dest));
-            instList.addInsts(new IRLoad(rhsStr, strDest));
+            // instList.addInsts(new IRLoad(lhsStr, dest));
+            // instList.addInsts(new IRLoad(rhsStr, strDest));
             var args1 = new ArrayList<IREntity>();
-            args1.add(lhsStr);
-            args1.add(rhsStr);
+            args1.add(dest);
+            args1.add(strDest);
             instList.addInsts(new IRCall(strAdd, GlobalScope.irPtrType, "__string.concat", args1));
-            instList.addInsts(new IRStore(dest, strAdd));
+            dest = strAdd;
+            // var args1_1 = new ArrayList<IREntity>();
+            // args1_1.add(dest);
+            // args1_1.add(strAdd);
+            // instList.addInsts(new IRCall("__string.copy", args1_1));
             if (i != node.getStrpart().size() - 1) {
                 if (node.getExprpart() != null) {
                     var expr = node.getExprpart().get(i);
@@ -308,80 +317,60 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                         var boolstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
                         var callargs = new ArrayList<IREntity>();
                         callargs.add(rhsExpr);
-                        var call_bool_string = new IRCall(boolstr, GlobalScope.irPtrType, "__bool_to_string", callargs);
+                        var call_bool_string = new IRCall(boolstr, GlobalScope.irPtrType, "Bool_string.toString", callargs);
                         instList.addInsts(call_bool_string);
                         var args2 = new ArrayList<IREntity>();
-                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-                        instList.addInsts(new IRLoad(lhsStr2, dest));
-                        args2.add(lhsStr2);
+                        // var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." +
+                        // (++counter.loadCount));
+                        // instList.addInsts(new IRLoad(lhsStr2, dest));
+                        args2.add(dest);
                         args2.add(boolstr);
                         var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
-                        instList.addInsts(new IRStore(dest, boolstrAdd));
-                        // var dest1=new
-                        // IRVariable(GlobalScope.irPtrType,"%FstringRes."+(++counter.loadCount));
-                        // var cond=new IRStmt();
-                        // cond.addInsts(new IRIcmp(dest1,"eq",GlobalScope.irBoolType,rhsExpr,new
-                        // IRLiteral(GlobalScope.irBoolType,"1")));
-                        // var trueExpr=new IRStmt();
-                        // var falseExpr=new IRStmt();
-
-                        // var resStr=new
-                        // IRVariable(GlobalScope.irPtrType,"%resStr."+(++counter.loadCount));
-                        // //TODO: add trueExpr and falseExpr
-                        // var args2=new ArrayList<IREntity>();
-                        // var TurestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
-                        // (++IRCounter.strCount));
-                        // var Turestr = new IRStrDef(TurestrDest,"true");
-                        // strDefs.add(Turestr);
-                        // var lhsStr2=new
-                        // IRVariable(GlobalScope.irPtrType,"%lhs."+(++counter.loadCount));
-                        // trueExpr.addInsts(new IRLoad(lhsStr2,dest));
-                        // args2.add(lhsStr2);
-                        // args2.add(TurestrDest);
-                        // trueExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType, "__string_concat",
-                        // args2));
-
-                        // var args3=new ArrayList<IREntity>();
-                        // var FalsestrDest = new IRVariable(GlobalScope.irPtrType, "@str." +
-                        // (++IRCounter.strCount));
-                        // var Falsestr = new IRStrDef(FalsestrDest,"false");
-                        // strDefs.add(Falsestr);
-                        // falseExpr.addInsts(new IRLoad(lhsStr2,dest));
-                        // args3.add(lhsStr2);
-                        // args3.add(FalsestrDest);
-                        // falseExpr.addInsts(new IRCall(resStr,GlobalScope.irPtrType,
-                        // "__string_concat", args3));
-
-                        // instList.addBlockInsts(new IRIf(0,cond,trueExpr,falseExpr));
-                        // instList.addInsts(new IRStore(dest,resStr));
+                        dest = boolstrAdd;
+                        // var args2_1 = new ArrayList<IREntity>();
+                        // args2_1.add(dest);
+                        // args2_1.add(boolstrAdd);
+                        // instList.addInsts(new IRCall("__string.copy", args2_1));
                     } else if (rhsExpr.getType().getTypeName().equals("i32")) {
                         var intstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
                         var callargs = new ArrayList<IREntity>();
                         callargs.add(rhsExpr);
-                        var call_int_string = new IRCall(intstr, GlobalScope.irPtrType, "__int_to_string", callargs);
+                        var call_int_string = new IRCall(intstr, GlobalScope.irPtrType, "toString", callargs);
                         instList.addInsts(call_int_string);
                         var args2 = new ArrayList<IREntity>();
-                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-                        instList.addInsts(new IRLoad(lhsStr2, dest));
-                        args2.add(lhsStr2);
+                        // var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." +
+                        // (++counter.loadCount));
+                        // instList.addInsts(new IRLoad(lhsStr2, dest));
+                        args2.add(dest);
                         args2.add(intstr);
                         var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
-                        instList.addInsts(new IRStore(dest, strAdd));
+                        dest = intstrAdd;
+                        // instList.addInsts(new IRStore(dest, intstrAdd));
+                        // var args2_1 = new ArrayList<IREntity>();
+                        // args2_1.add(dest);
+                        // args2_1.add(intstrAdd);
+                        // instList.addInsts(new IRCall("__string.copy", args2_1));
                     } else {
-                        var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." + (++counter.loadCount));
-                        instList.addInsts(new IRLoad(lhsStr2, dest));
+                        // var lhsStr2 = new IRVariable(GlobalScope.irPtrType, "%lhs." +
+                        // (++counter.loadCount));
+                        // instList.addInsts(new IRLoad(lhsStr2, dest));
                         var args2 = new ArrayList<IREntity>();
-                        args2.add(lhsStr2);
+                        args2.add(dest);
                         args2.add(rhsExpr);
                         var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
-                        instList.addInsts(new IRStore(dest, strAdd));
+                        dest = intstrAdd;
+                        // var args2_1 = new ArrayList<IREntity>();
+                        // args2_1.add(dest);
+                        // args2_1.add(intstrAdd);
+                        // instList.addInsts(new IRCall("__string.copy", args2_1));
                     }
                 }
             }
         }
+        instList.setDest(dest);
         exitASTNode(node);
         return instList;
     }
@@ -915,9 +904,9 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             instList.setDest(dest);
             instList.setDestAddr(src);
         } else if (node.getAtomType() == ASTAtomExpr.Type.FSTRING) {
-            var dest = new IRVariable(GlobalScope.irPtrType, "@str." + (++IRCounter.strCount));
-            instList.addBlockInsts((IRStmt) node.getFstring().accept(this));
-            instList.setDest(dest);
+            var FstringInst = (IRStmt) node.getFstring().accept(this);
+            instList.addBlockInsts(FstringInst);
+            instList.setDest(FstringInst.getDest());
         } else if (node.getAtomType() == ASTAtomExpr.Type.CONSTARRAY) {
             // var irType = new IRType((TypeInfo) node.getConstarray().getInfo().getType());
             // var dest = new IRVariable(irType, "@constarray." +

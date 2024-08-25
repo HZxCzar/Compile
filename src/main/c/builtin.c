@@ -45,6 +45,16 @@ char *toString(int i) {
   return s;
 }
 
+char *Bool_string_toString(_Bool i) {
+  char *s = malloc(12 * sizeof(char));
+  if (i) {
+    sprintf(s, "1");
+  } else {
+    sprintf(s, "0");
+  }
+  return s;
+}
+
 int __string_length(char *s) {
   int i = 0;
   while (s[i] != '\0') {

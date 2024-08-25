@@ -521,15 +521,17 @@ public class SemanticChecker extends ScopeControl implements ASTVisitor<SMCError
 
     public SMCError visit(ASTFstring node) throws BaseError {
         SMCError msg = new SMCError();
-        for (ASTExpr unit : node.getExprpart()) {
-            msg.append(unit.accept(this));
-            TypeInfo type = unit.getInfo().getDepTypeInfo();
-            if (type == null) {
-                throw new SMCError("Type Mismatch\n");
-            }
-            if (!(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType)
-                    || type.equals(GlobalScope.stringType))) {
-                throw new SMCError("Type Mismatch\n");
+        if (node.getExprpart()!=null) {
+            for (ASTExpr unit : node.getExprpart()) {
+                msg.append(unit.accept(this));
+                TypeInfo type = unit.getInfo().getDepTypeInfo();
+                if (type == null) {
+                    throw new SMCError("Type Mismatch\n");
+                }
+                if (!(type.equals(GlobalScope.intType) || type.equals(GlobalScope.boolType)
+                        || type.equals(GlobalScope.stringType))) {
+                    throw new SMCError("Type Mismatch\n");
+                }
             }
         }
         node.setInfo(new ExprInfo("fstringExpr", GlobalScope.stringType, false));

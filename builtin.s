@@ -157,20 +157,40 @@ toString:
 .Lfunc_end9:
 	.size	toString, .Lfunc_end9-toString
 
+	.globl	Bool_string.toString
+	.p2align	1
+	.type	Bool_string.toString,@function
+Bool_string.toString:
+	addi	sp, sp, -16
+	sw	ra, 12(sp)
+	sw	s0, 8(sp)
+	mv	s0, a0
+	li	a0, 12
+	call	malloc
+	ori	a1, s0, 48
+	sb	zero, 1(a0)
+	sb	a1, 0(a0)
+	lw	ra, 12(sp)
+	lw	s0, 8(sp)
+	addi	sp, sp, 16
+	ret
+.Lfunc_end10:
+	.size	Bool_string.toString, .Lfunc_end10-Bool_string.toString
+
 	.globl	__string.length
 	.p2align	1
 	.type	__string.length,@function
 __string.length:
 	li	a1, 0
-.LBB10_1:
+.LBB11_1:
 	add	a2, a0, a1
 	lbu	a2, 0(a2)
 	addi	a1, a1, 1
-	bnez	a2, .LBB10_1
+	bnez	a2, .LBB11_1
 	addi	a0, a1, -1
 	ret
-.Lfunc_end10:
-	.size	__string.length, .Lfunc_end10-__string.length
+.Lfunc_end11:
+	.size	__string.length, .Lfunc_end11-__string.length
 
 	.globl	__string.substring
 	.p2align	1
@@ -186,18 +206,18 @@ __string.substring:
 	sub	s1, a2, a1
 	addi	a0, s1, 1
 	call	malloc
-	blez	s1, .LBB11_3
+	blez	s1, .LBB12_3
 	add	a1, s2, s0
 	mv	a2, a0
 	mv	a3, s1
-.LBB11_2:
+.LBB12_2:
 	lb	a4, 0(a1)
 	sb	a4, 0(a2)
 	addi	a3, a3, -1
 	addi	a2, a2, 1
 	addi	a1, a1, 1
-	bnez	a3, .LBB11_2
-.LBB11_3:
+	bnez	a3, .LBB12_2
+.LBB12_3:
 	add	a1, a0, s1
 	sb	zero, 0(a1)
 	lw	ra, 12(sp)
@@ -206,8 +226,8 @@ __string.substring:
 	lw	s2, 0(sp)
 	addi	sp, sp, 16
 	ret
-.Lfunc_end11:
-	.size	__string.substring, .Lfunc_end11-__string.substring
+.Lfunc_end12:
+	.size	__string.substring, .Lfunc_end12-__string.substring
 
 	.globl	__string.parseInt
 	.p2align	1
@@ -218,31 +238,31 @@ __string.parseInt:
 	seqz	a2, a2
 	add	a3, a0, a2
 	lbu	a2, 0(a3)
-	beqz	a2, .LBB12_6
+	beqz	a2, .LBB13_6
 	li	a0, 0
 	addi	a3, a3, 1
 	li	a4, 10
-.LBB12_2:
+.LBB13_2:
 	andi	a5, a2, 255
 	lbu	a2, 0(a3)
 	mul	a0, a0, a4
 	add	a0, a0, a5
 	addi	a0, a0, -48
 	addi	a3, a3, 1
-	bnez	a2, .LBB12_2
+	bnez	a2, .LBB13_2
 	li	a2, 45
-	bne	a1, a2, .LBB12_5
-.LBB12_4:
+	bne	a1, a2, .LBB13_5
+.LBB13_4:
 	neg	a0, a0
-.LBB12_5:
+.LBB13_5:
 	ret
-.LBB12_6:
+.LBB13_6:
 	li	a0, 0
 	li	a2, 45
-	beq	a1, a2, .LBB12_4
-	j	.LBB12_5
-.Lfunc_end12:
-	.size	__string.parseInt, .Lfunc_end12-__string.parseInt
+	beq	a1, a2, .LBB13_4
+	j	.LBB13_5
+.Lfunc_end13:
+	.size	__string.parseInt, .Lfunc_end13-__string.parseInt
 
 	.globl	__string.ord
 	.p2align	1
@@ -251,43 +271,43 @@ __string.ord:
 	add	a0, a0, a1
 	lbu	a0, 0(a0)
 	ret
-.Lfunc_end13:
-	.size	__string.ord, .Lfunc_end13-__string.ord
+.Lfunc_end14:
+	.size	__string.ord, .Lfunc_end14-__string.ord
 
 	.globl	__string.compare
 	.p2align	1
 	.type	__string.compare,@function
 __string.compare:
 	lbu	a2, 0(a0)
-	beqz	a2, .LBB14_5
+	beqz	a2, .LBB15_5
 	li	a3, 0
 	addi	a0, a0, 1
-.LBB14_2:
+.LBB15_2:
 	add	a4, a1, a3
 	lbu	a4, 0(a4)
-	beqz	a4, .LBB14_6
+	beqz	a4, .LBB15_6
 	andi	a5, a2, 255
-	bne	a5, a4, .LBB14_8
+	bne	a5, a4, .LBB15_8
 	add	a2, a0, a3
 	lbu	a2, 0(a2)
 	addi	a4, a3, 1
 	mv	a3, a4
-	bnez	a2, .LBB14_2
-	j	.LBB14_7
-.LBB14_5:
+	bnez	a2, .LBB15_2
+	j	.LBB15_7
+.LBB15_5:
 	li	a4, 0
-	j	.LBB14_7
-.LBB14_6:
+	j	.LBB15_7
+.LBB15_6:
 	mv	a4, a3
-.LBB14_7:
+.LBB15_7:
 	add	a0, a1, a4
 	lbu	a4, 0(a0)
-.LBB14_8:
+.LBB15_8:
 	andi	a0, a2, 255
 	sub	a0, a0, a4
 	ret
-.Lfunc_end14:
-	.size	__string.compare, .Lfunc_end14-__string.compare
+.Lfunc_end15:
+	.size	__string.compare, .Lfunc_end15-__string.compare
 
 	.globl	__string.concat
 	.p2align	1
@@ -305,42 +325,42 @@ __string.concat:
 	mv	s3, a0
 	li	s4, 0
 	li	s5, -1
-.LBB15_1:
+.LBB16_1:
 	mv	s1, s4
 	add	a0, s3, s4
 	lbu	a0, 0(a0)
 	addi	s4, s4, 1
 	addi	s5, s5, 1
-	bnez	a0, .LBB15_1
+	bnez	a0, .LBB16_1
 	li	s0, -1
-.LBB15_3:
+.LBB16_3:
 	add	a0, s2, s0
 	lbu	a0, 1(a0)
 	addi	s0, s0, 1
-	bnez	a0, .LBB15_3
+	bnez	a0, .LBB16_3
 	add	a0, s4, s0
 	call	malloc
-	beqz	s1, .LBB15_7
+	beqz	s1, .LBB16_7
 	li	a1, 0
-.LBB15_6:
+.LBB16_6:
 	add	a2, s3, a1
 	lb	a2, 0(a2)
 	add	a3, a0, a1
 	addi	a1, a1, 1
 	sb	a2, 0(a3)
-	bne	s1, a1, .LBB15_6
-.LBB15_7:
-	beqz	s0, .LBB15_10
+	bne	s1, a1, .LBB16_6
+.LBB16_7:
+	beqz	s0, .LBB16_10
 	li	a1, 0
 	add	a2, a0, s5
-.LBB15_9:
+.LBB16_9:
 	add	a3, s2, a1
 	lb	a3, 0(a3)
 	add	a4, a2, a1
 	addi	a1, a1, 1
 	sb	a3, 0(a4)
-	bne	s0, a1, .LBB15_9
-.LBB15_10:
+	bne	s0, a1, .LBB16_9
+.LBB16_10:
 	add	a1, a0, s4
 	add	a1, a1, s0
 	sb	zero, -1(a1)
@@ -353,8 +373,8 @@ __string.concat:
 	lw	s5, 4(sp)
 	addi	sp, sp, 32
 	ret
-.Lfunc_end15:
-	.size	__string.concat, .Lfunc_end15-__string.concat
+.Lfunc_end16:
+	.size	__string.concat, .Lfunc_end16-__string.concat
 
 	.globl	__string.copy
 	.p2align	1
@@ -368,26 +388,26 @@ __string.copy:
 	mv	s1, a1
 	mv	s2, a0
 	li	s0, -1
-.LBB16_1:
+.LBB17_1:
 	add	a0, s1, s0
 	lbu	a0, 1(a0)
 	addi	s0, s0, 1
-	bnez	a0, .LBB16_1
+	bnez	a0, .LBB17_1
 	addi	a0, s0, 1
 	call	malloc
 	sw	a0, 0(s2)
-	beqz	s0, .LBB16_6
+	beqz	s0, .LBB17_6
 	li	a0, 0
-.LBB16_4:
+.LBB17_4:
 	lw	a1, 0(s2)
 	add	a2, s1, a0
 	lb	a2, 0(a2)
 	add	a1, a1, a0
 	addi	a0, a0, 1
 	sb	a2, 0(a1)
-	bne	s0, a0, .LBB16_4
+	bne	s0, a0, .LBB17_4
 	lw	a0, 0(s2)
-.LBB16_6:
+.LBB17_6:
 	add	a0, a0, s0
 	sb	zero, 0(a0)
 	lw	ra, 12(sp)
@@ -396,8 +416,8 @@ __string.copy:
 	lw	s2, 0(sp)
 	addi	sp, sp, 16
 	ret
-.Lfunc_end16:
-	.size	__string.copy, .Lfunc_end16-__string.copy
+.Lfunc_end17:
+	.size	__string.copy, .Lfunc_end17-__string.copy
 
 	.type	.L.str,@object
 	.section	.rodata.str1.1,"aMS",@progbits,1

@@ -62,6 +62,8 @@ public interface BasicType {
         IRFuncDef irGetIntFunc = new IRFuncDef("getInt", irIntType, new ArrayList<IRType>());
         IRFuncDef irToStringFunc = new IRFuncDef("toString", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irIntType)));
+        IRFuncDef irBooltoStringFunc = new IRFuncDef("Bool_string.toString", irPtrType,
+                        new ArrayList<IRType>(Arrays.asList(irBoolType)));
         IRFuncDef irMallocFunc = new IRFuncDef("_malloc", irPtrType, new ArrayList<IRType>(Arrays.asList(irIntType)));
         IRFuncDef irMallocArrayFunc = new IRFuncDef("__malloc_array", irPtrType,
                         new ArrayList<IRType>(Arrays.asList(irIntType, irIntType)));
@@ -84,7 +86,7 @@ public interface BasicType {
 
         ArrayList<IRFuncDef> irBuiltInFuncs = new ArrayList<>(Arrays.asList(
                         irPrintFunc, irPrintlnFunc, irPrintIntFunc, irPrintlnIntFunc,
-                        irGetStringFunc, irGetIntFunc, irToStringFunc, irMallocFunc, irMallocArrayFunc, irArraySizeFunc,
+                        irGetStringFunc, irGetIntFunc, irToStringFunc, irBooltoStringFunc, irMallocFunc, irMallocArrayFunc, irArraySizeFunc,
                         irStringLengthFunc,
                         irStringSubstringFunc, irStringParseintFunc, irStringOrdFunc, irStringCompareFunc,
                         irStringConcatFunc,
