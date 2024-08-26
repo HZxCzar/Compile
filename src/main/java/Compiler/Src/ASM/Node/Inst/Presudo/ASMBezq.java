@@ -1,7 +1,10 @@
 package Compiler.Src.ASM.Node.Inst.Presudo;
 
+import java.util.ArrayList;
+
 import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Entity.ASMReg;
+import Compiler.Src.ASM.Entity.ASMVirtualReg;
 import Compiler.Src.ASM.Node.Inst.ASMInst;
 
 @lombok.Getter
@@ -28,5 +31,19 @@ public class ASMBezq extends ASMInst {
 
     public void addFuncName(String funcName) {
         Label = funcName + "." + Label;
+    }
+
+    @Override
+    public ASMVirtualReg getDef() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<ASMVirtualReg> getUses() {
+        var ret = new ArrayList<ASMVirtualReg>();
+        if (rs1 instanceof ASMVirtualReg) {
+            ret.add((ASMVirtualReg) rs1);
+        }
+        return ret;
     }
 }

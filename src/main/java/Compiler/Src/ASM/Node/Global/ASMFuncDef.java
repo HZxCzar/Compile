@@ -1,6 +1,8 @@
 package Compiler.Src.ASM.Node.Global;
 
 import java.util.ArrayList;
+import java.util.Map;
+import java.util.TreeMap;
 
 import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Node.ASMNode;
@@ -22,11 +24,13 @@ public class ASMFuncDef extends ASMNode {
     private String name;
     private int paramCount;
     private ArrayList<ASMBlock> blocks;
+    private ArrayList<ASMBlock> order2Block;
 
     public ASMFuncDef(String name, int paramCount) {
         this.name = name;
         this.paramCount = paramCount;
-        blocks = new ArrayList<ASMBlock>();
+        this.blocks = new ArrayList<ASMBlock>();
+        this.order2Block = new ArrayList<ASMBlock>();
     }
 
     public void Formolize(ASMControl control) {

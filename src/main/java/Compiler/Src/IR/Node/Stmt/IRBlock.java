@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Node.Stmt;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Node.Inst.IRInst;
 import Compiler.Src.IR.Node.util.IRLabel;
@@ -11,6 +13,10 @@ public class IRBlock extends IRStmt {
     private IRLabel labelName;
 
     private IRInst returnInst;
+
+    //CFG
+    private ArrayList<IRBlock> successors = new ArrayList<>();
+    private ArrayList<IRBlock> predecessors = new ArrayList<>();
 
     public IRBlock(IRLabel labelName) {
         this.labelName = labelName;
@@ -30,5 +36,15 @@ public class IRBlock extends IRStmt {
         }
         str += "  " +returnInst.toString()+"\n";
         return str;
+    }
+
+    //CFG
+
+    public void addSuccessor(IRBlock block) {
+        successors.add(block);
+    }
+
+    public void addPredecessor(IRBlock block) {
+        predecessors.add(block);
     }
 }

@@ -1,7 +1,10 @@
 package Compiler.Src.ASM.Node.Inst.Memory;
 
+import java.util.ArrayList;
+
 import Compiler.Src.ASM.ASMVisitor;
 import Compiler.Src.ASM.Entity.ASMReg;
+import Compiler.Src.ASM.Entity.ASMVirtualReg;
 import Compiler.Src.ASM.Node.Inst.ASMInst;
 
 @lombok.Getter
@@ -27,5 +30,22 @@ public class ASMLoad extends ASMInst {
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public ASMVirtualReg getDef() {
+        if (rs2 instanceof ASMVirtualReg) {
+            return (ASMVirtualReg) rs2;
+        }
+        return null;
+    }
+
+    @Override
+    public ArrayList<ASMVirtualReg> getUses() {
+        var ret = new ArrayList<ASMVirtualReg>();
+        if (rs1 instanceof ASMVirtualReg) {
+            ret.add((ASMVirtualReg) rs1);
+        }
+        return ret;
     }
 }

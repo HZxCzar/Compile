@@ -25,7 +25,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(System.in);
+            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));
             // new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
@@ -45,9 +45,9 @@ public class Compiler {
             // output.close();
             // System.out.println(irProgram);
             ASMNode asmProgram = new ASMBuilder().visit((IRRoot) irProgram);
-            // var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
-            // codegenOutput.println(asmProgram);
-            // codegenOutput.close();
+            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
+            codegenOutput.println(asmProgram);
+            codegenOutput.close();
 
             String filePath = "builtin.s"; // 文件路径
 

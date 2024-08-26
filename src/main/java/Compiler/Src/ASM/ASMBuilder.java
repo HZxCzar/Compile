@@ -58,7 +58,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             var paramInst = (ASMStmt) param.accept(this);
             var paramDest = paramInst.getDest();
             if (paramCount < 8) {
-                initStmt.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) paramDest).getOffset()));
+                initStmt.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) paramDest).getOffset()));
                 initStmt.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
                 initStmt.addInst(
                         new ASMStore("sw", getArgReg(paramCount), 0, regs.getT0()));
@@ -66,7 +66,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                 initStmt.addInst(new ASMLi(regs.getT0(), offsetStack - 4 * (paramCount - 7)));
                 initStmt.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getS0()));
                 initStmt.addInst(new ASMLoad("lw", regs.getT1(), 0, regs.getT0()));
-                initStmt.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) paramDest).getOffset()));
+                initStmt.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) paramDest).getOffset()));
                 initStmt.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
                 initStmt.addInst(
                         new ASMStore("sw", regs.getT1(), 0, regs.getT0()));
@@ -118,13 +118,13 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var instList = new ASMStmt();
         var DestInst = (ASMStmt) node.getDest().accept(this);
         var allocaDest = DestInst.getDest();
-        var Dest = new ASMStackReg(counter);
+        var Dest = new ASMVirtualReg(counter);
         if (allocaDest instanceof ASMPhysicalReg) {
             throw new ASMError("not supose to use this in Naive ASM");
         }
-        instList.addInst(new ASMLi(regs.getA0(), 4 * ((ASMStackReg) Dest).getOffset()));
+        instList.addInst(new ASMLi(regs.getA0(), 4 * ((ASMVirtualReg) Dest).getOffset()));
         instList.addInst(new ASMArithR("add", regs.getA0(), regs.getSp(), regs.getA0()));
-        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) allocaDest).getOffset()));
+        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) allocaDest).getOffset()));
         instList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         instList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         return instList;
@@ -142,10 +142,10 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var dest = destInst.getDest();
         var lhsDest = lhsInst.getDest();
         var rhsDest = rhsInst.getDest();
-        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) lhsDest).getOffset()));
+        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) lhsDest).getOffset()));
         instList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         instList.addInst(new ASMLoad("lw", regs.getA1(), 0, regs.getT0()));
-        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) rhsDest).getOffset()));
+        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) rhsDest).getOffset()));
         instList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         instList.addInst(new ASMLoad("lw", regs.getA2(), 0, regs.getT0()));
         var op = node.getOp();
@@ -182,7 +182,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             }
             default -> throw new ASMError("Unknown Binary operation");
         }
-        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) dest).getOffset()));
+        instList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
         instList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         instList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         return instList;
@@ -200,10 +200,10 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var dest = destInst.getDest();
         var lhsDest = lhsInst.getDest();
         var rhsDest = rhsInst.getDest();
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) lhsDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) lhsDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA1(), 0, regs.getT0()));
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) rhsDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) rhsDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA2(), 0, regs.getT0()));
         var cond = node.getCond();
@@ -232,7 +232,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             }
             default -> throw new ASMError("Unknown Binary operation");
         }
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) dest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         return InstList;
@@ -247,7 +247,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             var condInst = (ASMStmt) node.getCond().accept(this);
             var condDest = condInst.getDest();
             InstList.appendInsts(condInst);
-            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) condDest).getOffset()));
+            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) condDest).getOffset()));
             InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
             InstList.addInst(new ASMLoad("lw", regs.getA0(), 0, regs.getT0()));
             InstList.addInst(new ASMUnarry("seqz", regs.getA0(), regs.getA0()));
@@ -308,13 +308,13 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             var argInst = args.get(i);
             var argDest = argInst.getDest();
             if (argNum < 8) {
-                InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) argDest).getOffset()));
+                InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) argDest).getOffset()));
                 InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
                 InstList.addInst(
                         new ASMLoad("lw", getArgReg(argNum), 0, regs.getT0()));
             } else {
                 ++offset;
-                InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) argDest).getOffset()));
+                InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) argDest).getOffset()));
                 InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
                 InstList.addInst(
                         new ASMLoad("lw", regs.getT0(), 0, regs.getT0()));
@@ -337,7 +337,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         if (node.getDest() != null) {
             var destInst = (ASMStmt) node.getDest().accept(this);
             var dest = destInst.getDest();
-            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) dest).getOffset()));
+            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
             InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
             InstList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         }
@@ -356,15 +356,15 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var ptrDest = ptrInst.getDest();
         var destDest = destInst.getDest();
         var indexDest = indexInst.getDest();
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) ptrDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) ptrDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA1(), 0, regs.getT0()));
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) indexDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) indexDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA2(), 0, regs.getT0()));
         InstList.addInst(new ASMArithI("slli", regs.getA2(), regs.getA2(), 2));
         InstList.addInst(new ASMArithR("add", regs.getA0(), regs.getA1(), regs.getA2()));
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) destDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) destDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         return InstList;
@@ -379,7 +379,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             var valueInst = (ASMStmt) node.getValue().accept(this);
             InstList.appendInsts(valueInst);
             var valueDest = valueInst.getDest();
-            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) valueDest).getOffset()));
+            InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) valueDest).getOffset()));
             InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
             InstList.addInst(new ASMLoad("lw", regs.getA0(), 0, regs.getT0()));
             InstList.addInst(new ASMRet());
@@ -396,11 +396,11 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         InstList.appendInsts(ptrInst);
         var dest = destInst.getDest();
         var ptrDest = ptrInst.getDest();
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) ptrDest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) ptrDest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA0(), 0, regs.getT0()));
         InstList.addInst(new ASMLoad("lw", regs.getA0(), 0, regs.getA0()));
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) dest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMStore("sw", regs.getA0(), 0, regs.getT0()));
         return InstList;
@@ -420,10 +420,10 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         InstList.appendInsts(destInst);
         var src = srcInst.getDest();
         var dest = destInst.getDest();
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) src).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) src).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA1(), 0, regs.getT0()));
-        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMStackReg) dest).getOffset()));
+        InstList.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
         InstList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMLoad("lw", regs.getA0(), 0, regs.getT0()));
         InstList.addInst(new ASMStore("sw", regs.getA1(), 0, regs.getA0()));
@@ -439,7 +439,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
     public ASMNode visit(IRVariable node) throws BaseError {
         var instList = new ASMStmt();
         if (node.isGlobal()) {
-            var destReg = new ASMStackReg(counter);
+            var destReg = new ASMVirtualReg(counter);
             instList.addInst(new ASMLoadLabel(regs.getA0(), node.getValue().substring(1)));
             instList.addInst(new ASMLi(regs.getT0(), 4 * destReg.getOffset()));
             instList.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
@@ -448,11 +448,11 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         } else {
             var existReg = counter.name2reg.get(node.getValue());
             if (existReg == null) {
-                var destReg = new ASMStackReg(counter);
+                var destReg = new ASMVirtualReg(counter);
                 counter.name2reg.put(node.getValue(), destReg);
                 instList.setDest(destReg);
             } else {
-                if (existReg instanceof ASMStackReg) {
+                if (existReg instanceof ASMVirtualReg) {
                     instList.setDest(existReg);
                 } else if (existReg instanceof ASMPhysicalReg) {
                     instList.setDest(existReg);
@@ -467,7 +467,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
     @Override
     public ASMNode visit(IRLiteral node) throws BaseError {
         var InstList = new ASMStmt();
-        var destReg = new ASMStackReg(counter);
+        var destReg = new ASMVirtualReg(counter);
         // var dest=new
         // ASMImm(node.getValue().equals("null")?0:Integer.parseInt(node.getValue()));
         InstList.addInst(

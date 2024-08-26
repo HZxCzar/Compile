@@ -5,20 +5,20 @@ import Compiler.Src.Util.Error.ASMError;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMStackReg extends ASMReg {
+public class ASMVirtualReg extends ASMReg {
     private int offset;
 
-    public ASMStackReg(String name, int offset) {
+    public ASMVirtualReg(String name, int offset) {
         super(name);
         this.offset = offset;
     }
 
-    public ASMStackReg(String name) {
+    public ASMVirtualReg(String name) {
         super(name);
     }
 
-    public ASMStackReg(ASMCounter counter) {
-        super("StackReg");
+    public ASMVirtualReg(ASMCounter counter) {
+        super("ASMVirtualReg");
         this.offset = (counter.allocaCount++)-2;
     }
 

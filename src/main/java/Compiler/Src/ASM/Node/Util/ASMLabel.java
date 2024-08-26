@@ -1,6 +1,9 @@
 package Compiler.Src.ASM.Node.Util;
 
+import java.util.ArrayList;
+
 import Compiler.Src.ASM.ASMVisitor;
+import Compiler.Src.ASM.Entity.ASMVirtualReg;
 import Compiler.Src.ASM.Node.Inst.ASMInst;
 
 @lombok.Getter
@@ -20,5 +23,16 @@ public class ASMLabel extends ASMInst {
     @Override
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
+    }
+
+    @Override
+    public ASMVirtualReg getDef() {
+        return null;
+    }
+
+    @Override
+    public ArrayList<ASMVirtualReg> getUses() {
+        var ret = new ArrayList<ASMVirtualReg>();
+        return ret;
     }
 }
