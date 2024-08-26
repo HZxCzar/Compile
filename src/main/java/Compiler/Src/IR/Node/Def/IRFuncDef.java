@@ -1,6 +1,7 @@
 package Compiler.Src.IR.Node.Def;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 
 import Compiler.Src.IR.IRVisitor;
@@ -23,6 +24,7 @@ public class IRFuncDef extends IRDef {
     private boolean isBuiltIn = false;
 
     //CFG
+    private TreeMap<IRBlock, Integer> block2Order = new TreeMap<>();
     private ArrayList<IRBlock> order2Block;
 
     public IRFuncDef(String name, ArrayList<IRVariable> params, IRType returnType, ArrayList<IRBlock> blockstmts) {

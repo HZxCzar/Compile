@@ -1,6 +1,7 @@
 package Compiler.Src.IR.Node.Stmt;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Node.Inst.IRInst;
@@ -15,12 +16,24 @@ public class IRBlock extends IRStmt {
     private IRInst returnInst;
 
     //CFG
-    private ArrayList<IRBlock> successors = new ArrayList<>();
-    private ArrayList<IRBlock> predecessors = new ArrayList<>();
+    private ArrayList<IRBlock> successors;
+    private ArrayList<IRBlock> predecessors;
+
+    //Mem2Reg
+    private IRBlock idom;
+    private HashSet<IRBlock> DomFrontier;
 
     public IRBlock(IRLabel labelName) {
         this.labelName = labelName;
         this.returnInst = null;
+
+        //CFG
+        this.successors = new ArrayList<>();
+        this.predecessors = new ArrayList<>();
+
+        //Mem2Reg
+        this.idom = null;
+        this.DomFrontier = new HashSet<>();
     }
 
     @Override

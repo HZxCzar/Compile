@@ -80,6 +80,7 @@ public class CFGBuilder {
                 CalcRpo(succ);
             }
         }
+        currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
         currentFunc.getOrder2Block().add(block);
     }
 }
