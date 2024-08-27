@@ -1,6 +1,9 @@
 package Compiler.Src.IR.Node.Inst;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
+import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
@@ -29,5 +32,27 @@ public class IRSelect extends IRInst {
     @Override
     public String toString() {
         return dest.getValue() + " = select i1 " + cond + " " + ty1.toString() + " " + val1.getValue() + ", " + ty2.toString() + " " + val2.getValue();
+    }
+
+    @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (val1 instanceof IRVariable) {
+            res.add((IRVariable) val1);
+        }
+        if (val2 instanceof IRVariable) {
+            res.add((IRVariable) val2);
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if (val1.equals(oldVar)) {
+            val1 = (IRVariable)newVar;
+        }
+        if (val2.equals(oldVar)) {
+            val2 = (IRVariable)newVar;
+        }
     }
 }

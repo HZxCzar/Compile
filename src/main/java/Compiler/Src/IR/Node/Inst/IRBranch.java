@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Node.Inst;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
@@ -37,5 +39,21 @@ public class IRBranch extends IRInst {
     public String toString() {
         if(isJump) return "br label %" + trueLabel;
         return "br " + cond.toString() + ", label %" + trueLabel + ", label %" + falseLabel;
+    }
+
+    @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (cond instanceof IRVariable) {
+            res.add((IRVariable) cond);
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if (cond.equals(oldVar)) {
+            cond = newVar;
+        }
     }
 }

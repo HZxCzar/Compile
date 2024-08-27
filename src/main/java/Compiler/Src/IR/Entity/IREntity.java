@@ -7,14 +7,15 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Setter
 @lombok.Getter
-public abstract class IREntity{
+public abstract class IREntity {
     protected IRType type;
     protected String value;
+
     public IREntity(IRType type, String value) {
-        if(type.equals(GlobalScope.irBoolType)){
-            if(value.equals("true")){
+        if (type.equals(GlobalScope.irBoolType)) {
+            if (value.equals("true")) {
                 value = "1";
-            }else if(value.equals("false")){
+            } else if (value.equals("false")) {
                 value = "0";
             }
         }
@@ -25,6 +26,13 @@ public abstract class IREntity{
     public abstract String toString();
 
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
-    return visitor.visit(this);
-  }
+        return visitor.visit(this);
+    }
+
+    public boolean equals(Object obj) {
+        if (obj instanceof IREntity) {
+            return ((IREntity) obj).getValue().equals(getValue());
+        }
+        return false;
+    }
 }

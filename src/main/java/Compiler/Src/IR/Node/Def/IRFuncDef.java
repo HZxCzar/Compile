@@ -24,7 +24,7 @@ public class IRFuncDef extends IRDef {
     private boolean isBuiltIn = false;
 
     //CFG
-    private TreeMap<IRBlock, Integer> block2Order = new TreeMap<>();
+    private TreeMap<IRBlock, Integer> block2Order = new TreeMap<IRBlock, Integer>();
     private ArrayList<IRBlock> order2Block;
 
     public IRFuncDef(String name, ArrayList<IRVariable> params, IRType returnType, ArrayList<IRBlock> blockstmts) {
@@ -45,6 +45,10 @@ public class IRFuncDef extends IRDef {
                 entryBlock.addFrontBlockInsts(instList);
             }
         }
+
+        //CFG
+        this.block2Order = new TreeMap<IRBlock, Integer>();
+        this.order2Block = new ArrayList<IRBlock>();
     }
 
     public IRFuncDef(String name, IRType returnType, ArrayList<IRType> params) {

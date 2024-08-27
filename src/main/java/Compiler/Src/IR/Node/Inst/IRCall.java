@@ -7,6 +7,8 @@ import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
+import Compiler.Src.Util.Error.IRError;
+import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 @lombok.Getter
@@ -22,6 +24,11 @@ public class IRCall extends IRInst {
         this.dest = null;
         this.funcName = funcName;
         this.args = args;
+        // for(var arg: args) {
+        //     if (arg == null) {
+        //         throw new OPTError("what");
+        //     }
+        // }
     }
 
     public IRCall(IRVariable dest, IRType type, String funcName, ArrayList<IREntity> args) {
@@ -29,6 +36,11 @@ public class IRCall extends IRInst {
         this.type = type;
         this.funcName = funcName;
         this.args = args;
+        // for(var arg: args) {
+        //     if (arg == null) {
+        //         throw new OPTError("what");
+        //     }
+        // }
     }
 
     @Override
@@ -48,5 +60,29 @@ public class IRCall extends IRInst {
         }
         str += ")";
         return str;
+    }
+
+    @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        for(var arg: args) {
+            if (arg instanceof IRVariable) {
+                res.add((IRVariable) arg);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        for(int i = 0; i < args.size(); i++) {
+            // if(args.get(i)==null) {
+            //     throw new OPTError("null");
+            // }
+            if (args.get(i).equals(oldVar)) {
+                args.set(i, newVar);
+                return;
+            }
+        }
     }
 }

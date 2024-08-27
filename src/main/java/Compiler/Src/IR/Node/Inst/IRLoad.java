@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Node.Inst;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
@@ -10,10 +12,10 @@ import Compiler.Src.Util.Error.BaseError;
 @lombok.Setter
 public class IRLoad extends IRInst {
     private IRType type;
-    private IRVariable dest;
-    private IREntity ptr;
+    private IRVariable dest,ptr;
+    // private IREntity ptr;
 
-    public IRLoad(IRVariable dest, IREntity ptr) {
+    public IRLoad(IRVariable dest, IRVariable ptr) {
         this.type = dest.getType();
         this.dest = dest;
         this.ptr = ptr;
@@ -27,5 +29,21 @@ public class IRLoad extends IRInst {
     @Override
     public String toString() {
         return dest.getValue() + " = load " + type.toString() + ", " + ptr.toString();
+    }
+
+    @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (ptr instanceof IRVariable) {
+            res.add((IRVariable) ptr);
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if (ptr.equals(oldVar)) {
+            ptr = (IRVariable)newVar;
+        }
     }
 }

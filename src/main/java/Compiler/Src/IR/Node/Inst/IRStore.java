@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Node.Inst;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
@@ -26,4 +28,20 @@ public class IRStore extends IRInst {
   public String toString() {
     return "store " + src.toString() + ", " + dest.toString();
   }
+
+  @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (src instanceof IRVariable) {
+            res.add((IRVariable) src);
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if (src.equals(oldVar)) {
+            src = newVar;
+        }
+    }
 }

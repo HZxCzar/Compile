@@ -18,6 +18,7 @@ import Compiler.Src.Grammer.*;
 import Compiler.Src.IR.IRBuilder;
 import Compiler.Src.IR.Node.IRNode;
 import Compiler.Src.IR.Node.IRRoot;
+import Compiler.Src.OPT.IROptimize;
 import Compiler.Src.Semantic.*;
 import Compiler.Src.Util.Error.*;
 import Compiler.Src.Util.MxErrorListener;
@@ -38,11 +39,17 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
+            var output1 = new PrintStream(new FileOutputStream("src/test/mx/output_old.ll"));
+            // new FileOutputStream("src/test/mx/output_old.ll")
+            output1.println(irProgram);
+            output1.close();
+
+            new IROptimize().visit((IRRoot) irProgram);
             // new IRCodegen().visit((IRRoot) irProgram);
-            // var output = new PrintStream(new FileOutputStream("src/test/mx/output.ll"));
-            // new FileOutputStream("src/test/mx/output.ll")
-            // output.println(irProgram);
-            // output.close();
+            var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
+            // new FileOutputStream("src/test/mx/output_new.ll")
+            output2.println(irProgram);
+            output2.close();
             // System.out.println(irProgram);
             ASMNode asmProgram = new ASMBuilder().visit((IRRoot) irProgram);
             var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
@@ -54,7 +61,7 @@ public class Compiler {
             BufferedReader reader = new BufferedReader(new FileReader(filePath));
             String line;
             while ((line = reader.readLine()) != null) {
-            System.out.println(line);
+                System.out.println(line);
             }
             reader.close();
             System.out.println(asmProgram);

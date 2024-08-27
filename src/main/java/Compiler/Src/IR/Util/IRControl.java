@@ -247,14 +247,14 @@ public class IRControl {
             info.add(args.get(depth));
             info.add(new IRLiteral(GlobalScope.irIntType, "4"));
             var tmpdest = new IRVariable(GlobalScope.irPtrType,
-                    "%initArray.tmpdest." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.tmpdest." + depth + (++counter.ArrayCount));
             init.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
             if (mallocDest != null) {
                 init.addInsts(new IRStore(mallocDest, tmpdest));
             } else {
                 mallocDest = tmpdest;
             }
-            var initVar = new IRVariable(GlobalScope.irPtrType, "%initArray." + depth + (++counter.ArrayCount));
+            var initVar = new IRVariable(GlobalScope.irPtrType, "%.tmp.initArray." + depth + (++counter.ArrayCount));
             var compTarg = args.get(depth);
             init.addInsts(new IRAlloca(initVar, GlobalScope.irIntType));
             // var initbeg = new IRLiteral(GlobalScope.irIntType, "0");
@@ -264,24 +264,24 @@ public class IRControl {
             // + depth + (++counter.ArrayCount));
             init.addInsts(new IRStore(initVar, new IRLiteral(GlobalScope.irIntType, "0")));
             // init.addInsts(new IRLoad(cmpTarg, args.get(depth)));
-            var condDest = new IRVariable(GlobalScope.irBoolType, "%cond." + depth + (++counter.ArrayCount));
-            var condmidVar = new IRVariable(GlobalScope.irIntType, "%cond.midArray." + depth + (++counter.ArrayCount));
+            var condDest = new IRVariable(GlobalScope.irBoolType, "%.tmp.cond." + depth + (++counter.ArrayCount));
+            var condmidVar = new IRVariable(GlobalScope.irIntType, "%.tmp.cond.midArray." + depth + (++counter.ArrayCount));
             cond.addInsts(new IRLoad(condmidVar, initVar));
             cond.addInsts(new IRIcmp(condDest, "slt", GlobalScope.irBoolType, condmidVar,
                     compTarg));
             cond.setDest(condDest);
             var updatemidVar = new IRVariable(GlobalScope.irIntType,
-                    "%initArray.update." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.update." + depth + (++counter.ArrayCount));
             var updatemidVar2 = new IRVariable(GlobalScope.irIntType,
-                    "%initArray.update2." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.update2." + depth + (++counter.ArrayCount));
             update.addInsts(new IRLoad(updatemidVar, initVar));
             update.addInsts(new IRArith(updatemidVar2, "add", GlobalScope.irIntType, updatemidVar,
                     new IRLiteral(GlobalScope.irIntType, "1")));
             update.addInsts(new IRStore(initVar, updatemidVar2));
             var fetchDest = new IRVariable(GlobalScope.irPtrType,
-                    "%initArray.fetchDest." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.fetchDest." + depth + (++counter.ArrayCount));
             var offset = new IRVariable(GlobalScope.irIntType,
-                    "%initArray.offset." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.offset." + depth + (++counter.ArrayCount));
             body.addInsts(new IRLoad(offset, initVar));
             var fetchargs = new ArrayList<IREntity>();
             fetchargs.add(offset);
@@ -292,7 +292,7 @@ public class IRControl {
             stmts.addBlockInsts(LoopNode);
         } else {
             var tmpdest = new IRVariable(GlobalScope.irPtrType,
-                    "%initArray.tmpdest." + depth + (++counter.ArrayCount));
+                    "%.tmp.initArray.tmpdest." + depth + (++counter.ArrayCount));
             if (depth < full_length - 1) {
                 // 未完全定义
                 var info = new ArrayList<IREntity>();

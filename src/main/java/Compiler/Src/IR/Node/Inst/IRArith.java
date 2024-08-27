@@ -1,11 +1,14 @@
 package Compiler.Src.IR.Node.Inst;
 
+import java.util.ArrayList;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
 // import Compiler.Src.Util.ScopeUtil.GlobalScope;
+import Compiler.Src.Util.Error.IRError;
 
 @lombok.Getter
 @lombok.Setter
@@ -32,5 +35,27 @@ public class IRArith extends IRInst {
     public String toString() {
         return dest.getValue() + " = " + op + " " + lhs.getType().toString() + " " + lhs.getValue() + ", "
                 + rhs.getValue();
+    }
+
+    @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (lhs instanceof IRVariable) {
+            res.add((IRVariable) lhs);
+        }
+        if (rhs instanceof IRVariable) {
+            res.add((IRVariable) rhs);
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if (lhs.equals(oldVar)) {
+            lhs = newVar;
+        }
+        if (rhs.equals(oldVar)) {
+            rhs = newVar;
+        }
     }
 }

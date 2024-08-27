@@ -37,4 +37,24 @@ public class IRPhi extends IRInst {
     }
     return str;
   }
+
+  @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        for (var val : vals) {
+            if (val instanceof IRVariable) {
+                res.add((IRVariable) val);
+            }
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        for (int i = 0; i < vals.size(); i++) {
+            if (vals.get(i).equals(oldVar)) {
+                vals.set(i, newVar);
+            }
+        }
+    }
 }

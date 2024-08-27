@@ -207,7 +207,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         }
         var argnum = node.getExpr().size();
         if (node.getMaze() == 1) {
-            var tmpdest = new IRVariable(GlobalScope.irPtrType, "%constarray." + node.getExpr().size() + "."
+            var tmpdest = new IRVariable(GlobalScope.irPtrType, "%.tmp.constarray." + node.getExpr().size() + "."
                     + node.getDep() + "." + (++counter.constarrayCount));
             // if (argnum == 0) {
             // var mallocStmt = alloca_unit(GlobalScope.nullType, mallocDest);
@@ -234,7 +234,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                     var offset = new IRLiteral(GlobalScope.irIntType, String.valueOf(i));
                     fetchargs.add(offset);
                     var dest = new IRVariable(GlobalScope.irPtrType,
-                            "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
+                            "%.tmp.constarray." + node.getExpr().size() + "." + node.getDep() + "."
                                     + (++counter.constarrayCount));
                     var destType = new IRType(innerType);
                     var fetchInst = new IRGetelementptr(dest, destType.typeName, tmpdest, fetchargs);
@@ -249,7 +249,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var arraySize = new IRLiteral(GlobalScope.irIntType, String.valueOf(argnum));
             info.add(arraySize);
             info.add(new IRLiteral(GlobalScope.irIntType, "4"));
-            var tmpdest = new IRVariable(GlobalScope.irPtrType, "%constarray." + node.getExpr().size() + "."
+            var tmpdest = new IRVariable(GlobalScope.irPtrType, "%.tmp.constarray." + node.getExpr().size() + "."
                     + node.getDep() + "." + (++counter.constarrayCount));
             instList.addInsts(new IRCall(tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
             if (mallocDest == null) {
@@ -262,7 +262,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 var offset = new IRLiteral(GlobalScope.irIntType, String.valueOf(i));
                 fetchargs.add(offset);
                 var dest = new IRVariable(GlobalScope.irPtrType,
-                        "%constarray." + node.getExpr().size() + "." + node.getDep() + "."
+                        "%.tmp.constarray." + node.getExpr().size() + "." + node.getDep() + "."
                                 + (++counter.constarrayCount));
                 var fetchInst = new IRGetelementptr(dest, GlobalScope.irPtrType.typeName, tmpdest, fetchargs);
                 instList.addInsts(fetchInst);
@@ -295,7 +295,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             // (++counter.loadCount));
             // var rhsStr = new IRVariable(GlobalScope.irPtrType, "%rhs." +
             // (++counter.loadCount));
-            var strAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+            var strAdd = new IRVariable(GlobalScope.irPtrType, "%.tmp.FstringRes." + (++counter.loadCount));
             // instList.addInsts(new IRLoad(lhsStr, dest));
             // instList.addInsts(new IRLoad(rhsStr, strDest));
             var args1 = new ArrayList<IREntity>();
@@ -314,7 +314,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                     instList.addBlockInsts(exprInst);
                     var rhsExpr = exprInst.getDest();
                     if (rhsExpr.getType().getTypeName().equals("i1")) {
-                        var boolstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
+                        var boolstr = new IRVariable(GlobalScope.irPtrType, "%.tmp.boolstr." + (++counter.loadCount));
                         var callargs = new ArrayList<IREntity>();
                         callargs.add(rhsExpr);
                         var call_bool_string = new IRCall(boolstr, GlobalScope.irPtrType, "Bool_string.toString", callargs);
@@ -325,7 +325,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                         // instList.addInsts(new IRLoad(lhsStr2, dest));
                         args2.add(dest);
                         args2.add(boolstr);
-                        var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        var boolstrAdd = new IRVariable(GlobalScope.irPtrType, "%.tmp.FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(boolstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
                         dest = boolstrAdd;
                         // var args2_1 = new ArrayList<IREntity>();
@@ -333,7 +333,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                         // args2_1.add(boolstrAdd);
                         // instList.addInsts(new IRCall("__string.copy", args2_1));
                     } else if (rhsExpr.getType().getTypeName().equals("i32")) {
-                        var intstr = new IRVariable(GlobalScope.irPtrType, "%boolstr." + (++counter.loadCount));
+                        var intstr = new IRVariable(GlobalScope.irPtrType, "%.tmp.boolstr." + (++counter.loadCount));
                         var callargs = new ArrayList<IREntity>();
                         callargs.add(rhsExpr);
                         var call_int_string = new IRCall(intstr, GlobalScope.irPtrType, "toString", callargs);
@@ -344,7 +344,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                         // instList.addInsts(new IRLoad(lhsStr2, dest));
                         args2.add(dest);
                         args2.add(intstr);
-                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%.tmp.FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
                         dest = intstrAdd;
                         // instList.addInsts(new IRStore(dest, intstrAdd));
@@ -359,7 +359,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                         var args2 = new ArrayList<IREntity>();
                         args2.add(dest);
                         args2.add(rhsExpr);
-                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%FstringRes." + (++counter.loadCount));
+                        var intstrAdd = new IRVariable(GlobalScope.irPtrType, "%.tmp.FstringRes." + (++counter.loadCount));
                         instList.addInsts(new IRCall(intstrAdd, GlobalScope.irPtrType, "__string.concat", args2));
                         dest = intstrAdd;
                         // var args2_1 = new ArrayList<IREntity>();
@@ -381,7 +381,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var instList = new IRStmt();
         var newtype = node.getType();
         if (newtype.getDepth() == 0) {
-            var allocaVar = new IRVariable(GlobalScope.irPtrType, "%alloca." + (++counter.allocaCount));
+            var allocaVar = new IRVariable(GlobalScope.irPtrType, "%.tmp.alloca." + (++counter.allocaCount));
             var stmts = alloca_unit(newtype, allocaVar);
             instList.addBlockInsts(stmts);
             instList.setDest(allocaVar);
@@ -475,13 +475,13 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             } else {
                 var offset = classInfo.getVarOffset(node.getMemberName());
                 var destAddr = new IRVariable(GlobalScope.irPtrType,
-                        "%.element." + String.valueOf(counter.elementCount++));
+                        "%.tmp.element." + String.valueOf(counter.elementCount++));
                 var args = new ArrayList<IREntity>();
                 args.add(new IRLiteral(GlobalScope.irIntType, "0"));
                 args.add(new IRLiteral(GlobalScope.irIntType, String.valueOf(offset)));
                 instList.addInsts(new IRGetelementptr(destAddr, "%class." + classInfo.getName(), caller, args));
                 var dest = new IRVariable(new IRType(((VarInfo) ExprInfo).getType()),
-                        "%.load." + String.valueOf(counter.loadCount++));
+                        "%.tmp.load." + String.valueOf(counter.loadCount++));
                 instList.addInsts(new IRLoad(dest, destAddr));
                 instList.setDest(dest);
                 instList.setDestAddr(destAddr);
@@ -532,9 +532,9 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var info = new ArrayList<IREntity>();
         info.add(index);
         var destType = new IRType((TypeInfo) node.getInfo().getDepTypeInfo());
-        var destAddr = new IRVariable(GlobalScope.irPtrType, "%index." + String.valueOf(++counter.loadCount));
+        var destAddr = new IRVariable(GlobalScope.irPtrType, "%.tmp.index." + String.valueOf(++counter.loadCount));
         var dest = new IRVariable(destType,
-                "%load." + String.valueOf(++counter.loadCount));
+                "%.tmp.load." + String.valueOf(++counter.loadCount));
         var getElemInst = new IRGetelementptr(destAddr, destType.typeName, array, info);
         instList.addInsts(getElemInst);
         instList.addInsts(new IRLoad(dest, destAddr));
@@ -552,7 +552,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         instList.addBlockInsts(exprInst);
         var former_dest = exprInst.getDest();
         var former_destAddr = (IRVariable) exprInst.getDestAddr();
-        var dest = new IRVariable(former_dest.getType(), "%unary." + (++counter.arithCount));
+        var dest = new IRVariable(former_dest.getType(), "%.tmp.unary." + (++counter.arithCount));
         if (node.getOp().equals("++")) {
             instList
                     .addInsts(new IRArith(dest, "add", GlobalScope.irIntType, former_dest,
@@ -578,7 +578,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         instList.addBlockInsts(exprInst);
         var former_dest = exprInst.getDest();
         var former_destAddr = (IRVariable) exprInst.getDestAddr();
-        var dest = new IRVariable(former_dest.getType(), "%preunary." + (++counter.arithCount));
+        var dest = new IRVariable(former_dest.getType(), "%.tmp.preunary." + (++counter.arithCount));
         if (node.getOp().equals("++")) {
             instList.addInsts(new IRArith(dest, "add", GlobalScope.irIntType, former_dest,
                     new IRLiteral(GlobalScope.irIntType, "1")));
@@ -616,11 +616,11 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         IREntity lhs = null;
         IREntity rhs = null;
         var resType = new IRType((TypeInfo) node.getInfo().getType());
-        var dest = new IRVariable(resType, "%binary." + (++counter.arithCount));
+        var dest = new IRVariable(resType, "%.tmp.binary." + (++counter.arithCount));
         if (node.getOp().equals("&&") || node.getOp().equals("||")) {
             var writeDest = new IRVariable(GlobalScope.irPtrType, "%writeDest." + (++counter.arithCount));
             instList.addInsts(new IRAlloca(writeDest, GlobalScope.irBoolType));
-            var tmpdest = new IRVariable(resType, "%binary." + (++counter.arithCount));
+            var tmpdest = new IRVariable(resType, "%.tmp.binary." + (++counter.arithCount));
             if (!resType.equals(GlobalScope.irBoolType)) {
                 throw new IRError("Logical operator must be bool");
             }
@@ -691,7 +691,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             if (node.getOp().equals("+")) {
                 instList.addInsts(new IRCall(dest, resType, "__string.concat", args));
             } else {
-                var Middest = new IRVariable(GlobalScope.irIntType, "%Mid." + (++counter.arithCount));
+                var Middest = new IRVariable(GlobalScope.irIntType, "%.tmp.mid." + (++counter.arithCount));
                 instList.addInsts(new IRCall(Middest, GlobalScope.irIntType, "__string.compare", args));
                 var op = node.getOp();
                 if (op.equals("==")) {
@@ -799,7 +799,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             // var phiInst = new IRPhi(dest, dest.getType(), vals, Labels);
             instList.addBlockInsts(ifInst);
             // instList.addInsts(phiInst);
-            var dest = new IRVariable(resType, "%cond." + (++counter.loadCount));
+            var dest = new IRVariable(resType, "%.tmp.cond." + (++counter.loadCount));
             instList.addInsts(new IRLoad(dest, wirteDest));
             instList.setDest(dest);
         }
@@ -853,7 +853,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 } else {
                     var irtype = new IRType(((VarInfo) info).getType());
                     var src = new IRVariable(GlobalScope.irPtrType, getVarName(node.getValue(), scope));
-                    var dest = new IRVariable(irtype, "%load." + (++counter.loadCount));
+                    var dest = new IRVariable(irtype, "%.tmp.load." + (++counter.loadCount));
                     instList.addInsts(new IRLoad(dest, src));
                     instList.setDest(dest);
                     instList.setDestAddr(src);
@@ -899,7 +899,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             instList.setDest(new IRLiteral(GlobalScope.irPtrType, "null"));
         } else if (node.getAtomType() == ASTAtomExpr.Type.THIS) {
             var src = new IRVariable(GlobalScope.irPtrType, "%this");
-            var dest = new IRVariable(GlobalScope.irPtrType, "%load." + (++counter.loadCount));
+            var dest = new IRVariable(GlobalScope.irPtrType, "%.tmp.load." + (++counter.loadCount));
             instList.addInsts(new IRLoad(dest, src));
             instList.setDest(dest);
             instList.setDestAddr(src);

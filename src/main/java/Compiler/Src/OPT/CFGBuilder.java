@@ -25,8 +25,8 @@ public class CFGBuilder {
     public void visit(IRFuncDef funcDef) {
         var blocks = funcDef.getBlockstmts();
         currentFunc = funcDef;
-        label2Block = new TreeMap<>();
-        visited = new HashSet<>();
+        label2Block = new TreeMap<IRLabel,IRBlock>();
+        visited = new HashSet<IRBlock>();
         for (var block : blocks) {
             label2Block.put(block.getLabelName(), block);
         }
@@ -81,6 +81,6 @@ public class CFGBuilder {
             }
         }
         currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
-        currentFunc.getOrder2Block().add(block);
+        currentFunc.getOrder2Block().add(0,block);
     }
 }

@@ -39,4 +39,30 @@ public class IRGetelementptr extends IRInst {
     }
     return str;
   }
+
+  @Override
+    public ArrayList<IRVariable> getUses() {
+        ArrayList<IRVariable> res = new ArrayList<>();
+        if (ptr instanceof IRVariable) {
+            res.add((IRVariable) ptr);
+        }
+        for(var info: infolist){
+          if(info instanceof IRVariable){
+            res.add((IRVariable) info);
+          }
+        }
+        return res;
+    }
+
+    @Override
+    public void replaceUse(IRVariable oldVar, IREntity newVar) {
+        if(ptr.equals(oldVar)){
+          ptr = newVar;
+        }
+        for(int i=0;i<infolist.size();i++){
+          if(infolist.get(i).equals(oldVar)){
+            infolist.set(i, newVar);
+          }
+        }
+    }
 }
