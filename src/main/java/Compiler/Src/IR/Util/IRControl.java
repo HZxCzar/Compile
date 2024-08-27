@@ -254,7 +254,7 @@ public class IRControl {
             } else {
                 mallocDest = tmpdest;
             }
-            var initVar = new IRVariable(GlobalScope.irPtrType, "%.tmp.initArray." + depth + (++counter.ArrayCount));
+            var initVar = new IRVariable(GlobalScope.irPtrType, "%initArray.tmp." + depth + (++counter.ArrayCount));
             var compTarg = args.get(depth);
             init.addInsts(new IRAlloca(initVar, GlobalScope.irIntType));
             // var initbeg = new IRLiteral(GlobalScope.irIntType, "0");

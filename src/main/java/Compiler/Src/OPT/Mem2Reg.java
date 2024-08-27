@@ -197,7 +197,7 @@ public class Mem2Reg {
                 if (((IRLoad) inst).getPtr().isParameter()) {
                     var entity = var2entity.get(((IRLoad) inst).getPtr());
                     if (entity == null) {
-                        entity = new IRLiteral(GlobalScope.irIntType, "0"); // alloca完第一次取
+                        entity = new IRLiteral(((IRLoad) inst).getDest().getType(), "0"); // alloca完第一次取
                     } else if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
                         entity = reg2entity.get(entity);
                     }
@@ -237,7 +237,7 @@ public class Mem2Reg {
             for (var key : phiList.keySet()) {
                 var entity = var2entity.get(key);
                 if (entity == null) {
-                    entity = new IRLiteral(GlobalScope.irIntType, "0");
+                    entity = new IRLiteral(phiList.get(key).getType(), "0");
                 }
                 phiList.get(key).getVals().add(entity);
                 phiList.get(key).getLabels().add(block.getLabelName());

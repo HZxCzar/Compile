@@ -257,7 +257,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             } else {
                 instList.addInsts(new IRStore(mallocDest, tmpdest));
             }
-            for (int i = 0; i < argnum; i++) {
+            for (int i = 0; i < argnum; ++i) {
                 var fetchargs = new ArrayList<IREntity>();
                 var offset = new IRLiteral(GlobalScope.irIntType, String.valueOf(i));
                 fetchargs.add(offset);
@@ -475,13 +475,13 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             } else {
                 var offset = classInfo.getVarOffset(node.getMemberName());
                 var destAddr = new IRVariable(GlobalScope.irPtrType,
-                        "%.tmp.element." + String.valueOf(counter.elementCount++));
+                        "%.tmp.element." + String.valueOf(++counter.elementCount));
                 var args = new ArrayList<IREntity>();
                 args.add(new IRLiteral(GlobalScope.irIntType, "0"));
                 args.add(new IRLiteral(GlobalScope.irIntType, String.valueOf(offset)));
                 instList.addInsts(new IRGetelementptr(destAddr, "%class." + classInfo.getName(), caller, args));
                 var dest = new IRVariable(new IRType(((VarInfo) ExprInfo).getType()),
-                        "%.tmp.load." + String.valueOf(counter.loadCount++));
+                        "%.tmp.load." + String.valueOf(++counter.loadCount));
                 instList.addInsts(new IRLoad(dest, destAddr));
                 instList.setDest(dest);
                 instList.setDestAddr(destAddr);
@@ -618,7 +618,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var resType = new IRType((TypeInfo) node.getInfo().getType());
         var dest = new IRVariable(resType, "%.tmp.binary." + (++counter.arithCount));
         if (node.getOp().equals("&&") || node.getOp().equals("||")) {
-            var writeDest = new IRVariable(GlobalScope.irPtrType, "%writeDest." + (++counter.arithCount));
+            var writeDest = new IRVariable(GlobalScope.irPtrType, "%writeDest.tmp." + (++counter.arithCount));
             instList.addInsts(new IRAlloca(writeDest, GlobalScope.irBoolType));
             var tmpdest = new IRVariable(resType, "%.tmp.binary." + (++counter.arithCount));
             if (!resType.equals(GlobalScope.irBoolType)) {
@@ -779,7 +779,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             // var dest = new IRVariable(trueInst.getDest().getType(), "%cond." +
             // (++counter.arithCount));
             var resType = trueInst.getDest().getType();
-            var wirteDest = new IRVariable(GlobalScope.irPtrType, "%cond." + (++counter.allocaCount));
+            var wirteDest = new IRVariable(GlobalScope.irPtrType, "%cond.tmp." + (++counter.allocaCount));
             instList.addInsts(new IRAlloca(wirteDest, resType));
             // IRVariable dest = null;
             var truestmt = new IRStmt();
