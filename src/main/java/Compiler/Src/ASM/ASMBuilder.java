@@ -86,7 +86,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             block.accept(this);
         }
         for (var block : funcBlocks) {
-            block.PhiMove(this);
+        block.PhiMove(this);
         }
         funcDef.setBlocks(funcBlocks);
         funcDef.Formolize(this);
@@ -147,23 +147,14 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                 if (predBlock.getSuccessor().size() == 1) {
                     predBlock.getPhiStmt().appendInsts(srcInst);
                     predBlock.getPhiStmt().appendInsts(destInst);
-                    // predBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // srcInst.getDest()).getOffset()));
-                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA1(), 0,
-                    // regs.getT0()));
-                    // predBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // destInst.getDest()).getOffset()));
-                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,
-                    // regs.getT0()));
+                    // predBlock.getPhiStmt().addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)srcInst.getDest()).getOffset()));
+                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),regs.getT0(), regs.getSp()));
+                    // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA1(), 0,regs.getT0()));
+                    // predBlock.getPhiStmt().addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)destInst.getDest()).getOffset()));
+                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),regs.getT0(), regs.getSp()));
+                    // // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,regs.getT0()));
                     // predBlock.getPhiStmt().addInst(new ASMMove(regs.getA0(), regs.getA1()));
-                    // predBlock.getPhiStmt().addInst(new ASMStore("sw", regs.getA0(), 0,
-                    // regs.getT0()));
+                    // predBlock.getPhiStmt().addInst(new ASMStore("sw", regs.getA0(), 0,regs.getT0()));
                     if (predBlock.getSrc2dest().containsKey((ASMVirtualReg) srcInst.getDest())) {
                         predBlock.getSrc2dest().get((ASMVirtualReg) srcInst.getDest())
                                 .add((ASMVirtualReg) destInst.getDest());
@@ -189,8 +180,8 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                         midBlock = label2block.get(label2new.get(blockLabel));
                     }
 
-                    // midBlock.getPhiStmt().appendInsts(srcInst);
-                    // midBlock.getPhiStmt().appendInsts(destInst);
+                    midBlock.getPhiStmt().appendInsts(srcInst);
+                    midBlock.getPhiStmt().appendInsts(destInst);
                     // midBlock.getPhiStmt()
                     // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
                     // srcInst.getDest()).getOffset()));
@@ -203,8 +194,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
                     // destInst.getDest()).getOffset()));
                     // midBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
                     // regs.getT0(), regs.getSp()));
-                    // // midBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,
-                    // regs.getT0()));
+                    // // midBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,regs.getT0()));
                     // midBlock.getPhiStmt().addInst(new ASMMove(regs.getA0(), regs.getA1()));
                     // midBlock.getPhiStmt().addInst(new ASMStore("sw", regs.getA0(), 0,
                     // regs.getT0()));

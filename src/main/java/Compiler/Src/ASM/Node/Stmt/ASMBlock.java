@@ -61,8 +61,8 @@ public class ASMBlock extends ASMStmt {
             PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
         }
         for (var src : src2dest.keySet()) {
+            var tmp = src2tmp.get(src);
             for (var dest : src2dest.get(src)) {
-                var tmp = src2tmp.get(src);
                 PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
                 PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
                         control.getRegs().getSp()));
@@ -73,40 +73,6 @@ public class ASMBlock extends ASMStmt {
                 PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
             }
         }
-        // for (int i = 0; i < src2dest.keySet().size(); ++i) {
-        // for(var dest:src2dest.values().toArray()[i]){
-        // PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg)
-        // dest).getOffset()));
-        // PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(),
-        // control.getRegs().getT0(),
-        // control.getRegs().getSp()));
-        // PhiStmt.addInst(new ASMLoad("lw", control.getRegs().getA0(), 0,
-        // control.getRegs().getT0()));
-        // PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg)
-        // src2tmp.get(src2dest.keySet().toArray()[i])).getOffset()));
-        // PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(),
-        // control.getRegs().getT0(),
-        // control.getRegs().getSp()));
-        // PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0,
-        // control.getRegs().getT0()));
-        // }
-        // var dest = src2dest.values().toArray()[i];
-        // var tmp = tmpDest.get(i);
-        // PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg)
-        // tmp).getOffset()));
-        // PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(),
-        // control.getRegs().getT0(),
-        // control.getRegs().getSp()));
-        // PhiStmt.addInst(new ASMLoad("lw", control.getRegs().getA0(), 0,
-        // control.getRegs().getT0()));
-        // PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg)
-        // dest).getOffset()));
-        // PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(),
-        // control.getRegs().getT0(),
-        // control.getRegs().getSp()));
-        // PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0,
-        // control.getRegs().getT0()));
-        // }
     }
 
     @Override
