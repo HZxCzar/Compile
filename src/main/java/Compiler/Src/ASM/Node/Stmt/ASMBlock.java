@@ -15,6 +15,7 @@ import Compiler.Src.ASM.Node.Inst.Presudo.ASMBezq;
 import Compiler.Src.ASM.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM.Node.Util.ASMLabel;
 import Compiler.Src.ASM.Util.ASMControl;
+import Compiler.Src.Util.Error.OPTError;
 
 @lombok.Getter
 @lombok.Setter
@@ -45,12 +46,16 @@ public class ASMBlock extends ASMStmt {
     }
 
     public void PhiMove(ASMControl control) {
-        // var tmpDest = new ArrayList<ASMVirtualReg>();
         var src2tmp = new TreeMap<>();
         for (int i = 0; i < src2dest.size(); ++i) {
             var src = src2dest.keySet().toArray()[i];
             var tmp = new ASMVirtualReg(control.getCounter());
             src2tmp.put(src, tmp);
+            if (((ASMVirtualReg) src).getName().equals("Czar")) {
+                PhiStmt.addInst(new ASMLi(control.getRegs().getA0(), ((ASMVirtualReg) src).getOffset()));
+                PhiStmt.appendInsts(control.StoreAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+                continue;
+            }
             PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) src).getOffset()));
             PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
                     control.getRegs().getSp()));
@@ -71,6 +76,58 @@ public class ASMBlock extends ASMStmt {
                 PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
                         control.getRegs().getSp()));
                 PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
+            }
+        }
+        // var src2tmp = new TreeMap<>();
+        // for (int i = 0; i < src2dest.size(); ++i) {
+        //     var src = src2dest.keySet().toArray()[i];
+        //     var tmp = new ASMVirtualReg(control.getCounter());
+        //     src2tmp.put(src, tmp);
+        //     PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) src).getOffset()));
+        //     PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+        //             control.getRegs().getSp()));
+        //     PhiStmt.addInst(new ASMLoad("lw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
+        //     PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+        //     PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+        //             control.getRegs().getSp()));
+        //     PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
+        // }
+        // for (var src : src2dest.keySet()) {
+        //     var tmp = src2tmp.get(src);
+        //     for (var dest : src2dest.get(src)) {
+        //         PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+        //         PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+        //                 control.getRegs().getSp()));
+        //         PhiStmt.addInst(new ASMLoad("lw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
+        //         PhiStmt.addInst(new ASMLi(control.getRegs().getT0(), 4 * ((ASMVirtualReg) dest).getOffset()));
+        //         PhiStmt.addInst(new ASMArithR("add", control.getRegs().getT0(), control.getRegs().getT0(),
+        //                 control.getRegs().getSp()));
+        //         PhiStmt.addInst(new ASMStore("sw", control.getRegs().getA0(), 0, control.getRegs().getT0()));
+        //     }
+        // }
+    }
+
+    public void PhiMove_Formal(ASMControl control) {
+        // var tmpDest = new ArrayList<ASMVirtualReg>();
+        var src2tmp = new TreeMap<>();
+        for (int i = 0; i < src2dest.size(); ++i) {
+            // throw new OPTError("PhiMove_Formal");
+            var src = src2dest.keySet().toArray()[i];
+            var tmp = new ASMVirtualReg(control.getCounter());
+            src2tmp.put(src, tmp);
+            if (((ASMVirtualReg) src).getName().equals("Czar")) {
+                PhiStmt.addInst(new ASMLi(control.getRegs().getA0(), ((ASMVirtualReg) src).getOffset()));
+                PhiStmt.appendInsts(control.StoreAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+            } else {
+                PhiStmt.appendInsts(control.LoadAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) src).getOffset()));
+                PhiStmt.appendInsts(control.StoreAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+            }
+        }
+        for (var src : src2dest.keySet()) {
+            var tmp = src2tmp.get(src);
+            for (var dest : src2dest.get(src)) {
+                PhiStmt.appendInsts(control.LoadAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) tmp).getOffset()));
+                PhiStmt.appendInsts(control.StoreAt(control.getRegs().getA0(), 4 * ((ASMVirtualReg) dest).getOffset()));
             }
         }
     }

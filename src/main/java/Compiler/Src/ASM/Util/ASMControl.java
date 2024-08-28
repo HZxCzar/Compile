@@ -18,6 +18,7 @@ import Compiler.Src.ASM.Node.Inst.Presudo.ASMRet;
 import Compiler.Src.ASM.Node.Stmt.ASMBlock;
 import Compiler.Src.ASM.Node.Stmt.ASMStmt;
 import Compiler.Src.ASM.Node.Util.ASMLabel;
+import Compiler.Src.IR.Entity.IRLiteral;
 import Compiler.Src.Util.Error.ASMError;
 
 @lombok.Getter
@@ -84,6 +85,23 @@ public class ASMControl {
         return InstList;
     }
 
+    public int IRLiteral2Int(IRLiteral literal) {
+        return literal.getValue().equals("null") ? 0 : Integer.parseInt(literal.getValue());
+    }
+
+    public boolean ValidImm(Object obj)
+    {
+        if(obj instanceof IRLiteral)
+        {
+            var value=IRLiteral2Int((IRLiteral)obj);
+            if(value>-2048 && value<2047)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     public void Formolize(ASMFuncDef func) {
         var initBlock = func.getBlocks().get(0);
         var paramCount = func.getParamCount();
@@ -132,40 +150,11 @@ public class ASMControl {
                         returnInst.appendInsts(LoadAt(regs.getS0(), total - 8));
                         returnInst.addInst(new ASMLi(regs.getT0(), total));
                         returnInst.addInst(new ASMArithR("add", regs.getSp(), regs.getSp(), regs.getT0()));
-                        // block.getReturnInst().addInst(j,
-                        // new ASMLi(regs.getT0(), total - 4));
-                        // block.getReturnInst().addInst(j + 1,
-                        // new ASMArithR("add", regs.getT0(), regs.getT0(),
-                        // regs.getSp()));
-                        // block.getReturnInst().addInst(j + 2,
-                        // new ASMLoad("lw", regs.getRa(), 0, regs.getT0()));
-
-                        // block.getReturnInst().addInst(j + 3,
-                        // new ASMLi(regs.getT0(), total - 8));
-                        // block.getReturnInst().addInst(j + 4,
-                        // new ASMArithR("add", regs.getT0(), regs.getT0(),
-                        // regs.getSp()));
-                        // block.getReturnInst().addInst(j + 5,
-                        // new ASMLoad("lw", regs.getS0(), 0, regs.getT0()));
-                        // block.getReturnInst().addInst(j + 6,
-                        // new ASMLi(regs.getT0(), total));
-                        // block.getReturnInst().addInst(j + 7,
-                        // new ASMArithR("add", regs.getSp(), regs.getSp(),
-                        // regs.getT0()));
                         block.getReturnInst().appendInsts(j, returnInst);
                     }
                     break;
                 }
             }
-            // var lastInst = block.getReturnInst().getInsts().get(size - 1);
-            // if (lastInst instanceof ASMJump) {
-            // ((ASMJump) lastInst).addFuncName(name);
-            // }
-            // if (lastInst instanceof ASMRet) {
-            // block.getReturnInst().addInst(size - 1,
-            // new ASMArithI("addi", regs.getSp(), regs.getSp(),
-            // 4 * (control.getCounter().allocaCount)));
-            // }
         }
     }
 }

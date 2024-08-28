@@ -29,6 +29,10 @@ public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
 
     @Override
     public int compareTo(ASMVirtualReg o) {
-        return this.offset - o.offset;
+        int nameComparison = this.getName().compareTo(o.getName());
+        if (nameComparison != 0) {
+            return nameComparison;
+        }
+        return Integer.compare(this.offset, o.offset);
     }
 }

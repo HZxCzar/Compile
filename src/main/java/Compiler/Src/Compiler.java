@@ -12,6 +12,7 @@ import org.antlr.v4.runtime.*;
 import Compiler.Src.ASM.ASMBuilder;
 import Compiler.Src.ASM.ASMBuilder_Naive;
 import Compiler.Src.ASM.ASMBuilder_Basic;
+import Compiler.Src.ASM.ASMBuilder_Formal;
 import Compiler.Src.ASM.Node.ASMNode;
 import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
@@ -47,10 +48,15 @@ public class Compiler {
             output1.println(irProgram);
             output1.close();
 
-            // ASMNode asmProgram = new ASMBuilder_Naive().visit((IRRoot) irProgram);
-            // var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
-            // codegenOutput.println(asmProgram);
-            // codegenOutput.close();
+            ASMNode asmProgram = new ASMBuilder_Naive().visit((IRRoot) irProgram);
+            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
+            codegenOutput.println(asmProgram);
+            codegenOutput.close();
+
+            ASMNode asmProgram4 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
+            var codegenOutput4 = new PrintStream(new FileOutputStream("bin/basic/test.s"));
+            codegenOutput4.println(asmProgram4);
+            codegenOutput4.close();
 
             new IROptimize().visit((IRRoot) irProgram);
             // new IRCodegen().visit((IRRoot) irProgram);
@@ -59,15 +65,15 @@ public class Compiler {
             output2.println(irProgram);
             output2.close();
             // System.out.println(irProgram);
-            ASMNode asmProgram2 = new ASMBuilder().visit((IRRoot) irProgram);
+            ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
             var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
             codegenOutput2.println(asmProgram2);
             codegenOutput2.close();
 
-            // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
-            // var codegenOutput3 = new PrintStream(new FileOutputStream("bin/opt/test_right.s"));
-            // codegenOutput3.println(asmProgram3);
-            // codegenOutput3.close();
+            ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
+            var codegenOutput3 = new PrintStream(new FileOutputStream("bin/compare/test.s"));
+            codegenOutput3.println(asmProgram3);
+            codegenOutput3.close();
 
             String filePath = "builtin.s"; // 文件路径
 
