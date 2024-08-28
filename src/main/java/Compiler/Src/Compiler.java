@@ -28,7 +28,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(System.in);
+            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));
             // new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
@@ -42,10 +42,10 @@ public class Compiler {
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
 
-            // var output1 = new PrintStream(new FileOutputStream("src/test/mx/output_old.ll"));
-            // // new FileOutputStream("src/test/mx/output_old.ll")
-            // output1.println(irProgram);
-            // output1.close();
+            var output1 = new PrintStream(new FileOutputStream("src/test/mx/output_old.ll"));
+            // new FileOutputStream("src/test/mx/output_old.ll")
+            output1.println(irProgram);
+            output1.close();
 
             // ASMNode asmProgram = new ASMBuilder_Naive().visit((IRRoot) irProgram);
             // var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
@@ -54,15 +54,15 @@ public class Compiler {
 
             new IROptimize().visit((IRRoot) irProgram);
             // new IRCodegen().visit((IRRoot) irProgram);
-            // var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
-            // // new FileOutputStream("src/test/mx/output_new.ll")
-            // output2.println(irProgram);
-            // output2.close();
+            var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
+            // new FileOutputStream("src/test/mx/output_new.ll")
+            output2.println(irProgram);
+            output2.close();
             // System.out.println(irProgram);
             ASMNode asmProgram2 = new ASMBuilder().visit((IRRoot) irProgram);
-            // var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
-            // codegenOutput2.println(asmProgram2);
-            // codegenOutput2.close();
+            var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
+            codegenOutput2.println(asmProgram2);
+            codegenOutput2.close();
 
             // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
             // var codegenOutput3 = new PrintStream(new FileOutputStream("bin/opt/test_right.s"));

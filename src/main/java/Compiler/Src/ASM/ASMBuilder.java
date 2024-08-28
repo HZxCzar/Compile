@@ -99,7 +99,8 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             block.PhiMove(this);
         }
         funcDef.setBlocks(funcBlocks);
-        funcDef.Formolize(this);
+        // funcDef.Formolize(this);
+        Formolize(funcDef);
         return funcDef;
     }
 
