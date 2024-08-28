@@ -1,8 +1,6 @@
 package Compiler.Src.ASM;
 
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TreeMap;
 
 import Compiler.Src.ASM.Entity.*;
 import Compiler.Src.ASM.Node.*;
@@ -24,7 +22,7 @@ import Compiler.Src.IR.Type.*;
 import Compiler.Src.Util.Error.ASMError;
 import Compiler.Src.Util.Error.BaseError;
 
-public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
+public class ASMBuilder_Naive extends ASMControl implements IRVisitor<ASMNode> {
     @Override
     public ASMNode visit(IRNode node) throws BaseError {
         throw new ASMError("Unknown IR node type");
@@ -51,9 +49,7 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
 
     @Override
     public ASMNode visit(IRFuncDef node) throws BaseError {
-        label2block = new TreeMap<>();
         var funcDef = new ASMFuncDef(node.getName(), node.getParams().size());
-        funcBlocks = new ArrayList<>();
         counter = new ASMCounter();
         var paramCount = 0;
         var initStmt = new ASMBlock(new ASMLabel(node.getName()));
@@ -78,40 +74,12 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
             paramCount++;
         }
 
-        funcBlocks.add(initStmt);
+        funcDef.addBlock(initStmt);
         for (var block : node.getBlockstmts()) {
-            CalcCFG(block);
+            funcDef.addBlock((ASMBlock) block.accept(this));
         }
-        for (var block : node.getBlockstmts()) {
-            block.accept(this);
-        }
-        for (var block : funcBlocks) {
-            block.PhiMove(this);
-        }
-        funcDef.setBlocks(funcBlocks);
         funcDef.Formolize(this);
         return funcDef;
-    }
-
-    public void CalcCFG(IRBlock node) {
-        var block = new ASMBlock(new ASMLabel(node.getLabelName().getLabel()));
-        label2block.put(node.getLabelName().getLabel(), block);
-        if (node.getReturnInst() instanceof IRRet) {
-            block.setSuccessor(new ArrayList<>());
-        } else if (node.getReturnInst() instanceof IRBranch) {
-            if (((IRBranch) node.getReturnInst()).isJump()) {
-                block.setSuccessor(new ArrayList<String>(
-                        Arrays.asList(((IRBranch) node.getReturnInst()).getTrueLabel().getLabel())));
-            } else {
-                var trueLabel = ((IRBranch) node.getReturnInst()).getTrueLabel().getLabel();
-                var falseLabel = ((IRBranch) node.getReturnInst()).getFalseLabel().getLabel();
-                block.setSuccessor(new ArrayList<>());
-                block.getSuccessor().add(trueLabel);
-                block.getSuccessor().add(falseLabel);
-            }
-        } else {
-            throw new ASMError("Unknown return inst");
-        }
     }
 
     @Override
@@ -128,124 +96,13 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
 
     @Override
     public ASMNode visit(IRBlock node) throws BaseError {
-        var block = label2block.get(node.getLabelName().getLabel());
-
-        // Phi remove
-        var label2new = new TreeMap<String, String>();
-        for (var phi : node.getPhiList().values()) {
-            var destInst = (ASMStmt) phi.getDest().accept(this);
-            if (phi.getLabels().size() != 2) {
-                throw new ASMError("ASM: phi should have 2 labels");
-            }
-            for (var label : phi.getLabels()) {
-                var blockLabel = label.getLabel();
-                if (!label2block.containsKey(blockLabel)) {
-                    throw new ASMError("ASM: phi label not found");
-                }
-                var predBlock = label2block.get(blockLabel);
-                var srcInst = (ASMStmt) phi.getVals().get(phi.getLabels().indexOf(label)).accept(this);
-                if (predBlock.getSuccessor().size() == 1) {
-                    predBlock.getPhiStmt().appendInsts(srcInst);
-                    predBlock.getPhiStmt().appendInsts(destInst);
-                    // predBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // srcInst.getDest()).getOffset()));
-                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA1(), 0,
-                    // regs.getT0()));
-                    // predBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // destInst.getDest()).getOffset()));
-                    // predBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // // predBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,
-                    // regs.getT0()));
-                    // predBlock.getPhiStmt().addInst(new ASMMove(regs.getA0(), regs.getA1()));
-                    // predBlock.getPhiStmt().addInst(new ASMStore("sw", regs.getA0(), 0,
-                    // regs.getT0()));
-                    if (predBlock.getSrc2dest().containsKey((ASMVirtualReg) srcInst.getDest())) {
-                        predBlock.getSrc2dest().get((ASMVirtualReg) srcInst.getDest())
-                                .add((ASMVirtualReg) destInst.getDest());
-                    } else {
-                        predBlock.getSrc2dest().put((ASMVirtualReg) srcInst.getDest(),
-                                new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
-                    }
-
-                } else {
-                    ASMBlock midBlock;
-                    if (!label2new.containsKey(blockLabel)) {
-                        midBlock = new ASMBlock(new ASMLabel(
-                                node.getLabelName().getLabel() + "." + blockLabel + ".PhiCreate."
-                                        + (++CreateblockCnt)));
-                        funcBlocks.add(midBlock);
-                        label2new.put(blockLabel, midBlock.getLabel().getLabel());
-                        label2block.put(midBlock.getLabel().getLabel(), midBlock);
-                        predBlock.replaceLabel(block.getLabel().getLabel(), midBlock.getLabel().getLabel());
-                        var jumpInst = new ASMStmt();
-                        jumpInst.addInst(new ASMJump(node.getLabelName().getLabel()));
-                        midBlock.setReturnInst(jumpInst);
-                    } else {
-                        midBlock = label2block.get(label2new.get(blockLabel));
-                    }
-
-                    // midBlock.getPhiStmt().appendInsts(srcInst);
-                    // midBlock.getPhiStmt().appendInsts(destInst);
-                    // midBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // srcInst.getDest()).getOffset()));
-                    // midBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // midBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA1(), 0,
-                    // regs.getT0()));
-                    // midBlock.getPhiStmt()
-                    // .addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg)
-                    // destInst.getDest()).getOffset()));
-                    // midBlock.getPhiStmt().addInst(new ASMArithR("add", regs.getT0(),
-                    // regs.getT0(), regs.getSp()));
-                    // // midBlock.getPhiStmt().addInst(new ASMLoad("lw", regs.getA0(), 0,
-                    // regs.getT0()));
-                    // midBlock.getPhiStmt().addInst(new ASMMove(regs.getA0(), regs.getA1()));
-                    // midBlock.getPhiStmt().addInst(new ASMStore("sw", regs.getA0(), 0,
-                    // regs.getT0()));
-                    if (midBlock.getSrc2dest().containsKey((ASMVirtualReg) srcInst.getDest())) {
-                        midBlock.getSrc2dest().get((ASMVirtualReg) srcInst.getDest())
-                                .add((ASMVirtualReg) destInst.getDest());
-                    } else {
-                        midBlock.getSrc2dest().put((ASMVirtualReg) srcInst.getDest(),
-                                new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
-                    }
-                    // midBlock.getSrc2dest().put((ASMVirtualReg) srcInst.getDest(), (ASMVirtualReg) destInst.getDest());
-                    // midBlock.getPhiStmt().addInst(new ASMMove(destInst.getDest(),
-                    // srcInst.getDest()));
-                }
-            }
-        }
-
+        var block = new ASMBlock(new ASMLabel(node.getLabelName().getLabel()));
         for (var stmt : node.getInsts()) {
             block.appendInsts((ASMStmt) stmt.accept(this));
         }
         var returnInst = (ASMStmt) node.getReturnInst().accept(this);
         block.setReturnInst(returnInst);
-        // if (node.getReturnInst() instanceof IRRet) {
-        // block.setSuccessor(new ArrayList<>());
-        // } else if (node.getReturnInst() instanceof IRBranch) {
-        // if (((IRBranch) node.getReturnInst()).isJump()) {
-        // block.setSuccessor(new ArrayList<String>(
-        // Arrays.asList(((IRBranch) node.getReturnInst()).getTrueLabel().getLabel())));
-        // } else {
-        // var trueLabel = ((IRBranch) node.getReturnInst()).getTrueLabel().getLabel();
-        // var falseLabel = ((IRBranch)
-        // node.getReturnInst()).getFalseLabel().getLabel();
-        // block.setSuccessor(new ArrayList<>());
-        // block.getSuccessor().add(trueLabel);
-        // block.getSuccessor().add(falseLabel);
-        // }
-        // } else {
-        // throw new ASMError("Unknown return inst");
-        // }
-        funcBlocks.add(block);
-        return new ASMStmt();
+        return block;
     }
 
     @Override

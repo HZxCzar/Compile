@@ -10,6 +10,7 @@ import java.io.PrintStream;
 import org.antlr.v4.runtime.*;
 
 import Compiler.Src.ASM.ASMBuilder;
+import Compiler.Src.ASM.ASMBuilder_Naive;
 import Compiler.Src.ASM.Node.ASMNode;
 import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
@@ -39,10 +40,18 @@ public class Compiler {
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
             IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
+
             var output1 = new PrintStream(new FileOutputStream("src/test/mx/output_old.ll"));
             // new FileOutputStream("src/test/mx/output_old.ll")
             output1.println(irProgram);
             output1.close();
+
+
+            ASMNode asmProgram = new ASMBuilder_Naive().visit((IRRoot) irProgram);
+            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
+            codegenOutput.println(asmProgram);
+            codegenOutput.close();
+
 
             new IROptimize().visit((IRRoot) irProgram);
             // new IRCodegen().visit((IRRoot) irProgram);
@@ -51,10 +60,10 @@ public class Compiler {
             output2.println(irProgram);
             output2.close();
             // System.out.println(irProgram);
-            ASMNode asmProgram = new ASMBuilder().visit((IRRoot) irProgram);
-            var codegenOutput = new PrintStream(new FileOutputStream("bin/test.s"));
-            codegenOutput.println(asmProgram);
-            codegenOutput.close();
+            ASMNode asmProgram2 = new ASMBuilder().visit((IRRoot) irProgram);
+            var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
+            codegenOutput2.println(asmProgram2);
+            codegenOutput2.close();
 
             String filePath = "builtin.s"; // 文件路径
 

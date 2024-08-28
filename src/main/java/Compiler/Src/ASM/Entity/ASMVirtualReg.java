@@ -5,7 +5,7 @@ import Compiler.Src.Util.Error.ASMError;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMVirtualReg extends ASMReg {
+public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
     private int offset;
 
     public ASMVirtualReg(String name, int offset) {
@@ -25,5 +25,10 @@ public class ASMVirtualReg extends ASMReg {
     @Override
     public String toString() {
         throw new ASMError("Stack register should not be printed");
+    }
+
+    @Override
+    public int compareTo(ASMVirtualReg o) {
+        return this.offset - o.offset;
     }
 }

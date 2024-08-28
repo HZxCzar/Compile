@@ -172,14 +172,16 @@ public class Mem2Reg {
                 var2entity.put(((IRAlloca) inst).getDest(), null);
             }
         }
-        renameBlock(entryBlock, var2entity);
+        var reg2entity = new TreeMap<IRVariable, IREntity>();
+        renameBlock(entryBlock, var2entity, reg2entity);
     }
 
-    public void renameBlock(IRBlock block, TreeMap<IRVariable, IREntity> var2entity) {
+    public void renameBlock(IRBlock block, TreeMap<IRVariable, IREntity> var2entity,
+            TreeMap<IRVariable, IREntity> reg2entity) {
         for (var phi : block.getPhiList().keySet()) {
             var2entity.put(phi, block.getPhiList().get(phi).getDest());
         }
-        var reg2entity = new TreeMap<IRVariable, IREntity>();
+        // var reg2entity = new TreeMap<IRVariable, IREntity>();
         var newInstList = new ArrayList<IRInst>();
         for (var inst : block.getInsts()) {
             if (inst instanceof IRAlloca) {
@@ -245,7 +247,8 @@ public class Mem2Reg {
         }
         for (var Domchild : block.getDomChildren()) {
             var var2entity2 = new TreeMap<IRVariable, IREntity>(var2entity);
-            renameBlock(Domchild, var2entity2);
+            var reg2entity2 = new TreeMap<IRVariable, IREntity>(reg2entity);
+            renameBlock(Domchild, var2entity2, reg2entity2);
         }
     }
 }

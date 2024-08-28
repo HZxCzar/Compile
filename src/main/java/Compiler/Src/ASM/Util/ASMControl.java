@@ -1,6 +1,10 @@
 package Compiler.Src.ASM.Util;
 
+import java.util.ArrayList;
+import java.util.TreeMap;
+
 import Compiler.Src.ASM.Entity.ASMPhysicalReg;
+import Compiler.Src.ASM.Node.Stmt.ASMBlock;
 
 @lombok.Getter
 @lombok.Setter
@@ -8,9 +12,15 @@ public class ASMControl {
     protected ASMCounter counter;
     protected BuiltInRegs regs;
 
+    //mem2reg
+    protected TreeMap<String,ASMBlock> label2block;
+    protected ArrayList<ASMBlock> funcBlocks;
+    protected int CreateblockCnt;
+
     protected ASMControl() {
         this.counter = new ASMCounter();
         this.regs = new BuiltInRegs();
+        this.CreateblockCnt = 0;
     }
 
     public ASMPhysicalReg getArgReg(int i) {
