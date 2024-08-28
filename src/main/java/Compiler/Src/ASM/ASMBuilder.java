@@ -134,9 +134,9 @@ public class ASMBuilder extends ASMControl implements IRVisitor<ASMNode> {
         var label2new = new TreeMap<String, String>();
         for (var phi : node.getPhiList().values()) {
             var destInst = (ASMStmt) phi.getDest().accept(this);
-            if (phi.getLabels().size() != 2) {
-                throw new ASMError("ASM: phi should have 2 labels");
-            }
+            // if (phi.getLabels().size() != 2) {
+            //     throw new ASMError("ASM: phi should have 2 labels");
+            // }
             for (var label : phi.getLabels()) {
                 var blockLabel = label.getLabel();
                 if (!label2block.containsKey(blockLabel)) {
