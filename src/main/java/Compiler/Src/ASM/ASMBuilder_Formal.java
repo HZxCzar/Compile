@@ -240,11 +240,11 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     InstList.addInst(new ASMLi(regs.getA0(), lhs * rhs));
                 }
                 case "sdiv" -> {
-                    if(rhs==0)
-                    {
-                        throw new ASMError("Divide by zero");
+                    if (rhs == 0) {
+                        InstList.addInst(new ASMLi(regs.getA0(), 0));
+                    } else {
+                        InstList.addInst(new ASMLi(regs.getA0(), lhs / rhs));
                     }
-                    InstList.addInst(new ASMLi(regs.getA0(), lhs / rhs));
                 }
                 case "srem" -> {
                     InstList.addInst(new ASMLi(regs.getA0(), lhs % rhs));
@@ -684,14 +684,13 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
         var DestInst = (ASMStmt) node.getDest().accept(this);
         InstList.appendInsts(DestInst);
         var DestDest = DestInst.getDest();
-        var Ptr= node.getPtr();
-        if(Ptr instanceof IRLiteral){
-            if(!((IRLiteral) Ptr).getValue().equals("null")){
+        var Ptr = node.getPtr();
+        if (Ptr instanceof IRLiteral) {
+            if (!((IRLiteral) Ptr).getValue().equals("null")) {
                 throw new OPTError("Literal ptr should be null");
             }
             InstList.addInst(new ASMLi(regs.getA0(), 0));
-        }
-        else{
+        } else {
             var PtrInst = (ASMStmt) node.getPtr().accept(this);
             InstList.appendInsts(PtrInst);
             var PtrDest = PtrInst.getDest();
