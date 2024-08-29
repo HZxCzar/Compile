@@ -25,11 +25,11 @@ public class ASMStmt extends ASMNode {
     }
 
     public void appendInsts(ASMStmt nodes) {
-        this.insts.addAll(nodes.insts);
+        this.insts.addAll(nodes.getInsts());
     }
 
     public void appendInsts(int offset,ASMStmt nodes) {
-        this.insts.addAll(offset,nodes.insts);
+        this.insts.addAll(offset,nodes.getInsts());
     }
 
     @Override

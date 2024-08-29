@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
+import Compiler.Src.IR.Entity.IRLiteral;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.Util.Error.BaseError;
 

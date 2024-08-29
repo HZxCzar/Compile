@@ -147,7 +147,8 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     if (predBlock.getSrc2dest().containsKey(SrcDest)) {
                         predBlock.getSrc2dest().get(SrcDest).add((ASMVirtualReg) destInst.getDest());
                     } else {
-                        predBlock.getSrc2dest().put(SrcDest, new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
+                        predBlock.getSrc2dest().put(SrcDest,
+                                new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
                     }
                 } else {
                     ASMBlock midBlock;
@@ -178,7 +179,8 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                         midBlock.getSrc2dest().get(SrcDest)
                                 .add((ASMVirtualReg) destInst.getDest());
                     } else {
-                        midBlock.getSrc2dest().put(SrcDest, new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
+                        midBlock.getSrc2dest().put(SrcDest,
+                                new ArrayList<>(Arrays.asList((ASMVirtualReg) destInst.getDest())));
                     }
                 }
             }
@@ -594,7 +596,6 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
         var InstList = new ASMStmt();
         int argNum = 0;
         int offset = 0;
-        // var args = new ArrayList<ASMStmt>();
         var ComputeInst = new ASMStmt();
         if (node.getFuncName().equals("__malloc_array") || node.getFuncName().equals("_malloc")) {
             if (node.getArgs().size() > 2) {
@@ -604,7 +605,6 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                 var arg1 = node.getArgs().get(0);
                 if (arg1 instanceof IRVariable) {
                     var argInst = (ASMStmt) arg1.accept(this);
-                    // args.add(argInst);
                     ComputeInst.appendInsts(argInst);
                     InstList.appendInsts(LoadAt(regs.getA0(), 4 * ((ASMVirtualReg) argInst.getDest()).getOffset()));
                 } else {
@@ -616,7 +616,7 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     throw new ASMError("arg should be literal");
                 } else {
                     var value = IRLiteral2Int((IRLiteral) arg2);
-                    InstList.addInst(new ASMLi(regs.getA1(), value + 4 - value % 4));
+                    InstList.addInst(new ASMLi(regs.getA1(), value % 4 != 0 ? value + 4 - value % 4 : value));
                 }
                 ++argNum;
             } else {
@@ -625,7 +625,7 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     throw new ASMError("arg should be literal");
                 } else {
                     var value = IRLiteral2Int((IRLiteral) arg1);
-                    InstList.addInst(new ASMLi(regs.getA0(), value + 4 - value % 4));
+                    InstList.addInst(new ASMLi(regs.getA0(), value % 4 != 0 ? value + 4 - value % 4 : value));
                 }
                 ++argNum;
             }
@@ -634,7 +634,6 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                 if (argNum < 8) {
                     if (arg instanceof IRVariable) {
                         var argInst = (ASMStmt) arg.accept(this);
-                        // args.add(argInst);
                         ComputeInst.appendInsts(argInst);
                         InstList.appendInsts(
                                 LoadAt(getArgReg(argNum), 4 * ((ASMVirtualReg) argInst.getDest()).getOffset()));
@@ -645,7 +644,6 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     ++offset;
                     if (arg instanceof IRVariable) {
                         var argInst = (ASMStmt) arg.accept(this);
-                        // args.add(argInst);
                         ComputeInst.appendInsts(argInst);
                         InstList.appendInsts(LoadAt(regs.getT2(), 4 * ((ASMVirtualReg) argInst.getDest()).getOffset()));
                         InstList.appendInsts(StoreAt(regs.getT2(), -4 * offset));
@@ -657,7 +655,7 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                 ++argNum;
             }
         }
-        InstList.appendInsts(0,ComputeInst);
+        InstList.appendInsts(0, ComputeInst);
         var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {
             InstList.addInst(new ASMLi(regs.getT0(), -offsetStack));
@@ -680,13 +678,22 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
     public ASMNode visit(IRGetelementptr node) throws BaseError {
         var InstList = new ASMStmt();
         var DestInst = (ASMStmt) node.getDest().accept(this);
-        var PtrInst = (ASMStmt) node.getPtr().accept(this);
-        var IndexEntity = (IREntity) node.getInfolist().get(node.getInfolist().size() - 1);
         InstList.appendInsts(DestInst);
-        InstList.appendInsts(PtrInst);
         var DestDest = DestInst.getDest();
-        var PtrDest = PtrInst.getDest();
-        InstList.appendInsts(LoadAt(regs.getA1(), 4 * ((ASMVirtualReg) PtrDest).getOffset()));
+        var Ptr= node.getPtr();
+        if(Ptr instanceof IRLiteral){
+            if(!((IRLiteral) Ptr).getValue().equals("null")){
+                throw new OPTError("Literal ptr should be null");
+            }
+            InstList.addInst(new ASMLi(regs.getA0(), 0));
+        }
+        else{
+            var PtrInst = (ASMStmt) node.getPtr().accept(this);
+            InstList.appendInsts(PtrInst);
+            var PtrDest = PtrInst.getDest();
+            InstList.appendInsts(LoadAt(regs.getA1(), 4 * ((ASMVirtualReg) PtrDest).getOffset()));
+        }
+        var IndexEntity = (IREntity) node.getInfolist().get(node.getInfolist().size() - 1);
         if (IndexEntity instanceof IRVariable) {
             var IndexInst = (ASMStmt) IndexEntity.accept(this);
             InstList.appendInsts(IndexInst);
@@ -748,7 +755,7 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
         var DestInst = (ASMStmt) node.getDest().accept(this);
         InstList.appendInsts(DestInst);
         var Dest = DestInst.getDest();
-        if(node.getSrc() instanceof IRVariable) {
+        if (node.getSrc() instanceof IRVariable) {
             var SrcInst = (ASMStmt) node.getSrc().accept(this);
             InstList.appendInsts(SrcInst);
             var SrcDest = SrcInst.getDest();
@@ -772,10 +779,10 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
         var entity = (ASMVirtualReg) counter.name2reg.get(node.getValue());
         if (node.isGlobal()) {
             // if (entity == null) {
-                entity = new ASMVirtualReg(counter);
-                counter.name2reg.put(node.getValue(), entity);
-                InstList.addInst(new ASMLoadLabel(regs.getA0(), node.getValue().substring(1)));
-                InstList.appendInsts(StoreAt(regs.getA0(), 4 * entity.getOffset()));
+            entity = new ASMVirtualReg(counter);
+            counter.name2reg.put(node.getValue(), entity);
+            InstList.addInst(new ASMLoadLabel(regs.getA0(), node.getValue().substring(1)));
+            InstList.appendInsts(StoreAt(regs.getA0(), 4 * entity.getOffset()));
             // }
         } else {
             if (entity == null) {
@@ -790,5 +797,6 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
     @Override
     public ASMNode visit(IRLiteral node) throws BaseError {
         throw new ASMError("Literal should be eliminated");
+        // return new ASMStmt();
     }
 }
