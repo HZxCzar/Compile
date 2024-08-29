@@ -716,6 +716,7 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
         } else {
             if (node.getValue() instanceof IRVariable) {
                 var DestInst = (ASMStmt) node.getValue().accept(this);
+                InstList.appendInsts(DestInst);
                 InstList.appendInsts(LoadAt(regs.getA0(), 4 * ((ASMVirtualReg) DestInst.getDest()).getOffset()));
                 InstList.addInst(new ASMRet());
             } else if (node.getValue() instanceof IRLiteral) {

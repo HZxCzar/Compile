@@ -64,8 +64,7 @@ public class Compiler {
                 // codegenOutput2.close();
 
                 // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
-                // var codegenOutput3 = new PrintStream(new
-                // FileOutputStream("bin/compare/test.s"));
+                // var codegenOutput3 = new PrintStream(new FileOutputStream("bin/compare/test.s"));
                 // codegenOutput3.println(asmProgram3);
                 // codegenOutput3.close();
 
