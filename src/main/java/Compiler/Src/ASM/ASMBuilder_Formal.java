@@ -240,7 +240,14 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
                     InstList.addInst(new ASMLi(regs.getA0(), lhs * rhs));
                 }
                 case "sdiv" -> {
-                    InstList.addInst(new ASMLi(regs.getA0(), lhs / rhs));
+                    if(rhs==0)
+                    {
+                        InstList.addInst(new ASMLi(regs.getA0(), 0));
+                    }
+                    else
+                    {
+                        InstList.addInst(new ASMLi(regs.getA0(), lhs / rhs));
+                    }
                 }
                 case "srem" -> {
                     InstList.addInst(new ASMLi(regs.getA0(), lhs % rhs));
