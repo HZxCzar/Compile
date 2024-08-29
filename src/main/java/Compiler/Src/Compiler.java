@@ -78,7 +78,7 @@ public class Compiler {
                 reader.close();
                 System.out.println(asmProgram2);
             } catch (BaseError e) {
-                System.exit(0);
+                return;
             }
         } catch (BaseError e) {
             System.out.println(e.getMessage());
