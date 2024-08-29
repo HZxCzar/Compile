@@ -52,4 +52,8 @@ public class IRRoot extends IRNode {
         }
         return str;
     }
+
+    public void RemoveDef(IRGlobalDef def) {
+        defs.remove(def);
+    }
 }

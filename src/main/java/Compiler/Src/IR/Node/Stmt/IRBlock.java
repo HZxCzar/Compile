@@ -73,6 +73,18 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
         this.predecessors.add(block);
     }
 
+    public void RemoveInst(IRInst inst) {
+        if(inst instanceof IRPhi) {
+            for(var var : getPhiList().entrySet()) {
+                if(var.getValue().equals(inst)) {
+                    getPhiList().remove(var.getKey());
+                    break;
+                }
+            }
+        }
+        getInsts().remove(inst);
+    }
+
     @Override
     public int compareTo(IRBlock rhs) {
         return labelName.compareTo(((IRBlock) rhs).getLabelName());

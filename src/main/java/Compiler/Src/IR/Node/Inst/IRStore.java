@@ -35,6 +35,9 @@ public class IRStore extends IRInst {
         if (src instanceof IRVariable) {
             res.add((IRVariable) src);
         }
+        if(dest instanceof IRVariable) {
+            res.add(dest);
+        }
         return res;
     }
 

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
+import Compiler.Src.IR.Entity.IRLiteral;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.Util.Error.BaseError;
@@ -24,7 +25,7 @@ public class IRBranch extends IRInst {
     }
 
     public IRBranch(IRLabel jumpLabel) {
-        this.cond = new IRVariable(GlobalScope.irBoolType, "true");
+        this.cond = new IRLiteral(GlobalScope.irBoolType, "true");
         this.trueLabel = jumpLabel;
         this.falseLabel = jumpLabel;
         this.isJump = true;
