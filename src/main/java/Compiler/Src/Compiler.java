@@ -41,39 +41,46 @@ public class Compiler {
             ASTNode astProgram = new ASTBuilder().visit(parser.program());
             new SymbolCollector().visit((ASTRoot) astProgram);
             new SemanticChecker().visit((ASTRoot) astProgram);
-            IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
+            try {
+                IRNode irProgram = new IRBuilder().visit((ASTRoot) astProgram);
 
-            // var output1 = new PrintStream(new FileOutputStream("src/test/mx/output_old.ll"));
-            // // new FileOutputStream("src/test/mx/output_old.ll")
-            // output1.println(irProgram);
-            // output1.close();
+                // var output1 = new PrintStream(new
+                // FileOutputStream("src/test/mx/output_old.ll"));
+                // // new FileOutputStream("src/test/mx/output_old.ll")
+                // output1.println(irProgram);
+                // output1.close();
 
-            new IROptimize().visit((IRRoot) irProgram);
-            // new IRCodegen().visit((IRRoot) irProgram);
-            // var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
-            // // new FileOutputStream("src/test/mx/output_new.ll")
-            // output2.println(irProgram);
-            // output2.close();
-            // System.out.println(irProgram);
-            ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
-            // var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
-            // codegenOutput2.println(asmProgram2);
-            // codegenOutput2.close();
+                new IROptimize().visit((IRRoot) irProgram);
+                // new IRCodegen().visit((IRRoot) irProgram);
+                // var output2 = new PrintStream(new
+                // FileOutputStream("src/test/mx/output_new.ll"));
+                // // new FileOutputStream("src/test/mx/output_new.ll")
+                // output2.println(irProgram);
+                // output2.close();
+                // System.out.println(irProgram);
+                ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
+                // var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
+                // codegenOutput2.println(asmProgram2);
+                // codegenOutput2.close();
 
-            // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
-            // var codegenOutput3 = new PrintStream(new FileOutputStream("bin/compare/test.s"));
-            // codegenOutput3.println(asmProgram3);
-            // codegenOutput3.close();
+                // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
+                // var codegenOutput3 = new PrintStream(new
+                // FileOutputStream("bin/compare/test.s"));
+                // codegenOutput3.println(asmProgram3);
+                // codegenOutput3.close();
 
-            String filePath = "builtin.s"; // 文件路径
+                String filePath = "builtin.s"; // 文件路径
 
-            BufferedReader reader = new BufferedReader(new FileReader(filePath));
-            String line;
-            while ((line = reader.readLine()) != null) {
-                System.out.println(line);
+                BufferedReader reader = new BufferedReader(new FileReader(filePath));
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    System.out.println(line);
+                }
+                reader.close();
+                System.out.println(asmProgram2);
+            } catch (BaseError e) {
+                System.exit(0);
             }
-            reader.close();
-            System.out.println(asmProgram2);
         } catch (BaseError e) {
             System.out.println(e.getMessage());
             System.exit(1);
