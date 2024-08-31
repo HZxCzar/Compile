@@ -4,7 +4,7 @@ import Compiler.Src.IR.Node.Inst.IRInst;
 
 @lombok.Getter
 @lombok.Setter
-public class IRLabel extends IRInst implements Comparable<IRLabel>{
+public class IRLabel extends IRInst{
     private String label;
     public IRLabel(String label) {
         this.label = label;
@@ -12,10 +12,5 @@ public class IRLabel extends IRInst implements Comparable<IRLabel>{
     @Override
     public String toString() {
         return label;
-    }
-
-    @Override
-    public int compareTo(IRLabel other) {
-        return this.label.compareTo(other.label);
     }
 }

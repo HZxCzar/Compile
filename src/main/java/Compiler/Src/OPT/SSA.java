@@ -1,6 +1,5 @@
 package Compiler.Src.OPT;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.TreeMap;
@@ -18,27 +17,24 @@ import Compiler.Src.IR.Node.Def.IRGlobalDef;
 import Compiler.Src.IR.Node.Def.IRStrDef;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.Stmt.IRBlock;
-import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.IR.Type.IRStructType;
-import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
-public class DCE implements IRVisitor<OPTError> {
-    // private HashSet<IRVariable> W;
-    private TreeMap<IRVariable, Pair<IRBlock, IRInst>> Var2Def = new TreeMap<>();
+public class SSA implements IRVisitor<OPTError> {
+    private HashSet<IRInst> EreaseWorkSet = new HashSet<>();
+    private TreeMap<IRVariable, IRInst> Var2Def = new TreeMap<>();
     private TreeMap<IRVariable, IRGlobalDef> Var2GDef = new TreeMap<>();
     private TreeMap<IRVariable, HashSet<IRInst>> Var2Use = new TreeMap<>();
+    private TreeMap<IRInst, IRBlock> Inst2Block = new TreeMap<>();
     private IRBlock currentBlock;
-    // private HashSet<IRInst> SideEffectInst = new HashSet<IRInst>();
-    // private HashSet<IRGlobalDef> GSideEffectInst = new HashSet<IRGlobalDef>();
 
     @Override
     public OPTError visit(IRRoot root) throws BaseError {
         Collect(root);
-        // BackWard();
         Run(root);
+        Erease(root);
         return new OPTError();
     }
 
@@ -50,31 +46,6 @@ public class DCE implements IRVisitor<OPTError> {
             func.accept(this);
         }
     }
-
-    // public void BackWard() {
-    // var queue = new LinkedList<IRInst>();
-    // for (var inst : SideEffectInst) {
-    // queue.add(inst);
-    // }
-    // while (!queue.isEmpty()) {
-    // var inst = queue.poll();
-    // for (var use : inst.getUses()) {
-    // if (use.isGlobal()) {
-    // var unit = Var2GDef.get(use);
-    // GSideEffectInst.add(unit);
-    // } else {
-    // var unit = Var2Def.get(use);
-    // if (unit == null) {
-    // continue;
-    // }
-    // if (unit.b != null && !SideEffectInst.contains(unit.b)) {
-    // SideEffectInst.add(unit.b);
-    // queue.add(unit.b);
-    // }
-    // }
-    // }
-    // }
-    // }
 
     public void Run(IRRoot root) {
         var W = new LinkedList<IRVariable>();
@@ -105,13 +76,14 @@ public class DCE implements IRVisitor<OPTError> {
                 root.RemoveDef(S);
                 Var2GDef.remove(v);
             } else {
-                var P = Var2Def.get(v);
-                if (P == null || P.b == null) {
+                var S = Var2Def.get(v);
+                if (S == null) {
                     continue;
                 }
-                var S = P.b;
                 if (isSideEffect(S)) {
-                    P.a.RemoveInst(S);
+                    var block = Inst2Block.get(S);
+                    block.RemoveInst(S);
+                    Inst2Block.remove(S);
                     Var2Def.remove(v);
                     for (var x : S.getUses()) {
                         Var2Use.get(x).remove(S);
@@ -120,33 +92,112 @@ public class DCE implements IRVisitor<OPTError> {
                 }
             }
         }
-        // while (!W.isEmpty()) {
-        // var v = W.poll();
-        // if (!Var2Use.get(v).isEmpty()) {
-        // continue;
-        // }
-        // if (v.isGlobal()) {
-        // var S = Var2GDef.get(v);
-        // if (GSideEffectInst.contains(S)) {
-        // continue;
-        // }
-        // root.RemoveDef(S);
-        // } else {
-        // var P = Var2Def.get(v);
-        // var S = P.b;
-        // if (SideEffectInst.contains(S)) {
-        // continue;
-        // }
-        // if (S == null) {
-        // continue;
-        // }
-        // P.a.RemoveInst(S);
-        // for (var x : S.getUses()) {
-        // Var2Use.get(x).remove(S);
-        // W.add((IRVariable) x);
-        // }
-        // }
-        // }
+    }
+
+    public void Erease(IRRoot root) {
+        EreaseWorkSet = new HashSet<>();
+        for (var inst : Inst2Block.keySet()) {
+            EreaseWorkSet.add(inst);
+        }
+        while (!EreaseWorkSet.isEmpty()) {
+            var S = EreaseWorkSet.iterator().next();
+            EreaseWorkSet.remove(S);
+            if (S instanceof IRPhi) {
+                boolean flag = true;
+                var literal = ((IRPhi) S).getVals().get(0);
+                for (var val : ((IRPhi) S).getVals()) {
+                    if (val instanceof IRVariable) {
+                        flag = false;
+                        break;
+                    } else {
+                        if (!((IRLiteral) val).equals((IRLiteral) literal)) {
+                            flag = false;
+                            break;
+                        }
+                    }
+                }
+                if (flag) {
+                    var type = ((IRPhi) S).getType();
+                    var dest = ((IRPhi) S).getDest();
+                    var block = Inst2Block.get(S);
+                    block.RemoveInst(S);
+                    S = new IRArith(dest, "add", type, literal, new IRLiteral(GlobalScope.irIntType, "0"));
+                    block.addFront(S);
+                    Inst2Block.put(S, block);
+                }
+            }
+            var unitPair = isConstAssign(S);
+            if (unitPair != null) {
+                var block = Inst2Block.get(S);
+                block.RemoveInst(S);
+                var dest = unitPair.a;
+                var literal = unitPair.b;
+                for (var useInst : Var2Use.get(dest)) {
+                    useInst.replaceUse(dest, literal);
+                    EreaseWorkSet.add(useInst);
+                }
+            }
+        }
+    }
+
+    public Pair<IRVariable, IRLiteral> isConstAssign(IRInst S) {
+        if (S instanceof IRArith) {
+            if (((IRArith) S).getLhs() instanceof IRLiteral && ((IRArith) S).getRhs() instanceof IRLiteral) {
+                var Literal = new IRLiteral(GlobalScope.irIntType,
+                        String.valueOf(InnerCompute(((IRLiteral) ((IRArith) S).getLhs()).getValue(),
+                                ((IRLiteral) ((IRArith) S).getRhs()).getValue(), ((IRArith) S).getOp())));
+                return new Pair<IRVariable, IRLiteral>(((IRArith) S).getDest(), Literal);
+            }
+            return null;
+        } else if (S instanceof IRIcmp) {
+            if (((IRIcmp) S).getLhs() instanceof IRLiteral && ((IRIcmp) S).getRhs() instanceof IRLiteral) {
+                var Literal = new IRLiteral(GlobalScope.irIntType,
+                        String.valueOf(InnerCompute(((IRLiteral) ((IRIcmp) S).getLhs()).getValue(),
+                                ((IRLiteral) ((IRIcmp) S).getRhs()).getValue(), ((IRIcmp) S).getCond())));
+                return new Pair<IRVariable, IRLiteral>(((IRIcmp) S).getDest(), Literal);
+            }
+            return null;
+        }
+        return null;
+    }
+
+    public int InnerCompute(String lhsStr, String rhsStr, String op) {
+        switch (op) {
+            case "add":
+                return Integer.parseInt(lhsStr) + Integer.parseInt(rhsStr);
+            case "sub":
+                return Integer.parseInt(lhsStr) - Integer.parseInt(rhsStr);
+            case "mul":
+                return Integer.parseInt(lhsStr) * Integer.parseInt(rhsStr);
+            case "sdiv":
+                return Integer.parseInt(lhsStr) / Integer.parseInt(rhsStr);
+            case "srem":
+                return Integer.parseInt(lhsStr) % Integer.parseInt(rhsStr);
+            case "shl":
+                return Integer.parseInt(lhsStr) << Integer.parseInt(rhsStr);
+            case "ashr":
+                return Integer.parseInt(lhsStr) >> Integer.parseInt(rhsStr);
+            case "and":
+                return Integer.parseInt(lhsStr) & Integer.parseInt(rhsStr);
+            case "or":
+                return Integer.parseInt(lhsStr) | Integer.parseInt(rhsStr);
+            case "xor":
+                return Integer.parseInt(lhsStr) ^ Integer.parseInt(rhsStr);
+            case "eq":
+                return Integer.parseInt(lhsStr) == Integer.parseInt(rhsStr) ? 1 : 0;
+            case "ne":
+                return Integer.parseInt(lhsStr) != Integer.parseInt(rhsStr) ? 1 : 0;
+            case "slt":
+                return Integer.parseInt(lhsStr) < Integer.parseInt(rhsStr) ? 1 : 0;
+            case "sgt":
+                return Integer.parseInt(lhsStr) > Integer.parseInt(rhsStr) ? 1 : 0;
+            case "sle":
+                return Integer.parseInt(lhsStr) <= Integer.parseInt(rhsStr) ? 1 : 0;
+            case "sge":
+                return Integer.parseInt(lhsStr) >= Integer.parseInt(rhsStr) ? 1 : 0;
+            default:
+                throw new OPTError("Invalid op in InnerCompute");
+        }
     }
 
     public boolean isSideEffect(IRInst inst) {
@@ -170,7 +221,7 @@ public class DCE implements IRVisitor<OPTError> {
     @Override
     public OPTError visit(IRFuncDef funcDef) throws BaseError {
         for (var para : funcDef.getParams()) {
-            Var2Def.put(para, new Pair<>(funcDef.getOrder2Block().get(0), null));
+            Var2Def.put(para, null);
         }
         for (var block : funcDef.getOrder2Block()) {
             block.accept(this);
@@ -220,7 +271,8 @@ public class DCE implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRArith node) throws BaseError {
-        Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+        Var2Def.put(node.getDest(), node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -254,7 +306,8 @@ public class DCE implements IRVisitor<OPTError> {
     public OPTError visit(IRCall node) throws BaseError {
         // SideEffectInst.add(node);
         if (node.getDest() != null) {
-            Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+            Var2Def.put(node.getDest(), node);
+            Inst2Block.put(node, currentBlock);
         }
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
@@ -271,7 +324,8 @@ public class DCE implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRGetelementptr node) throws BaseError {
-        Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+        Var2Def.put(node.getDest(), node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -308,7 +362,8 @@ public class DCE implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRLoad node) throws BaseError {
-        Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+        Var2Def.put(node.getDest(), node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -324,7 +379,8 @@ public class DCE implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRPhi node) throws BaseError {
-        Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+        Var2Def.put(node.getDest(), node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -340,7 +396,8 @@ public class DCE implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRIcmp node) throws BaseError {
-        Var2Def.put(node.getDest(), new Pair<>(currentBlock, node));
+        Var2Def.put(node.getDest(), node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {

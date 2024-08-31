@@ -7,7 +7,7 @@ public class IROptimize {
     {
         new CFGBuilder().visit(root);
         new Mem2Reg().visit(root);
-        new DCE().visit(root);
+        new SSA().visit(root);
         return;
     }
 }
