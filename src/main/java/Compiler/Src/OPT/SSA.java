@@ -122,38 +122,39 @@ public class SSA implements IRVisitor<OPTError> {
                     var dest = ((IRPhi) S).getDest();
                     var block = Inst2Block.get(S);
                     block.RemoveInst(S);
-                    S = new IRArith(++InstCounter.InstCounter,dest, "add", type, literal, new IRLiteral(GlobalScope.irIntType, "0"));
+                    S = new IRArith(++InstCounter.InstCounter, dest, "add", type, literal,
+                            new IRLiteral(GlobalScope.irIntType, "0"));
                     block.addFront(S);
                     Inst2Block.put(S, block);
                 }
             }
             if (S instanceof IRBranch && ((IRBranch) S).getCond() instanceof IRLiteral) {
-                if(((IRBranch) S).isJump()) continue;
+                if (((IRBranch) S).isJump())
+                    continue;
                 var cond = (IRLiteral) ((IRBranch) S).getCond();
                 var TrueLabel = ((IRBranch) S).getTrueLabel();
                 var FalseLabel = ((IRBranch) S).getFalseLabel();
-                IRBlock outBlock,inBlock=null;
+                IRBlock outBlock, inBlock = null;
                 if (cond.getValue().equals("0")) {
                     ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
                     ((IRBranch) S).setTrueLabel(FalseLabel);
                     ((IRBranch) S).setJump(true);
                     outBlock = Inst2Block.get(S);
-                    for(var succ : outBlock.getSuccessors()){
-                        if(succ.getLabelName().equals(TrueLabel)){
+                    for (var succ : outBlock.getSuccessors()) {
+                        if (succ.getLabelName().equals(TrueLabel)) {
                             inBlock = succ;
                             inBlock.getPredecessors().remove(outBlock);
                             outBlock.getSuccessors().remove(inBlock);
                             break;
                         }
                     }
-                }
-                else{
+                } else {
                     ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
                     ((IRBranch) S).setFalseLabel(TrueLabel);
                     ((IRBranch) S).setJump(true);
                     outBlock = Inst2Block.get(S);
-                    for(var succ : outBlock.getSuccessors()){
-                        if(succ.getLabelName().equals(FalseLabel)){
+                    for (var succ : outBlock.getSuccessors()) {
+                        if (succ.getLabelName().equals(FalseLabel)) {
                             inBlock = succ;
                             inBlock.getPredecessors().remove(outBlock);
                             outBlock.getSuccessors().remove(inBlock);
@@ -179,18 +180,14 @@ public class SSA implements IRVisitor<OPTError> {
     }
 
     public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
-        for(var phi:inBlock.getPhiList().entrySet())
-        {
+        for (var phi : inBlock.getPhiList().entrySet()) {
             var phiInst = phi.getValue();
-            for(var label:phiInst.getLabels())
-            {
-                if(label.equals(outBlock.getLabelName()))
-                {
-                    var index=phiInst.getLabels().indexOf(label);
+            for (var label : phiInst.getLabels()) {
+                if (label.equals(outBlock.getLabelName())) {
+                    var index = phiInst.getLabels().indexOf(label);
                     phiInst.getVals().remove(index);
                     phiInst.getLabels().remove(index);
-                    if(phiInst.getVals().isEmpty())
-                    {
+                    if (phiInst.getVals().isEmpty()) {
                         throw new OPTError("PhiInst is empty");
                     }
                     EreaseWorkSet.add(phiInst);
@@ -221,8 +218,8 @@ public class SSA implements IRVisitor<OPTError> {
     }
 
     public int InnerCompute(String lhsStr, String rhsStr, String op) {
-        int lhs=lhsStr.equals("null")?0:Integer.parseInt(lhsStr);
-        int rhs=rhsStr.equals("null")?0:Integer.parseInt(rhsStr);
+        int lhs = lhsStr.equals("null") ? 0 : Integer.parseInt(lhsStr);
+        int rhs = rhsStr.equals("null") ? 0 : Integer.parseInt(rhsStr);
         switch (op) {
             case "add":
                 return lhs + rhs;
@@ -230,8 +227,13 @@ public class SSA implements IRVisitor<OPTError> {
                 return lhs - rhs;
             case "mul":
                 return lhs * rhs;
-            case "sdiv":
+            case "sdiv": {
+                if (rhs == 0) {
+                    return 0;
+                }
                 return lhs / rhs;
+            }
+
             case "srem":
                 return lhs % rhs;
             case "shl":
