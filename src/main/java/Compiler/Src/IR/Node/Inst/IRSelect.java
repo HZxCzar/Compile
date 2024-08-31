@@ -16,7 +16,8 @@ public class IRSelect extends IRInst {
     private IRType ty1,ty2;
     private IRVariable val1,val2;
 
-    public IRSelect(IRVariable dest, String cond, IRType ty1, IRVariable val1, IRType ty2, IRVariable val2) {
+    public IRSelect(int id,IRVariable dest, String cond, IRType ty1, IRVariable val1, IRType ty2, IRVariable val2) {
+        super(id);
         this.dest = dest;
         this.cond = cond;
         this.ty1 = ty1;

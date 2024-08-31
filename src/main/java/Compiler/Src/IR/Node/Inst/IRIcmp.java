@@ -16,7 +16,8 @@ public class IRIcmp extends IRInst {
     private IREntity lhs, rhs;
     private IRVariable dest;
 
-    public IRIcmp(IRVariable dest, String cond, IRType type, IREntity lhs, IREntity rhs) {
+    public IRIcmp(int id,IRVariable dest, String cond, IRType type, IREntity lhs, IREntity rhs) {
+        super(id);
         this.cond = cond;
         this.type = type;
         this.lhs = lhs;

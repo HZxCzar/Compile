@@ -18,6 +18,7 @@ import Compiler.Src.IR.Node.Def.IRStrDef;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.Stmt.IRBlock;
 import Compiler.Src.IR.Type.IRStructType;
+import Compiler.Src.IR.Util.InstCounter;
 import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
@@ -121,10 +122,47 @@ public class SSA implements IRVisitor<OPTError> {
                     var dest = ((IRPhi) S).getDest();
                     var block = Inst2Block.get(S);
                     block.RemoveInst(S);
-                    S = new IRArith(dest, "add", type, literal, new IRLiteral(GlobalScope.irIntType, "0"));
+                    S = new IRArith(++InstCounter.InstCounter,dest, "add", type, literal, new IRLiteral(GlobalScope.irIntType, "0"));
                     block.addFront(S);
                     Inst2Block.put(S, block);
                 }
+            }
+            if (S instanceof IRBranch && ((IRBranch) S).getCond() instanceof IRLiteral) {
+                if(((IRBranch) S).isJump()) continue;
+                var cond = (IRLiteral) ((IRBranch) S).getCond();
+                var TrueLabel = ((IRBranch) S).getTrueLabel();
+                var FalseLabel = ((IRBranch) S).getFalseLabel();
+                IRBlock outBlock,inBlock=null;
+                if (cond.getValue().equals("0")) {
+                    ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
+                    ((IRBranch) S).setTrueLabel(FalseLabel);
+                    ((IRBranch) S).setJump(true);
+                    outBlock = Inst2Block.get(S);
+                    for(var succ : outBlock.getSuccessors()){
+                        if(succ.getLabelName().equals(TrueLabel)){
+                            inBlock = succ;
+                            inBlock.getPredecessors().remove(outBlock);
+                            outBlock.getSuccessors().remove(inBlock);
+                            break;
+                        }
+                    }
+                }
+                else{
+                    ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
+                    ((IRBranch) S).setFalseLabel(TrueLabel);
+                    ((IRBranch) S).setJump(true);
+                    outBlock = Inst2Block.get(S);
+                    for(var succ : outBlock.getSuccessors()){
+                        if(succ.getLabelName().equals(FalseLabel)){
+                            inBlock = succ;
+                            inBlock.getPredecessors().remove(outBlock);
+                            outBlock.getSuccessors().remove(inBlock);
+                            break;
+                        }
+                    }
+                }
+                RmvPhi(outBlock, inBlock);
+                continue;
             }
             var unitPair = isConstAssign(S);
             if (unitPair != null) {
@@ -135,6 +173,27 @@ public class SSA implements IRVisitor<OPTError> {
                 for (var useInst : Var2Use.get(dest)) {
                     useInst.replaceUse(dest, literal);
                     EreaseWorkSet.add(useInst);
+                }
+            }
+        }
+    }
+
+    public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
+        for(var phi:inBlock.getPhiList().entrySet())
+        {
+            var phiInst = phi.getValue();
+            for(var label:phiInst.getLabels())
+            {
+                if(label.equals(outBlock.getLabelName()))
+                {
+                    var index=phiInst.getLabels().indexOf(label);
+                    phiInst.getVals().remove(index);
+                    phiInst.getLabels().remove(index);
+                    if(phiInst.getVals().isEmpty())
+                    {
+                        throw new OPTError("PhiInst is empty");
+                    }
+                    EreaseWorkSet.add(phiInst);
                 }
             }
         }
@@ -162,39 +221,41 @@ public class SSA implements IRVisitor<OPTError> {
     }
 
     public int InnerCompute(String lhsStr, String rhsStr, String op) {
+        int lhs=lhsStr.equals("null")?0:Integer.parseInt(lhsStr);
+        int rhs=rhsStr.equals("null")?0:Integer.parseInt(rhsStr);
         switch (op) {
             case "add":
-                return Integer.parseInt(lhsStr) + Integer.parseInt(rhsStr);
+                return lhs + rhs;
             case "sub":
-                return Integer.parseInt(lhsStr) - Integer.parseInt(rhsStr);
+                return lhs - rhs;
             case "mul":
-                return Integer.parseInt(lhsStr) * Integer.parseInt(rhsStr);
+                return lhs * rhs;
             case "sdiv":
-                return Integer.parseInt(lhsStr) / Integer.parseInt(rhsStr);
+                return lhs / rhs;
             case "srem":
-                return Integer.parseInt(lhsStr) % Integer.parseInt(rhsStr);
+                return lhs % rhs;
             case "shl":
-                return Integer.parseInt(lhsStr) << Integer.parseInt(rhsStr);
+                return lhs << rhs;
             case "ashr":
-                return Integer.parseInt(lhsStr) >> Integer.parseInt(rhsStr);
+                return lhs >> rhs;
             case "and":
-                return Integer.parseInt(lhsStr) & Integer.parseInt(rhsStr);
+                return lhs & rhs;
             case "or":
-                return Integer.parseInt(lhsStr) | Integer.parseInt(rhsStr);
+                return lhs | rhs;
             case "xor":
-                return Integer.parseInt(lhsStr) ^ Integer.parseInt(rhsStr);
+                return lhs ^ rhs;
             case "eq":
-                return Integer.parseInt(lhsStr) == Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs == rhs ? 1 : 0;
             case "ne":
-                return Integer.parseInt(lhsStr) != Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs != rhs ? 1 : 0;
             case "slt":
-                return Integer.parseInt(lhsStr) < Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs < rhs ? 1 : 0;
             case "sgt":
-                return Integer.parseInt(lhsStr) > Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs > rhs ? 1 : 0;
             case "sle":
-                return Integer.parseInt(lhsStr) <= Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs <= rhs ? 1 : 0;
             case "sge":
-                return Integer.parseInt(lhsStr) >= Integer.parseInt(rhsStr) ? 1 : 0;
+                return lhs >= rhs ? 1 : 0;
             default:
                 throw new OPTError("Invalid op in InnerCompute");
         }
@@ -288,7 +349,7 @@ public class SSA implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRBranch node) throws BaseError {
-        // SideEffectInst.add(node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -305,6 +366,7 @@ public class SSA implements IRVisitor<OPTError> {
     @Override
     public OPTError visit(IRCall node) throws BaseError {
         // SideEffectInst.add(node);
+        Inst2Block.put(node, currentBlock);
         if (node.getDest() != null) {
             Var2Def.put(node.getDest(), node);
             Inst2Block.put(node, currentBlock);
@@ -342,6 +404,7 @@ public class SSA implements IRVisitor<OPTError> {
     @Override
     public OPTError visit(IRRet node) throws BaseError {
         // SideEffectInst.add(node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {
@@ -414,6 +477,7 @@ public class SSA implements IRVisitor<OPTError> {
     @Override
     public OPTError visit(IRStore node) throws BaseError {
         // SideEffectInst.add(node);
+        Inst2Block.put(node, currentBlock);
         for (var use : node.getUses()) {
             var unit = Var2Use.get(use);
             if (unit == null) {

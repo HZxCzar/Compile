@@ -11,6 +11,7 @@ import Compiler.Src.IR.Node.Stmt.IRBlock;
 import Compiler.Src.IR.Node.Stmt.IRStmt;
 import Compiler.Src.IR.Node.Inst.IRStore;
 import Compiler.Src.IR.Type.IRType;
+import Compiler.Src.IR.Util.InstCounter;
 import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
@@ -39,8 +40,8 @@ public class IRFuncDef extends IRDef {
                 var instList = new IRStmt();
                 for (var param : params) {
                     var paramPtr = new IRVariable(GlobalScope.irPtrType, param.getValue().replace(".param", ""));
-                    instList.addInsts(new IRAlloca(paramPtr, param.getType()));
-                    instList.addInsts(new IRStore(paramPtr, param));
+                    instList.addInsts(new IRAlloca(++InstCounter.InstCounter,paramPtr, param.getType()));
+                    instList.addInsts(new IRStore(++InstCounter.InstCounter,paramPtr, param));
                 }
                 entryBlock.addFrontBlockInsts(instList);
             }

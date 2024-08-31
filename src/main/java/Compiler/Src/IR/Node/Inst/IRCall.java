@@ -19,7 +19,8 @@ public class IRCall extends IRInst {
     private String funcName;
     private ArrayList<IREntity> args;
 
-    public IRCall(String funcName, ArrayList<IREntity> args) {
+    public IRCall(int id,String funcName, ArrayList<IREntity> args) {
+        super(id);
         this.type = GlobalScope.irVoidType;
         this.dest = null;
         this.funcName = funcName;
@@ -31,7 +32,8 @@ public class IRCall extends IRInst {
         // }
     }
 
-    public IRCall(IRVariable dest, IRType type, String funcName, ArrayList<IREntity> args) {
+    public IRCall(int id,IRVariable dest, IRType type, String funcName, ArrayList<IREntity> args) {
+        super(id);
         this.dest = dest;
         this.type = type;
         this.funcName = funcName;

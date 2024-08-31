@@ -17,14 +17,16 @@ public class IRBranch extends IRInst {
     private IREntity cond;
     private IRLabel trueLabel, falseLabel;
 
-    public IRBranch(IREntity cond, IRLabel trueLabel, IRLabel falseLabel) {
+    public IRBranch(int id,IREntity cond, IRLabel trueLabel, IRLabel falseLabel) {
+        super(id);
         this.cond = cond;
         this.trueLabel = trueLabel;
         this.falseLabel = falseLabel;
         this.isJump = false;
     }
 
-    public IRBranch(IRLabel jumpLabel) {
+    public IRBranch(int id,IRLabel jumpLabel) {
+        super(id);
         this.cond = new IRLiteral(GlobalScope.irBoolType, "true");
         this.trueLabel = jumpLabel;
         this.falseLabel = jumpLabel;

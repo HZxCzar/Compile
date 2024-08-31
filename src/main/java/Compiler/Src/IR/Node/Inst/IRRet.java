@@ -16,13 +16,15 @@ public class IRRet extends IRInst {
     private IRType type;
     private IREntity value;
 
-    public IRRet(IREntity value) {
+    public IRRet(int id,IREntity value) {
+        super(id);
         this.voidtype = false;
         this.type = value.getType();
         this.value = value;
     }
 
-    public IRRet() {
+    public IRRet(int id) {
+        super(id);
         this.voidtype = true;
         this.type = GlobalScope.irVoidType;
         this.value = null;

@@ -15,7 +15,8 @@ public class IRLoad extends IRInst {
     private IRVariable dest,ptr;
     // private IREntity ptr;
 
-    public IRLoad(IRVariable dest, IRVariable ptr) {
+    public IRLoad(int id,IRVariable dest, IRVariable ptr) {
+        super(id);
         this.type = dest.getType();
         this.dest = dest;
         this.ptr = ptr;

@@ -17,7 +17,8 @@ public class IRGetelementptr extends IRInst {
   private ArrayList<IREntity> infolist;
 
   // private ArrayList<IRVariable> indexlist;
-  public IRGetelementptr(IRVariable dest, String type, IREntity ptr, ArrayList<IREntity> info) {
+  public IRGetelementptr(int id,IRVariable dest, String type, IREntity ptr, ArrayList<IREntity> info) {
+    super(id);
     this.type = type;
     this.dest = dest;
     this.ptr = ptr;

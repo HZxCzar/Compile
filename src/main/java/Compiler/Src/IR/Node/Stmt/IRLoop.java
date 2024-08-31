@@ -3,6 +3,8 @@ package Compiler.Src.IR.Node.Stmt;
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.util.IRLabel;
+import Compiler.Src.IR.Util.IRControl;
+import Compiler.Src.IR.Util.InstCounter;
 import Compiler.Src.Util.Error.BaseError;
 
 @lombok.Getter
@@ -18,22 +20,22 @@ public class IRLoop extends IRStmt {
         if (init != null) {
             addBlockInsts(init);
         }
-        addInsts(new IRBranch(condLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter,condLabel));
         addInsts(condLabel);
         if (cond != null) {
             addBlockInsts(cond);
-            addInsts(new IRBranch(cond.getDest(),bodyLabel,endLabel));
+            addInsts(new IRBranch(++InstCounter.InstCounter,cond.getDest(),bodyLabel,endLabel));
         } else {
-            addInsts(new IRBranch(bodyLabel));
+            addInsts(new IRBranch(++InstCounter.InstCounter,bodyLabel));
         }
         addInsts(bodyLabel);
         addBlockInsts(body);
-        addInsts(new IRBranch(updateLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter,updateLabel));
         addInsts(updateLabel);
         if (update != null) {
             addBlockInsts(update);
         }
-        addInsts(new IRBranch(condLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter,condLabel));
         addInsts(endLabel);
     }
 

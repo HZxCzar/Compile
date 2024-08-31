@@ -15,7 +15,8 @@ public class IRPhi extends IRInst {
     private IRType type;
     private ArrayList<IREntity> vals;
     private ArrayList<IRLabel> labels;
-    public IRPhi(IRVariable dest, IRType type, ArrayList<IREntity> vals, ArrayList<IRLabel> labels) {
+    public IRPhi(int id,IRVariable dest, IRType type, ArrayList<IREntity> vals, ArrayList<IRLabel> labels) {
+        super(id);
         this.dest = dest;
         this.type = type;
         this.vals = vals;

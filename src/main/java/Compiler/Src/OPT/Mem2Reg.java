@@ -14,6 +14,7 @@ import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.Stmt.IRBlock;
 import Compiler.Src.IR.Node.util.IRLabel;
 import Compiler.Src.IR.Type.IRType;
+import Compiler.Src.IR.Util.InstCounter;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
@@ -123,7 +124,7 @@ public class Mem2Reg {
                     }
                     var PhiDest = new IRVariable(Var2Type.get(var),
                             var.getValue() + ".PhiBlock." + func.getBlock2Order().get(block));
-                    var PhiInst = new IRPhi(PhiDest, PhiDest.getType(), new ArrayList<IREntity>(),
+                    var PhiInst = new IRPhi(++InstCounter.InstCounter,PhiDest, PhiDest.getType(), new ArrayList<IREntity>(),
                             new ArrayList<IRLabel>());
                     block.getPhiList().put(var, PhiInst);
                     if (!util.contains(block)) {

@@ -14,7 +14,8 @@ public class IRStore extends IRInst {
   private IRVariable dest;
   private IREntity src;
 
-  public IRStore(IRVariable dest, IREntity src) {
+  public IRStore(int id,IRVariable dest, IREntity src) {
+    super(id);
     this.dest = dest;
     this.src = src;
   }

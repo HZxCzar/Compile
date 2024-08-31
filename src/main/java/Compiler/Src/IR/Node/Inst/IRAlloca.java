@@ -15,7 +15,8 @@ public class IRAlloca extends IRInst {
     private IRVariable dest;
     private IRType type;
 
-    public IRAlloca(IRVariable dest, IRType type) {
+    public IRAlloca(int id,IRVariable dest, IRType type) {
+        super(id);
         this.dest = dest;
         this.type = type;
     }
