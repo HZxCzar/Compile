@@ -65,8 +65,14 @@ public class ASMBuilder_Formal extends ASMControl implements IRVisitor<ASMNode> 
             if (paramCount < 8) {
                 initStmt.appendInsts(StoreAt(getArgReg(paramCount), 4 * ((ASMVirtualReg) paramDest).getOffset()));
             } else {
-                initStmt.appendInsts(LoadAt(regs.getT1(), offsetStack - 4 * (paramCount - 7)));
-                initStmt.appendInsts(StoreAt(regs.getT1(), 4 * ((ASMVirtualReg) paramDest).getOffset()));
+                initStmt.addInst(new ASMLi(regs.getT0(), offsetStack - 4 * (paramCount - 7)));
+                initStmt.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getS0()));
+                initStmt.addInst(new ASMLoad("lw", regs.getT1(), 0, regs.getT0()));
+                initStmt.addInst(new ASMLi(regs.getT0(), 4 * ((ASMVirtualReg) paramDest).getOffset()));
+                initStmt.addInst(new ASMArithR("add", regs.getT0(), regs.getT0(), regs.getSp()));
+                initStmt.addInst(new ASMStore("sw", regs.getT1(), 0, regs.getT0()));
+                // initStmt.appendInsts(LoadAt(regs.getT1(), offsetStack - 4 * (paramCount - 7)));
+                // initStmt.appendInsts(StoreAt(regs.getT1(), 4 * ((ASMVirtualReg) paramDest).getOffset()));
             }
             paramCount++;
         }
