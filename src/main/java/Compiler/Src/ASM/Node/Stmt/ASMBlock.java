@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.TreeMap;
 
 import Compiler.Src.ASM.ASMVisitor;
+import Compiler.Src.ASM.Entity.ASMReg;
 import Compiler.Src.ASM.Entity.ASMVirtualReg;
 import Compiler.Src.ASM.Node.Inst.Arithmetic.ASMArithR;
 import Compiler.Src.ASM.Node.Inst.Control.ASMBranch;
@@ -15,18 +16,12 @@ import Compiler.Src.ASM.Node.Inst.Presudo.ASMBezq;
 import Compiler.Src.ASM.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM.Node.Util.ASMLabel;
 import Compiler.Src.ASM.Util.ASMControl;
-import Compiler.Src.Util.Error.OPTError;
 
 @lombok.Getter
 @lombok.Setter
 public class ASMBlock extends ASMStmt {
     private ASMLabel label;
     private ASMStmt returnInst;
-    // private HashSet<ASMVirtualReg> uses;
-    // private HashSet<ASMVirtualReg> defs;
-    // private ArrayList<ASMBlock> successors;
-    // private HashSet<ASMVirtualReg> liveIn;
-    // private HashSet<ASMVirtualReg> liveOut;
 
     // mem2reg
     private ArrayList<String> Successor;

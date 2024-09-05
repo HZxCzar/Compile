@@ -5,16 +5,12 @@ import java.util.HashSet;
 import java.util.TreeMap;
 
 import Compiler.Src.ASM_New.Util.ASMCounter;
-import Compiler.Src.ASM.Entity.ASMReg;
+import Compiler.Src.ASM_New.Entity.ASMReg;
 import Compiler.Src.ASM_New.ASMVisitor;
 import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
-import Compiler.Src.ASM_New.Node.Inst.Arithmetic.ASMArithR;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMBranch;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
-import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
-import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Util.ASMLabel;
 import Compiler.Src.ASM_New.Util.ASMControl;
@@ -25,6 +21,14 @@ import Compiler.Src.Util.Error.OPTError;
 public class ASMBlock extends ASMStmt {
     private ASMLabel label;
     private ASMStmt returnInst;
+
+    public HashSet<ASMReg> uses = null;
+    public HashSet<ASMReg> def = null;
+    public HashSet<ASMReg> liveIn = null;
+    public HashSet<ASMReg> liveOut = null;
+
+    public ArrayList<ASMBlock> pred = null;
+    public ArrayList<ASMBlock> succ = null;
 
     // mem2reg
     private ArrayList<String> Successor;
@@ -88,5 +92,19 @@ public class ASMBlock extends ASMStmt {
                 }
             }
         }
+    }
+
+    public void addSucc(ASMBlock block) {
+        if (succ == null) {
+            succ = new ArrayList<ASMBlock>();
+        }
+        succ.add(block);
+    }
+
+    public void addPred(ASMBlock block) {
+        if (pred == null) {
+            pred = new ArrayList<ASMBlock>();
+        }
+        pred.add(block);
     }
 }
