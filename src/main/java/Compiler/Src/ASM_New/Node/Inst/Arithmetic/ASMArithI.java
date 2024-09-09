@@ -35,19 +35,26 @@ public class ASMArithI extends ASMInst {
     }
 
     @Override
-    public ASMVirtualReg getDef() {
-        if (dest instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) dest;
+    public ASMReg getDef() {
+        if (dest instanceof ASMReg) {
+            return (ASMReg) dest;
         }
         return null;
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
-        if (lhs instanceof ASMVirtualReg) {
-            ret.add((ASMVirtualReg) lhs);
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
+        if (lhs instanceof ASMReg) {
+            ret.add((ASMReg) lhs);
         }
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        if (lhs.equals(oldReg)) {
+            lhs = newReg;
+        }
     }
 }

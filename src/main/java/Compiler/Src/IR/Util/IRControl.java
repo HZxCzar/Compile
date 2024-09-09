@@ -296,7 +296,7 @@ public class IRControl {
             var fetch = new IRGetelementptr(++InstCounter.InstCounter,fetchDest, GlobalScope.irPtrType.typeName, tmpdest, fetchargs);
             body.addInsts(fetch);
             body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest));
-            var LoopNode = new IRLoop(depth, init, cond, update, body);
+            var LoopNode = new IRLoop(IRLoop.addCount(), init, cond, update, body);//change
             stmts.addBlockInsts(LoopNode);
         } else {
             var tmpdest = new IRVariable(GlobalScope.irPtrType,

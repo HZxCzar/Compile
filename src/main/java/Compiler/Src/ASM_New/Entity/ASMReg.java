@@ -8,4 +8,12 @@ public abstract class ASMReg {
     public ASMReg(String name) {
         this.name = name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ASMReg) {
+            return name.equals(((ASMReg) obj).name);
+        }
+        return false;
+    }
 }

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeMap;
 
+import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
 import Compiler.Src.ASM_New.ASMVisitor;
 import Compiler.Src.ASM_New.Node.ASMNode;
 import Compiler.Src.ASM_New.Node.Stmt.*;
@@ -28,6 +29,7 @@ public class ASMFuncDef extends ASMNode {
     private ArrayList<ASMBlock> order2Block;
 
     public int StackSize;
+    public ASMVirtualReg topPointer;
 
     public ASMFuncDef(String name, int paramCount) {
         this.name = name;

@@ -32,19 +32,26 @@ public class ASMMove extends ASMInst {
     }
 
     @Override
-    public ASMVirtualReg getDef() {
-        if (dest instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) dest;
+    public ASMReg getDef() {
+        if (dest instanceof ASMReg) {
+            return (ASMReg) dest;
         }
         return null;
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
-        if (rs1 instanceof ASMVirtualReg) {
-            ret.add((ASMVirtualReg) rs1);
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
+        if (rs1 instanceof ASMReg) {
+            ret.add((ASMReg) rs1);
         }
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        if (rs1.equals(oldReg)) {
+            rs1 = newReg;
+        }
     }
 }

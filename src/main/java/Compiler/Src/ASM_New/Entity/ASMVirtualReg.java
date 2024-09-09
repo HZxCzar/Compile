@@ -25,6 +25,14 @@ public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
     }
 
     @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ASMVirtualReg) {
+            return id==((ASMVirtualReg) obj).id;
+        }
+        return false;
+    }
+
+    @Override
     public int compareTo(ASMVirtualReg o) {
         int nameComparison = this.getName().compareTo(o.getName());
         if (nameComparison != 0) {

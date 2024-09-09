@@ -32,16 +32,21 @@ public class ASMLi extends ASMInst {
     }
 
     @Override
-    public ASMVirtualReg getDef() {
-        if (dest instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) dest;
+    public ASMReg getDef() {
+        if (dest instanceof ASMReg) {
+            return (ASMReg) dest;
         }
         return null;
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        return;
     }
 }

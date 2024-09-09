@@ -56,6 +56,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
                 program.addDef(new IRGlobalDef(new IRVariable(structtype, typename)));
             }
         }
+        IRLoop.initCount();
         for (var def : node.getDefNodes()) {
             if (def instanceof ASTVarDef) {
                 program.addDef((IRGlobalDef) def.accept(this));
@@ -63,6 +64,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         }
         for (var def : node.getDefNodes()) {
             if (def instanceof ASTClassDef) {
+                IRLoop.initCount();
                 var classDef = (IRClassDef) def.accept(this);
                 for (var func : classDef.getFuncs()) {
                     program.addFunc(func);
@@ -71,6 +73,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         }
         for (var def : node.getDefNodes()) {
             if (def instanceof ASTFuncDef) {
+                IRLoop.initCount();
                 var funcDef = (IRFuncDef) def.accept(this);
                 if (def.findName().equals("main")) {
                     funcDef.getBlockstmts().get(0)

@@ -31,13 +31,25 @@ public class ASMBranch extends ASMInst {
     }
 
     @Override
-    public ASMVirtualReg getDef() {
+    public void setDest(ASMReg reg) {
+        return;
+    }
+
+    @Override
+    public ASMReg getDef() {
         return null;
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        if (cond.equals(oldReg)) {
+            cond = newReg;
+        }
     }
 }

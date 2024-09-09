@@ -1,0 +1,541 @@
+package Compiler.Src.ASM_New.Allocator;
+
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Stack;
+import java.util.TreeMap;
+
+import org.antlr.v4.runtime.misc.Pair;
+
+import Compiler.Src.ASM_New.Node.Util.ASMLabel;
+import Compiler.Src.ASM_New.Util.ASMCounter;
+import Compiler.Src.ASM_New.Util.BuiltInRegs;
+import Compiler.Src.Util.Error.OPTError;
+import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
+import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
+import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
+import Compiler.Src.ASM_New.Node.Inst.ASMInst;
+import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
+import Compiler.Src.ASM_New.Entity.ASMReg;
+import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
+import Compiler.Src.ASM_New.Node.ASMRoot;
+import Compiler.Src.ASM_New.Node.Global.ASMFuncDef;
+import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
+
+public class RegAllocator {
+    private static final int K = 32;
+
+    ASMRoot root;
+    ASMFuncDef currentFunc;
+    HashSet<ASMReg> precolored = new HashSet<>();
+    HashSet<ASMReg> initial = new HashSet<>();
+    ArrayList<ASMReg> simplifyWorkList = new ArrayList<>();
+    ArrayList<ASMReg> freezeWorkList = new ArrayList<>();
+    ArrayList<ASMReg> spillWorkList = new ArrayList<>();
+    HashSet<ASMReg> spilledNodes = new HashSet<>();
+    HashSet<ASMReg> coalescedNodes = new HashSet<>();
+    HashSet<ASMReg> coloredNodes = new HashSet<>();
+    Stack<ASMReg> selectStack = new Stack<>();
+
+    HashSet<ASMMove> coalescedMoves = new HashSet<>();
+    HashSet<ASMMove> constrainedMoves = new HashSet<>();
+    HashSet<ASMMove> frozenMoves = new HashSet<>();
+    HashSet<ASMMove> workListMoves = new HashSet<>();
+    HashSet<ASMMove> activeMoves = new HashSet<>();
+
+    HashSet<Pair<ASMReg, ASMReg>> adjSet = new HashSet<>();
+    TreeMap<ASMReg, HashSet<ASMReg>> adjList = new TreeMap<>();
+    TreeMap<ASMReg, Integer> degree = new TreeMap<>();
+    TreeMap<ASMReg, HashSet<ASMMove>> moveList = new TreeMap<>();
+    TreeMap<ASMReg, ASMReg> alias = new TreeMap<>();
+    TreeMap<ASMReg, Integer> color = new TreeMap<>();
+
+    // tool
+    TreeMap<ASMReg, Integer> regMap = new TreeMap<>();
+    HashSet<ASMReg> spillTemp = new HashSet<>();
+    BuiltInRegs BuiltInRegs;
+
+    public RegAllocator(ASMRoot root) {
+        this.root = root;
+    }
+
+    public void Main(ASMRoot root) {
+        for (var func : root.getFuncs()) {
+            spillTemp.clear();
+            Run(func);
+        }
+    }
+
+    public void Run(ASMFuncDef func) {
+        currentFunc = func;
+        new LiveAnalysis().LiveAnalysisMethod(func);
+        init();
+        Build(func);
+        MakeWorkList();
+        do {
+            if (!simplifyWorkList.isEmpty()) {
+                Simplify();
+            } else if (!workListMoves.isEmpty()) {
+                Coalesce();
+            } else if (!freezeWorkList.isEmpty()) {
+                Freeze();
+            } else if (!spillWorkList.isEmpty()) {
+                SelectSpill();
+            }
+        } while (simplifyWorkList.isEmpty() && workListMoves.isEmpty() && freezeWorkList.isEmpty()
+                && spillWorkList.isEmpty());
+        AssignColors();
+        if (!spilledNodes.isEmpty()) {
+            RewriteProgram();
+            Run(func);
+        }
+
+        for(var block : func.getBlocks()) {
+            var newInsts = new ArrayList<ASMInst>();
+            for (var inst : block.getInsts()) {
+                if (inst.getDef() != null) {
+                    inst.setDest(getColor(inst.getDef()));
+                }
+                for (var reg : inst.getUses()) {
+                    inst.replaceUse(reg, getColor(reg));
+                }
+                if(!(inst instanceof ASMMove) || inst.getDef().equals(inst.getUses().get(0))) {
+                    newInsts.add(inst);
+                }
+            }
+            block.setInsts(newInsts);
+            var newPhiInsts = new ArrayList<ASMInst>();
+            for (var inst : block.getPhiStmt().getInsts()) {
+                if (inst.getDef() != null) {
+                    inst.setDest(getColor(inst.getDef()));
+                }
+                for (var reg : inst.getUses()) {
+                    inst.replaceUse(reg, getColor(reg));
+                }
+                if(!(inst instanceof ASMMove) || inst.getDef().equals(inst.getUses().get(0))) {
+                    newPhiInsts.add(inst);
+                }
+            }
+            block.getPhiStmt().setInsts(newPhiInsts);
+        }
+    }
+
+    public void init() {
+        for (var block : currentFunc.getBlocks()) {
+            for (var inst : block.getInsts()) {
+                if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
+                    regMap.put(inst.getDef(), regMap.getOrDefault(inst.getDef(), 0) + 1);
+                    moveList.put(inst.getDef(), new HashSet<>());
+                    var reg = inst.getDef();
+                    if (reg instanceof ASMPhysicalReg) {
+                        precolored.add(reg);
+                        color.put(reg, ((ASMPhysicalReg) reg).getColor());
+                        degree.put(reg, Integer.MAX_VALUE);
+                    } else {
+                        initial.add(reg);
+                        adjList.put(reg, new HashSet<>());
+                        degree.put(reg, 0);
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    // if (!FixedReg(reg)) {
+                    regMap.put(reg, regMap.getOrDefault(reg, 0) + 1);
+                    moveList.put(reg, new HashSet<>());
+                    if (reg instanceof ASMPhysicalReg) {
+                        precolored.add(reg);
+                        color.put(reg, ((ASMPhysicalReg) reg).getColor());
+                        degree.put(reg, Integer.MAX_VALUE);
+                    } else {
+                        initial.add(reg);
+                        adjList.put(reg, new HashSet<>());
+                        degree.put(reg, 0);
+                    }
+                    // }
+                }
+            }
+            for (var inst : block.getPhiStmt().getInsts()) {
+                if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
+                    regMap.put(inst.getDef(), regMap.getOrDefault(inst.getDef(), 0) + 1);
+                    moveList.put(inst.getDef(), new HashSet<>());
+                    var reg = inst.getDef();
+                    if (reg instanceof ASMPhysicalReg) {
+                        precolored.add(reg);
+                        color.put(reg, ((ASMPhysicalReg) reg).getColor());
+                        degree.put(reg, Integer.MAX_VALUE);
+                    } else {
+                        initial.add(reg);
+                        adjList.put(reg, new HashSet<>());
+                        degree.put(reg, 0);
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    // if (!FixedReg(reg)) {
+                    regMap.put(reg, regMap.getOrDefault(reg, 0) + 1);
+                    moveList.put(reg, new HashSet<>());
+                    if (reg instanceof ASMPhysicalReg) {
+                        precolored.add(reg);
+                        color.put(reg, ((ASMPhysicalReg) reg).getColor());
+                        degree.put(reg, Integer.MAX_VALUE);
+                    } else {
+                        initial.add(reg);
+                        adjList.put(reg, new HashSet<>());
+                        degree.put(reg, 0);
+                    }
+                    // }
+                }
+            }
+        }
+    }
+
+    public void Build(ASMFuncDef func) {
+        for (var block : func.getBlocks()) {
+            var live = block.getLiveOut();
+            for (int i = block.getInsts().size() - 1; i >= 0; --i) {
+                var inst = block.getInsts().get(i);
+                if (inst instanceof ASMMove) {
+                    live.remove(inst.getDef());
+                    moveList.get(inst.getDef()).add((ASMMove) inst);
+                    moveList.get(inst.getUses().get(0)).add((ASMMove) inst);
+                    workListMoves.add((ASMMove) inst);
+                }
+                if (inst.getDef() != null) { // && !FixedReg(inst.getDef())
+                    live.add(inst.getDef());
+                    for (var l : live) {
+                        AddEdge(l, inst.getDef());
+                    }
+                    live.remove(inst.getDef());
+                }
+                for (var reg : inst.getUses()) {
+                    // if (!FixedReg(reg)) {
+                    live.add(reg);
+                    // }
+                }
+            }
+        }
+    }
+
+    public void AddEdge(ASMReg u, ASMReg v) {
+        if (adjSet.contains(new Pair<>(u, v)) || u == v) {
+            return;
+        }
+        adjSet.add(new Pair<>(u, v));
+        adjSet.add(new Pair<>(v, u));
+        if (!precolored.contains(u)) {
+            adjList.get(u).add(v);
+            degree.put(u, degree.get(u) + 1);
+        }
+        if (!precolored.contains(v)) {
+            adjList.get(v).add(u);
+            degree.put(v, degree.get(v) + 1);
+        }
+    }
+
+    public void MakeWorkList() {
+        for (var reg : initial) {
+            initial.remove(reg);
+            if (degree.get(reg) >= K) {
+                spillWorkList.add(reg);
+            } else if (MoveRelated(reg)) {
+                freezeWorkList.add(reg);
+            } else {
+                simplifyWorkList.add(reg);
+            }
+        }
+    }
+
+    public HashSet<ASMReg> Adjacent(ASMReg reg) {
+        HashSet<ASMReg> ret = new HashSet<>(adjList.get(reg));
+        ret.removeIf(r -> selectStack.contains(r) || coloredNodes.contains(r));
+        return ret;
+    }
+
+    public HashSet<ASMMove> NodeMoves(ASMReg reg) {
+        HashSet<ASMMove> ret = moveList.get(reg);
+        ret.removeIf(mv -> !activeMoves.contains(mv) && !workListMoves.contains(mv));
+        return ret;
+    }
+
+    public boolean MoveRelated(ASMReg reg) {
+        return !NodeMoves(reg).isEmpty();
+    }
+
+    public void Simplify() {
+        var reg = simplifyWorkList.get(0);
+        simplifyWorkList.remove(0);
+        selectStack.push(reg);
+        for (var m : Adjacent(reg)) {
+            DecrementDegree(m);
+        }
+    }
+
+    public void DecrementDegree(ASMReg m) {
+        var d = degree.get(m);
+        degree.put(m, d - 1);
+        if (d == K) {
+            var nodes = new HashSet<>(Adjacent(m));
+            nodes.add(m);
+            EnableMoves(nodes);
+            spillWorkList.remove(m);
+            if (MoveRelated(m)) {
+                freezeWorkList.add(m);
+            } else {
+                simplifyWorkList.add(m);
+            }
+        }
+    }
+
+    public void EnableMoves(HashSet<ASMReg> nodes) {
+        for (var n : nodes) {
+            for (var m : NodeMoves(n)) {
+                if (activeMoves.contains(m)) {
+                    activeMoves.remove(m);
+                    workListMoves.add(m);
+                }
+            }
+        }
+    }
+
+    public boolean OK(ASMReg t, ASMReg r) {
+        return degree.get(t) < K || precolored.contains(t) || adjSet.contains(new Pair<>(t, r));
+    }
+
+    public boolean Conservative(HashSet<ASMReg> nodes) {
+        int k = 0;
+        for (var n : nodes) {
+            if (degree.get(n) >= K) {
+                k++;
+            }
+        }
+        return k < K;
+    }
+
+    public ASMReg GetAlias(ASMReg n) {
+        if (coalescedNodes.contains(n)) {
+            return GetAlias(alias.get(n));
+        } else {
+            return n;
+        }
+    }
+
+    public void Coalesce() {
+        var m = workListMoves.iterator().next();
+        workListMoves.remove(m);
+        var x = GetAlias(m.getDef());
+        var y = GetAlias(m.getUses().get(0));
+        Pair<ASMReg, ASMReg> pair;
+        if (precolored.contains(y)) {
+            pair = new Pair<>(y, x);
+        } else {
+            pair = new Pair<>(x, y);
+        }
+        if (pair.a == pair.b) {
+            coalescedMoves.add(m);
+            AddWorkList(pair.a);
+            return;
+        } else if (precolored.contains(pair.b) || adjSet.contains(pair)) {
+            constrainedMoves.add(m);
+            AddWorkList(pair.a);
+            AddWorkList(pair.b);
+            return;
+        } else if ((precolored.contains(pair.a) && Adjacent(pair.b).stream().allMatch(t -> OK(t, pair.a)))
+                || (!precolored.contains(pair.a) && Conservative(new HashSet<ASMReg>() {
+                    {
+                        addAll(Adjacent(pair.a));
+                        addAll(Adjacent(pair.b));
+                    }
+                }))) {
+            coalescedMoves.add(m);
+            Combine(pair.a, pair.b);
+            AddWorkList(pair.a);
+        } else {
+            activeMoves.add(m);
+        }
+    }
+
+    public void AddWorkList(ASMReg u) {
+        if (!precolored.contains(u) && !MoveRelated(u) && degree.get(u) < K) {
+            freezeWorkList.remove(u);
+            simplifyWorkList.add(u);
+        }
+    }
+
+    public void Combine(ASMReg u, ASMReg v) {
+        if (freezeWorkList.contains(v)) {
+            freezeWorkList.remove(v);
+        } else {
+            spillWorkList.remove(v);
+        }
+        coalescedNodes.add(v);
+        alias.put(v, u);
+        moveList.get(u).addAll(moveList.get(v));
+        HashSet<ASMReg> vSet = new HashSet<>();
+        vSet.add(v);
+        EnableMoves(vSet);
+        for (var t : Adjacent(v)) {
+            AddEdge(t, u);
+            DecrementDegree(t);
+        }
+        if (degree.get(u) >= K && freezeWorkList.contains(u)) {
+            freezeWorkList.remove(u);
+            spillWorkList.add(u);
+        }
+    }
+
+    public void Freeze() {
+        for (var u : freezeWorkList) {
+            freezeWorkList.remove(u);
+            simplifyWorkList.add(u);
+            FreezeMoves(u);
+        }
+    }
+
+    public void FreezeMoves(ASMReg u) {
+        for (var m : NodeMoves(u)) {
+            var x = m.getDef();
+            var y = m.getUses().get(0);
+            ASMReg v;
+            if (GetAlias(y) == GetAlias(u)) {
+                v = GetAlias(x);
+            } else {
+                v = GetAlias(y);
+            }
+            activeMoves.remove(m);
+            frozenMoves.add(m);
+            if (NodeMoves(v).isEmpty() && degree.get(v) < K) {
+                freezeWorkList.remove(v);
+                simplifyWorkList.add(v);
+            }
+        }
+    }
+
+    public void SelectSpill() {
+        ASMReg m = null;
+        for (var reg : spillWorkList) {
+            if (m == null
+                    || regMap.get(reg) / degree.get(reg) < regMap.get(m) / degree.get(m) && !spillTemp.contains(reg)) {
+                m = reg;
+            }
+        }
+        if (m == null) {
+            throw new OPTError("No spill node found");
+        }
+        spillWorkList.remove(m);
+        simplifyWorkList.add(m);
+        FreezeMoves(m);
+    }
+
+    public void AssignColors() {
+        while (!selectStack.isEmpty()) {
+            var n = selectStack.pop();
+            HashSet<Integer> okColors = new HashSet<>();
+            for (int i = 5; i < K; ++i) {
+                okColors.add(i);
+            }
+            for (var w : adjList.get(n)) {
+                var aw = GetAlias(w);
+                if (coloredNodes.contains(aw) || precolored.contains(aw)) {
+                    okColors.remove(color.get(aw));
+                }
+            }
+            if (okColors.isEmpty()) {
+                spilledNodes.add(n);
+            } else {
+                coloredNodes.add(n);
+                var c = okColors.iterator().next();
+                color.put(n, c);
+            }
+        }
+        for (var n : coalescedNodes) {
+            color.put(n, color.get(GetAlias(n)));
+        }
+    }
+
+    public ASMPhysicalReg getColor(ASMReg reg) {
+        if (reg instanceof ASMPhysicalReg) {
+            return (ASMPhysicalReg) reg;
+        } else {
+            return BuiltInRegs.get(color.get(reg));
+        }
+    }
+
+    public void RewriteProgram() {
+        TreeMap<ASMReg, Integer> newRegs = new TreeMap<>();
+        for (var reg : spilledNodes) {
+            newRegs.put(reg, currentFunc.getStackSize());
+            currentFunc.setStackSize(currentFunc.getStackSize() + 4);
+        }
+
+        for (var block : currentFunc.getBlocks()) {
+            for (int i = 0; i < block.getInsts().size(); ++i) {
+                var inst = block.getInsts().get(i);
+                if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {
+                    var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    inst.setDest(tmp);
+                    spillTemp.add(tmp);
+                    var imm = regMap.get(inst.getDef());
+                    if (imm < -2048 || imm > 2047) {
+                        var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        block.addInst(i+1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                        block.addInst(i+2,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, BuiltInRegs.getSp()));
+                    } else {
+                        block.addInst(i+1,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    if (spilledNodes.contains(reg)) {
+                        var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        inst.replaceUse(reg, tmp);
+                        spillTemp.add(tmp);
+                        var imm = regMap.get(reg);
+                        if (imm < -2048 || imm > 2047) {
+                            var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                            block.addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                            block.addInst(i+1, new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0, BuiltInRegs.getSp()));
+                        } else {
+                            block.addInst(i, new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, imm, BuiltInRegs.getSp()));
+                        }
+                    }
+                }
+            }
+
+            for (int i = 0; i < block.getPhiStmt().getInsts().size(); ++i) {
+                var inst =  block.getPhiStmt().getInsts().get(i);
+                if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {
+                    var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    inst.setDest(tmp);
+                    spillTemp.add(tmp);
+                    var imm = regMap.get(inst.getDef());
+                    if (imm < -2048 || imm > 2047) {
+                        var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        block.addInst(i+1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                        block.addInst(i+2,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, BuiltInRegs.getSp()));
+                    } else {
+                        block.addInst(i+1,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    if (spilledNodes.contains(reg)) {
+                        var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        inst.replaceUse(reg, tmp);
+                        spillTemp.add(tmp);
+                        var imm = regMap.get(reg);
+                        if (imm < -2048 || imm > 2047) {
+                            var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                            block.addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                            block.addInst(i+1, new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0, BuiltInRegs.getSp()));
+                        } else {
+                            block.addInst(i, new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, imm, BuiltInRegs.getSp()));
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

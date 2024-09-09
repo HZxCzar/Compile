@@ -33,9 +33,13 @@ public class ASMLoad extends ASMInst {
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
     }
+    @Override
+    public void setDest(ASMReg reg) {
+        rs2 = reg;
+    }
 
     @Override
-    public ASMVirtualReg getDef() {
+    public ASMReg getDef() {
         if (rs2 instanceof ASMVirtualReg) {
             return (ASMVirtualReg) rs2;
         }
@@ -43,11 +47,18 @@ public class ASMLoad extends ASMInst {
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
-        if (rs1 instanceof ASMVirtualReg) {
-            ret.add((ASMVirtualReg) rs1);
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
+        if (rs1 instanceof ASMReg) {
+            ret.add((ASMReg) rs1);
         }
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        if (rs1.equals(oldReg)) {
+            rs1 = newReg;
+        }
     }
 }

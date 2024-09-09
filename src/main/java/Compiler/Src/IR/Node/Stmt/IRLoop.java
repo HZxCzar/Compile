@@ -43,6 +43,10 @@ public class IRLoop extends IRStmt {
         return ++count;
     }
 
+    public static void initCount() {
+        count = 0;
+    }
+
     @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);

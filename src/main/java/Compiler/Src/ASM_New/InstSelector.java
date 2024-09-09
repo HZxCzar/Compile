@@ -63,6 +63,9 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         curBlock = initStmt;
 
         var offsetStack = (4 * (node.getParams().size() - 8) + 15) / 16 * 16;
+        if (node.getParams().size() > 8) {
+            funcDef.setTopPointer(new ASMVirtualReg(++ASMCounter.allocaCount));
+        }
         for (var param : node.getParams()) {
             var paramInst = (ASMStmt) param.accept(this);
             var paramDest = paramInst.getDest();
@@ -70,7 +73,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 initStmt.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, paramDest, getArgReg(paramCount)));
             } else {// 参数太多会爆炸，但是不太可能
                 initStmt.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", paramDest,
-                        offsetStack - 4 * (paramCount - 7), regs.getS0()));
+                        offsetStack - 4 * (paramCount - 7), funcDef.getTopPointer()));
                 // initStmt.appendInsts(LoadAt(paramDest, offsetStack - 4 * (paramCount - 7)));
                 // initStmt.appendInsts(StoreAt(regs.getT1(), 4 * ((ASMVirtualReg)
                 // paramDest).getOffset()));
@@ -215,19 +218,19 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
 
     @Override
     public ASMNode visit(IRAlloca node) throws BaseError {
-        // throw new OPTError("Alloca should be eliminated");
-        var InstList = new ASMStmt();
-        var DestInst = (ASMStmt) node.getDest().accept(this);
-        var allocaDest = DestInst.getDest();
-        if (allocaDest instanceof ASMPhysicalReg) {
-            throw new ASMError("not supose to use this in Naive ASM");
-        }
-        InstList.addInst(
-                new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), 4 * curFunc.getStackSize()));
-        InstList.addInst(
-                new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        InstList.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, allocaDest, regs.getT0()));
-        return InstList;
+        throw new OPTError("Alloca should be eliminated");
+        // var InstList = new ASMStmt();
+        // var DestInst = (ASMStmt) node.getDest().accept(this);
+        // var allocaDest = DestInst.getDest();
+        // if (allocaDest instanceof ASMPhysicalReg) {
+        //     throw new ASMError("not supose to use this in Naive ASM");
+        // }
+        // InstList.addInst(
+        //         new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), 4 * curFunc.getStackSize()));
+        // InstList.addInst(
+        //         new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
+        // InstList.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, allocaDest, regs.getT0()));
+        // return InstList;
     }
 
     @Override
@@ -630,26 +633,6 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         int argNum = 0;
         int offset = 0;
 
-        var StoreLinker = new TreeMap<ASMPhysicalReg, ASMVirtualReg>();
-        var StoreInst = new ASMStmt();
-
-        // store a0-a7
-        for (int i = 0; i < 8; ++i) {
-            var tmpCompute = new ASMVirtualReg(++ASMCounter.allocaCount);
-            if (curFunc.getStackSize() < -2048 || curFunc.getStackSize() > 2047) {
-                var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                StoreInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, tmp, curFunc.getStackSize()));
-                StoreInst
-                        .addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", tmpCompute, regs.getSp(), tmp));
-            } else {
-                StoreInst.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", tmpCompute, regs.getSp(),
-                        curFunc.getStackSize()));
-            }
-            StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getArgReg(i), 0, tmpCompute));
-            StoreLinker.put(getArgReg(i), tmpCompute);
-            curFunc.StackSize += 4;
-        }
-
         var ComputeInst = new ASMStmt();
         if (node.getFuncName().equals("__malloc_array") || node.getFuncName().equals("_malloc")) {
             if (node.getArgs().size() > 2) {
@@ -709,7 +692,8 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             }
         }
         InstList.appendInsts(0, ComputeInst);
-        InstList.appendInsts(0, StoreInst);
+        // InstList.appendInsts(0, StoreInst);
+        InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), 0));
         var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {
             InstList.addInst(
@@ -726,13 +710,12 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             InstList.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, dest, regs.getA0()));
         }
 
-        //get back a0-a7
-        for(int i=0;i<8;++i){
-            var tmpCompute = StoreLinker.get(getArgReg(i));
-            InstList.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), 0, tmpCompute));
-        }
+        // // get back a0-a7
+        // for (int i = 0; i < 8; ++i) {
+        //     var tmpCompute = StoreLinker.get(getArgReg(i));
+        //     InstList.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), 0, tmpCompute));
+        // }
 
-        
         return InstList;
     }
 

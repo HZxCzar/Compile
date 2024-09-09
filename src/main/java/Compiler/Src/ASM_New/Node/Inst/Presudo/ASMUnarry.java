@@ -40,11 +40,18 @@ public class ASMUnarry extends ASMInst {
     }
 
     @Override
-    public ArrayList<ASMVirtualReg> getUses() {
-        var ret = new ArrayList<ASMVirtualReg>();
-        if (src instanceof ASMVirtualReg) {
-            ret.add((ASMVirtualReg) src);
+    public ArrayList<ASMReg> getUses() {
+        var ret = new ArrayList<ASMReg>();
+        if (src instanceof ASMReg) {
+            ret.add((ASMReg) src);
         }
         return ret;
+    }
+
+    @Override
+    public void replaceUse(ASMReg oldReg, ASMReg newReg) {
+        if (src.equals(oldReg)) {
+            src = newReg;
+        }
     }
 }
