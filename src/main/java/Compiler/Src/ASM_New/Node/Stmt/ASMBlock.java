@@ -40,6 +40,16 @@ public class ASMBlock extends ASMStmt {
         this.returnInst = null;
         PhiStmt = new ASMStmt();
         src2dest = new TreeMap<ASMVirtualReg, ArrayList<ASMVirtualReg>>();
+
+        Successor = new ArrayList<String>();
+        
+        uses = new HashSet<ASMReg>();
+        def = new HashSet<ASMReg>();
+        liveIn = new HashSet<ASMReg>();
+        liveOut = new HashSet<ASMReg>();
+
+        pred = new ArrayList<ASMBlock>();
+        succ = new ArrayList<ASMBlock>();
     }
 
     public void PhiMove_Formal(ASMControl control) {
@@ -53,8 +63,10 @@ public class ASMBlock extends ASMStmt {
             PhiStmt.addInst(new ASMMove(++ASMCounter.InstCount, this, tmp, (ASMVirtualReg) src));
         }
         for (var src : src2dest.keySet()) {
-            var tmp = (ASMVirtualReg)src2tmp.get(src);
-            PhiStmt.addInst(new ASMMove(++ASMCounter.InstCount, this, (ASMVirtualReg) src, tmp));
+            var tmp = (ASMVirtualReg) src2tmp.get(src);
+            for (var dest : src2dest.get(src)) {
+                PhiStmt.addInst(new ASMMove(++ASMCounter.InstCount, this, (ASMVirtualReg) dest, tmp));
+            }
         }
     }
 

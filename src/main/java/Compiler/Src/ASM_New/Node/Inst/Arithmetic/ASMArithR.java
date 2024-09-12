@@ -31,9 +31,9 @@ public class ASMArithR extends ASMInst {
     }
 
     @Override
-    public ASMVirtualReg getDef() {
-        if (dest instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) dest;
+    public ASMReg getDef() {
+        if (dest instanceof ASMReg) {
+            return dest;
         }
         return null;
     }
@@ -42,10 +42,10 @@ public class ASMArithR extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (lhs instanceof ASMReg) {
-            ret.add((ASMReg) lhs);
+            ret.add(lhs);
         }
         if(rhs instanceof ASMReg) {
-            ret.add((ASMReg) rhs);
+            ret.add(rhs);
         }
         return ret;
     }

@@ -1,6 +1,7 @@
 package Compiler.Src.ASM_New.Node.Inst.Presudo;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
 import Compiler.Src.ASM_New.ASMVisitor;
@@ -34,7 +35,7 @@ public class ASMMove extends ASMInst {
     @Override
     public ASMReg getDef() {
         if (dest instanceof ASMReg) {
-            return (ASMReg) dest;
+            return dest;
         }
         return null;
     }
@@ -43,7 +44,7 @@ public class ASMMove extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (rs1 instanceof ASMReg) {
-            ret.add((ASMReg) rs1);
+            ret.add(rs1);
         }
         return ret;
     }
@@ -53,5 +54,10 @@ public class ASMMove extends ASMInst {
         if (rs1.equals(oldReg)) {
             rs1 = newReg;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(dest, rs1);
     }
 }

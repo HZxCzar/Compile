@@ -37,7 +37,7 @@ public class ASMArithI extends ASMInst {
     @Override
     public ASMReg getDef() {
         if (dest instanceof ASMReg) {
-            return (ASMReg) dest;
+            return dest;
         }
         return null;
     }
@@ -46,7 +46,7 @@ public class ASMArithI extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (lhs instanceof ASMReg) {
-            ret.add((ASMReg) lhs);
+            ret.add(lhs);
         }
         return ret;
     }

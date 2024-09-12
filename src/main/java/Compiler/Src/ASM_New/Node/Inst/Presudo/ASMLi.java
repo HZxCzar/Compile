@@ -34,7 +34,7 @@ public class ASMLi extends ASMInst {
     @Override
     public ASMReg getDef() {
         if (dest instanceof ASMReg) {
-            return (ASMReg) dest;
+            return dest;
         }
         return null;
     }

@@ -40,8 +40,8 @@ public class ASMLoad extends ASMInst {
 
     @Override
     public ASMReg getDef() {
-        if (rs2 instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) rs2;
+        if (rs2 instanceof ASMReg) {
+            return rs2;
         }
         return null;
     }
@@ -50,7 +50,7 @@ public class ASMLoad extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (rs1 instanceof ASMReg) {
-            ret.add((ASMReg) rs1);
+            ret.add(rs1);
         }
         return ret;
     }

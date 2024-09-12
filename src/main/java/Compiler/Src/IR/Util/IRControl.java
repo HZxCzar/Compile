@@ -125,6 +125,8 @@ public class IRControl {
                     blocks.get(blocks.size() - 1).setReturnInst(inst);
                 } else if (inst instanceof IRAlloca) {
                     enterblock.addInsts(inst);
+                } else if (inst instanceof IRPhi) {
+                    blocks.get(blocks.size() - 1).getPhiList().put(((IRPhi) inst).getDest(), (IRPhi) inst);
                 } else {
                     blocks.get(blocks.size() - 1).addInsts(inst);
                 }
@@ -290,13 +292,14 @@ public class IRControl {
                     "%.tmp.initArray.fetchDest." + depth + (++counter.ArrayCount));
             var offset = new IRVariable(GlobalScope.irIntType,
                     "%.tmp.initArray.offset." + depth + (++counter.ArrayCount));
-            body.addInsts(new IRLoad(++InstCounter.InstCounter,offset, initVar));
+            body.addInsts(new IRLoad(++InstCounter.InstCounter, offset, initVar));
             var fetchargs = new ArrayList<IREntity>();
             fetchargs.add(offset);
-            var fetch = new IRGetelementptr(++InstCounter.InstCounter,fetchDest, GlobalScope.irPtrType.typeName, tmpdest, fetchargs);
+            var fetch = new IRGetelementptr(++InstCounter.InstCounter, fetchDest, GlobalScope.irPtrType.typeName,
+                    tmpdest, fetchargs);
             body.addInsts(fetch);
             body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest));
-            var LoopNode = new IRLoop(IRLoop.addCount(), init, cond, update, body);//change
+            var LoopNode = new IRLoop(IRLoop.addCount(), init, cond, update, body);// change
             stmts.addBlockInsts(LoopNode);
         } else {
             var tmpdest = new IRVariable(GlobalScope.irPtrType,
@@ -306,20 +309,22 @@ public class IRControl {
                 var info = new ArrayList<IREntity>();
                 info.add(args.get(depth));
                 info.add(new IRLiteral(GlobalScope.irIntType, "4"));
-                stmts.addInsts(new IRCall(++InstCounter.InstCounter,tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
+                stmts.addInsts(
+                        new IRCall(++InstCounter.InstCounter, tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
                 // stmts.addBlockInsts(alloca_unit(GlobalScope.nullType, tmpdest));
             } else {
                 // 完全定义
                 var info = new ArrayList<IREntity>();
                 info.add(args.get(depth));
                 info.add(new IRLiteral(GlobalScope.irIntType, name2Size.get(TypeInfo2Name(innerType)).toString()));
-                stmts.addInsts(new IRCall(++InstCounter.InstCounter,tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
+                stmts.addInsts(
+                        new IRCall(++InstCounter.InstCounter, tmpdest, GlobalScope.irPtrType, "__malloc_array", info));
                 // stmts.addBlockInsts(alloca_unit(innerType, tmpdest));
             }
             if (mallocDest == null) {
                 mallocDest = tmpdest;
             } else {
-                stmts.addInsts(new IRStore(++InstCounter.InstCounter,mallocDest, tmpdest));
+                stmts.addInsts(new IRStore(++InstCounter.InstCounter, mallocDest, tmpdest));
             }
         }
         stmts.setDest(mallocDest);

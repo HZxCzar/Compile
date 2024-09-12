@@ -16,9 +16,9 @@ import org.antlr.v4.runtime.*;
 // import Compiler.Src.ASM.Node.ASMNode;
 
 import Compiler.Src.ASM_New.Node.ASMNode;
+import Compiler.Src.ASM_New.Node.ASMRoot;
 import Compiler.Src.ASM_New.InstSelector;
-
-
+import Compiler.Src.ASM_New.Allocator.RegAllocator;
 import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
 
@@ -58,14 +58,15 @@ public class Compiler {
                 // output1.close();
 
                 new IROptimize().visit((IRRoot) irProgram);
-                // var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
-                // output2.println(irProgram);
-                // output2.close();
+                var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
+                output2.println(irProgram);
+                output2.close();
                 // System.out.println(irProgram);
 
                 
                 // ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
                 ASMNode asmProgram2 = new InstSelector().visit((IRRoot) irProgram);
+                new RegAllocator((ASMRoot)asmProgram2).Main();
                 var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
                 codegenOutput2.println(asmProgram2);
                 codegenOutput2.close();

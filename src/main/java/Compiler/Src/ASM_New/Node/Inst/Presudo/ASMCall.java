@@ -12,10 +12,12 @@ import Compiler.Src.ASM_New.Node.Inst.*;
 @lombok.Setter
 public class ASMCall extends ASMInst {
     private String funcName;
+    private boolean hasReturnValue;
 
-    public ASMCall(int id,ASMBlock parent,String funcName) {
+    public ASMCall(int id,ASMBlock parent,String funcName,boolean hasReturnValue) {
         super(id, parent);
         this.funcName = funcName;
+        this.hasReturnValue = hasReturnValue;
     }
 
     @Override

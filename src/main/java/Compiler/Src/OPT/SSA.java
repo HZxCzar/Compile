@@ -182,17 +182,28 @@ public class SSA implements IRVisitor<OPTError> {
     public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
         for (var phi : inBlock.getPhiList().entrySet()) {
             var phiInst = phi.getValue();
-            for (var label : phiInst.getLabels()) {
+            for (int i=0;i<phiInst.getLabels().size();++i) {
+                var label=phiInst.getLabels().get(i);
                 if (label.equals(outBlock.getLabelName())) {
-                    var index = phiInst.getLabels().indexOf(label);
-                    phiInst.getVals().remove(index);
-                    phiInst.getLabels().remove(index);
+                    phiInst.getVals().remove(i);
+                    phiInst.getLabels().remove(i);
                     if (phiInst.getVals().isEmpty()) {
                         throw new OPTError("PhiInst is empty");
                     }
                     EreaseWorkSet.add(phiInst);
                 }
             }
+            // for (var label : phiInst.getLabels()) {
+            //     if (label.equals(outBlock.getLabelName())) {
+            //         var index = phiInst.getLabels().indexOf(label);
+            //         phiInst.getVals().remove(index);
+            //         phiInst.getLabels().remove(index);
+            //         if (phiInst.getVals().isEmpty()) {
+            //             throw new OPTError("PhiInst is empty");
+            //         }
+            //         EreaseWorkSet.add(phiInst);
+            //     }
+            // }
         }
     }
 

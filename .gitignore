@@ -5,7 +5,6 @@
 !/src/main/antlr/*.g4
 /src/test/
 /bin
-/.vscode
 /scrips
 /ravel
 *.sh

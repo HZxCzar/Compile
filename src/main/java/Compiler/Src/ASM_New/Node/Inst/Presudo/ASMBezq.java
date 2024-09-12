@@ -49,7 +49,7 @@ public class ASMBezq extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (rs1 instanceof ASMReg) {
-            ret.add((ASMReg) rs1);
+            ret.add(rs1);
         }
         return ret;
     }

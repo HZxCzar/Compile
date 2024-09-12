@@ -1,11 +1,8 @@
 package Compiler.Src.ASM_New.Entity;
 
-import Compiler.Src.ASM_New.Util.ASMCounter;
-import Compiler.Src.Util.Error.ASMError;
-
 @lombok.Getter
 @lombok.Setter
-public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
+public class ASMVirtualReg extends ASMReg{
     public static int allocaCount = 0;
     private int id;
 
@@ -19,10 +16,10 @@ public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
     //     this.offset = (counter.allocaCount++)-2;
     // }
 
-    @Override
-    public String toString() {
-        throw new ASMError("Virtual register should not be printed");
-    }
+    // @Override
+    // public String toString() {
+    //     throw new ASMError("Virtual register should not be printed");
+    // }
 
     @Override
     public boolean equals(Object obj) {
@@ -33,11 +30,11 @@ public class ASMVirtualReg extends ASMReg implements Comparable<ASMVirtualReg> {
     }
 
     @Override
-    public int compareTo(ASMVirtualReg o) {
+    public int compareTo(ASMReg o) {
         int nameComparison = this.getName().compareTo(o.getName());
         if (nameComparison != 0) {
             return nameComparison;
         }
-        return Integer.compare(this.id, o.id);
+        return Integer.compare(this.id, ((ASMVirtualReg)o).id);
     }
 }

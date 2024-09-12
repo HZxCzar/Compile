@@ -43,6 +43,9 @@ public class ASMBranch extends ASMInst {
     @Override
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
+        if (cond instanceof ASMReg) {
+            ret.add(cond);
+        }
         return ret;
     }
 

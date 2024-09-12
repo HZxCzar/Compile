@@ -113,4 +113,17 @@ public class ASMPhysicalReg extends ASMReg {
     public String toString() {
         return name;
     }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ASMPhysicalReg) {
+            return name.equals(((ASMPhysicalReg) obj).name);
+        }
+        return false;
+    }
+
+    @Override
+    public int compareTo(ASMReg reg) {
+        return name.compareTo(reg.name);
+    }
 }

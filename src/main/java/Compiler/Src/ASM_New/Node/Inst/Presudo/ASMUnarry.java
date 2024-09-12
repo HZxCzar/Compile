@@ -32,9 +32,9 @@ public class ASMUnarry extends ASMInst {
         return visitor.visit(this);
     }
     @Override
-    public ASMVirtualReg getDef() {
-        if (dest instanceof ASMVirtualReg) {
-            return (ASMVirtualReg) dest;
+    public ASMReg getDef() {
+        if (dest instanceof ASMReg) {
+            return dest;
         }
         return null;
     }
@@ -43,7 +43,7 @@ public class ASMUnarry extends ASMInst {
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
         if (src instanceof ASMReg) {
-            ret.add((ASMReg) src);
+            ret.add(src);
         }
         return ret;
     }
