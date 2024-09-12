@@ -36,7 +36,7 @@ import Compiler.Src.Util.MxErrorListener;
 public class Compiler {
     public static void main(String[] args) throws IOException {
         try {
-            CharStream input = CharStreams.fromStream(new FileInputStream("src/test/mx/input.mx"));
+            CharStream input = CharStreams.fromStream(System.in);
             // new FileInputStream("src/test/mx/input.mx")
             MxLexer lexer = new MxLexer(input);
             lexer.removeErrorListeners();
@@ -58,18 +58,18 @@ public class Compiler {
                 // output1.close();
 
                 new IROptimize().visit((IRRoot) irProgram);
-                var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
-                output2.println(irProgram);
-                output2.close();
+                // var output2 = new PrintStream(new FileOutputStream("src/test/mx/output_new.ll"));
+                // output2.println(irProgram);
+                // output2.close();
                 // System.out.println(irProgram);
 
                 
                 // ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
                 ASMNode asmProgram2 = new InstSelector().visit((IRRoot) irProgram);
                 new RegAllocator((ASMRoot)asmProgram2).Main();
-                var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
-                codegenOutput2.println(asmProgram2);
-                codegenOutput2.close();
+                // var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
+                // codegenOutput2.println(asmProgram2);
+                // codegenOutput2.close();
 
                 // ASMNode asmProgram3 = new ASMBuilder().visit((IRRoot) irProgram);
                 // var codegenOutput3 = new PrintStream(new FileOutputStream("bin/compare/test.s"));

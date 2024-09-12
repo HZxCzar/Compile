@@ -67,12 +67,6 @@ public class LiveAnalysis {
             }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
-                    if (reg.equals(BuiltInRegs.getA0())) {
-                        System.out.println("call");
-                        if (!block.getDef().contains(reg)) {
-                            System.out.println("call");
-                        }
-                    }
                     block.getUses().add(reg);
                 }
             });
@@ -92,9 +86,6 @@ public class LiveAnalysis {
             }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
-                    if (reg.equals(BuiltInRegs.getA0())) {
-                        System.out.println("call");
-                    }
                     block.getUses().add(reg);
                 }
             });
@@ -114,9 +105,6 @@ public class LiveAnalysis {
             }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
-                    if (reg.equals(BuiltInRegs.getA0())) {
-                        System.out.println("call");
-                    }
                     block.getUses().add(reg);
                 }
             });
@@ -162,11 +150,6 @@ public class LiveAnalysis {
         block.setLiveIn(new HashSet<ASMReg>());
         block.setLiveOut(new HashSet<ASMReg>());
         for (var succ : block.getSucc()) {
-            for (var reg : succ.getLiveIn()) {
-                if (reg.equals(BuiltInRegs.getA0())) {
-                    System.out.println("call");
-                }
-            }
             block.getLiveOut().addAll(succ.getLiveIn());
         }
 

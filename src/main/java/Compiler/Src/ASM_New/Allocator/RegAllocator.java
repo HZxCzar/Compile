@@ -235,9 +235,6 @@ public class RegAllocator {
                         color.put(reg, ((ASMPhysicalReg) reg).getColor());
                         degree.put(reg, Integer.MAX_VALUE);
                     } else {
-                        if (((ASMVirtualReg) reg).getId() == 73) {
-                            System.out.println("find");
-                        }
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
@@ -252,9 +249,6 @@ public class RegAllocator {
                         color.put(reg, ((ASMPhysicalReg) reg).getColor());
                         degree.put(reg, Integer.MAX_VALUE);
                     } else {
-                        if (((ASMVirtualReg) reg).getId() == 73) {
-                            System.out.println("find");
-                        }
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
@@ -442,9 +436,6 @@ public class RegAllocator {
         if (!precolored.contains(u)) {
             if (u instanceof ASMPhysicalReg)
                 throw new OPTError("u is ASMPhysicalReg");
-            if (adjList.get(u) == null) {
-                return;
-            }
             adjList.get(u).add(v);
             degree.put(u, degree.get(u) + 1);
         }
@@ -740,9 +731,6 @@ public class RegAllocator {
                 var inst = block.getPhiStmt().getInsts().get(i);
                 if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {// 有无precolored？
                     var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    if (inst.getDef() instanceof ASMVirtualReg && ((ASMVirtualReg) inst.getDef()).getId() == 73) {
-                        System.out.println("find");
-                    }
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
@@ -758,9 +746,6 @@ public class RegAllocator {
                 }
                 for (var reg : inst.getUses()) {
                     if (spilledNodes.contains(reg)) {
-                        if (reg instanceof ASMVirtualReg && ((ASMVirtualReg) reg).getId() == 73) {
-                            System.out.println("find");
-                        }
                         var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
