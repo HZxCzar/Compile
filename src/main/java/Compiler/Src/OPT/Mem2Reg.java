@@ -222,9 +222,6 @@ public class Mem2Reg {
                 if (reg2entity.containsKey(use)) {
                     inst.replaceUse(use, reg2entity.get(use));
                 }
-                if (var2entity.containsKey(use)) {
-                    throw new OPTError("Mem2Reg: use of variable in uses replace");
-                }
             }
             newInstList.add(inst);
         }

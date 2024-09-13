@@ -19,6 +19,7 @@ import Compiler.Src.ASM_New.Node.ASMNode;
 import Compiler.Src.ASM_New.Node.ASMRoot;
 import Compiler.Src.ASM_New.InstSelector;
 import Compiler.Src.ASM_New.Allocator.RegAllocator;
+import Compiler.Src.ASM_New.Allocator.StackManager;
 import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
 
@@ -67,6 +68,7 @@ public class Compiler {
                 // ASMNode asmProgram2 = new ASMBuilder_Formal().visit((IRRoot) irProgram);
                 ASMNode asmProgram2 = new InstSelector().visit((IRRoot) irProgram);
                 new RegAllocator((ASMRoot)asmProgram2).Main();
+                new StackManager().visit((ASMRoot)asmProgram2);
                 // var codegenOutput2 = new PrintStream(new FileOutputStream("bin/opt/test.s"));
                 // codegenOutput2.println(asmProgram2);
                 // codegenOutput2.close();

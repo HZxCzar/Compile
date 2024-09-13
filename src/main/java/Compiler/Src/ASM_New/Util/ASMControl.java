@@ -15,6 +15,7 @@ import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMRet;
 import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
 import Compiler.Src.ASM_New.Node.Stmt.ASMStmt;
@@ -116,31 +117,46 @@ public class ASMControl {
         }
     }
 
-    public ASMStmt StoreAt(ASMReg reg, int offset) {
+    public ASMStmt StoreAt(ASMReg reg) {
         var InstList = new ASMStmt();
-        if (offset > 2047 || offset < -2048) {
-            // var tmp1 = new ASMVirtualReg(++ASMCounter.allocaCount);
-            // var tmp2 = new ASMVirtualReg(++ASMCounter.allocaCount);
-            InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
-            InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
+        InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getT0(), -4));
+        // if (offset > 2047 || offset < -2048) {
+            InstList.addInst(
+                    new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
             InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, 0, regs.getT0()));
-        } else {
-            InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, offset, regs.getSp()));
-        }
+        // } else {
+        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, offset, regs.getSp()));
+        // }
+        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getT0(), regs.getT0(), regs.getSp()));
+        InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getT0(), 4));
         return InstList;
     }
 
-    public ASMStmt LoadAt(ASMReg reg, int offset) {
+    public ASMStmt LoadAt(ASMReg reg) {
+        // var InstList = new ASMStmt();
+        // if (offset > 2047 || offset < -2048) {
+        //     // var tmp1 = new ASMVirtualReg(++ASMCounter.allocaCount);
+        //     // var tmp2 = new ASMVirtualReg(++ASMCounter.allocaCount);
+        //     InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
+        //     InstList.addInst(
+        //             new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
+        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, 0, regs.getT0()));
+        // } else {
+        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, offset, regs.getSp()));
+        // }
+        // return InstList;
         var InstList = new ASMStmt();
-        if (offset > 2047 || offset < -2048) {
-            // var tmp1 = new ASMVirtualReg(++ASMCounter.allocaCount);
-            // var tmp2 = new ASMVirtualReg(++ASMCounter.allocaCount);
-            InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
-            InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
+        InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getT0(), -4));
+        // if (offset > 2047 || offset < -2048) {
+            // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
+            InstList.addInst(
+                    new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
             InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, 0, regs.getT0()));
-        } else {
-            InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, offset, regs.getSp()));
-        }
+        // } else {
+        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, offset, regs.getSp()));
+        // }
+        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getT0(), regs.getT0(), regs.getSp()));
+        InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getT0(), 4));
         return InstList;
     }
 
@@ -160,68 +176,18 @@ public class ASMControl {
 
     public void Formolize(ASMFuncDef func) {
         var initBlock = func.getBlocks().get(0);
-        // var paramCount = func.getParamCount();
-        // var total = ((4 * (paramCount + counter.allocaCount)) + 15) / 16 * 16;
-
-        // var StoreLinker = new TreeMap<ASMPhysicalReg, Integer>();
-        // var StoreInst = new ASMStmt();
-        // var LoadInst = new ASMStmt();
-
-        // // t1-t6
-        // for (int i = 1; i < 7; ++i) {
-        //     if (func.getStackSize() < -2048 || func.getStackSize() > 2047) {
-        //         StoreInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), func.getStackSize()));
-        //         LoadInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), func.getStackSize()));
-        //         StoreInst
-        //                 .addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        //         LoadInst.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        //     } else {
-        //         StoreInst.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getSp(),
-        //                 func.getStackSize()));
-        //         LoadInst.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getSp(),
-        //                 func.getStackSize()));
-        //     }
-        //     StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getTReg(i), 0, regs.getT0()));
-        //     LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getTReg(i), 0, regs.getT0()));
-        //     // StoreLinker.put(getTReg(i), func.getStackSize());
-        //     func.StackSize += 4;
-        // }
-
-        // // s0-s11
-        // for(int i=0;i<12;++i)
-        // {
-        //     if (func.getStackSize() < -2048 || func.getStackSize() > 2047) {
-        //         StoreInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), func.getStackSize()));
-        //         LoadInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), func.getStackSize()));
-        //         StoreInst
-        //                 .addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        //         LoadInst.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        //     } else {
-        //         StoreInst.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getSp(),
-        //                 func.getStackSize()));
-        //         LoadInst.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getSp(),
-        //                 func.getStackSize()));
-        //     }
-        //     StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getSReg(i), 0, regs.getT0()));
-        //     LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getSReg(i), 0, regs.getT0()));
-        //     // StoreLinker.put(getTReg(i), func.getStackSize());
-        //     func.StackSize += 4;
-        // }
-
-        var total =(func.getStackSize()+15)/16*16;
+        var total = (func.getStackSize() + 15) / 16 * 16;
         var initInst = new ASMStmt();
         curBlock = initBlock;
-        // var tmp1 = new ASMVirtualReg(++ASMCounter.allocaCount);
-        initInst.addInst(0, new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), -total));
-        initInst.addInst(1, new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getSp(), regs.getSp(), regs.getT0()));
-        initInst.appendInsts(StoreAt(regs.getRa(), total - 4));
-        // initInst.appendInsts(StoreAt(regs.getS0(), total - 8));
-        if (func.getTopPointer() != null) {
-            // var tmp2 = new ASMVirtualReg(++ASMCounter.allocaCount);
-            initInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), total));
-            initInst.addInst(
-                    new ASMArithR(++ASMCounter.InstCount, curBlock, "add", func.getTopPointer(), regs.getSp(), regs.getT0()));
-        }
+        initInst.addInst(0, new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), total));
+        initInst.addInst(1,
+                new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getSp(), regs.getSp(), regs.getT0()));
+        initInst.appendInsts(StoreAt(regs.getRa()));
+        // if (func.getTopPointer() != null) {
+        //     // initInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), total));
+        //     initInst.addInst(
+        //             new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
+        // }
 
         // initInst.appendInsts(StoreInst);
 
@@ -251,12 +217,11 @@ public class ASMControl {
                         throw new ASMError("ret should be the last instruction in a block");
                     } else {
                         var returnInst = new ASMStmt();
-                        // returnInst.appendInsts(LoadInst);
-                        returnInst.appendInsts(LoadAt(regs.getRa(), total - 4));
-                        // var tmp3 = new ASMVirtualReg(++ASMCounter.allocaCount);
-                        returnInst.addInst(new ASMLi(++ASMCounter.InstCount, initBlock, regs.getT0(), total));
-                        returnInst.addInst(new ASMArithR(++ASMCounter.InstCount, initBlock, "add", regs.getSp(),
-                                regs.getSp(), regs.getT0()));
+                        returnInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), total));
+                        returnInst.appendInsts(LoadAt(regs.getRa()));
+                        returnInst.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, regs.getSp(), regs.getT0()));
+                        // returnInst.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getSp(),
+                        //         regs.getSp(), regs.getT0()));
                         curBlock.getReturnInst().appendInsts(j, returnInst);
                     }
                     break;

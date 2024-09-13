@@ -73,7 +73,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 initStmt.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, paramDest, getArgReg(paramCount)));
             } else {// 参数太多会爆炸，但是不太可能
                 initStmt.addInst(new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", paramDest,
-                        offsetStack - 4 * (paramCount - 7), funcDef.getTopPointer()));
+                        offsetStack - 4 * (paramCount - 7), regs.getT0()));
                 // initStmt.appendInsts(LoadAt(paramDest, offsetStack - 4 * (paramCount - 7)));
                 // initStmt.appendInsts(StoreAt(regs.getT1(), 4 * ((ASMVirtualReg)
                 // paramDest).getOffset()));
@@ -662,9 +662,9 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 continue;
             }
             StoreInst.addInst(
-                    new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getArgReg(i), (i + 17) * 4, regs.getSp()));
+                    new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getArgReg(i), (i + 18) * 4, regs.getSp()));
             LoadInst.addInst(
-                    new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), (i + 17) * 4, regs.getSp()));
+                    new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), (i + 18) * 4, regs.getSp()));
         }
 
         var ComputeInst = new ASMStmt();

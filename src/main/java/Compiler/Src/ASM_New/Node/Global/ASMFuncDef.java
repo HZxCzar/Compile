@@ -36,7 +36,7 @@ public class ASMFuncDef extends ASMNode {
         this.paramCount = paramCount;
         this.blocks = new ArrayList<ASMBlock>();
         this.order2Block = new ArrayList<ASMBlock>();
-        this.StackSize = 100;
+        this.StackSize = 104;
     }
 
     public void addBlock(ASMBlock block) {
