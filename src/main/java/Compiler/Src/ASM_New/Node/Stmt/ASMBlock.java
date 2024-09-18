@@ -34,6 +34,7 @@ public class ASMBlock extends ASMStmt {
     private ArrayList<String> Successor;
     private ASMStmt PhiStmt;
     private TreeMap<ASMVirtualReg, ArrayList<ASMVirtualReg>> src2dest;
+    private int loopDepth;
 
     public ASMBlock(ASMLabel label) {
         this.label = label;

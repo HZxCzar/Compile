@@ -3,7 +3,8 @@ package Compiler.Src.OPT;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.HashMap;
 
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRLiteral;
@@ -23,8 +24,8 @@ public class Mem2Reg {
     private IRFuncDef currentFunc;
 
     // insertPhi
-    private TreeMap<IRVariable, IRType> Var2Type;
-    private TreeMap<IRVariable, ArrayList<IRBlock>> Var2Block;
+    private HashMap<IRVariable, IRType> Var2Type;
+    private HashMap<IRVariable, ArrayList<IRBlock>> Var2Block;
 
     public void visit(IRRoot root) {
         for (var func : root.getFuncs()) {
@@ -137,8 +138,8 @@ public class Mem2Reg {
     }
 
     public void AllocaCollector(IRFuncDef func) {
-        Var2Type = new TreeMap<>();
-        Var2Block = new TreeMap<>();
+        Var2Type = new HashMap<>();
+        Var2Block = new HashMap<>();
         var entryBlock = func.getBlockstmts().get(0);
         for (var inst : entryBlock.getInsts()) {
             if (inst instanceof IRAlloca) {
@@ -166,23 +167,23 @@ public class Mem2Reg {
     }
 
     public void rename(IRFuncDef func) {
-        var var2entity = new TreeMap<IRVariable, IREntity>();
+        var var2entity = new HashMap<IRVariable, IREntity>();
         var entryBlock = func.getBlockstmts().get(0);
         for (var inst : entryBlock.getInsts()) {
             if (inst instanceof IRAlloca) {
                 var2entity.put(((IRAlloca) inst).getDest(), null);
             }
         }
-        var reg2entity = new TreeMap<IRVariable, IREntity>();
+        var reg2entity = new HashMap<IRVariable, IREntity>();
         renameBlock(entryBlock, var2entity, reg2entity);
     }
 
-    public void renameBlock(IRBlock block, TreeMap<IRVariable, IREntity> var2entity,
-            TreeMap<IRVariable, IREntity> reg2entity) {
+    public void renameBlock(IRBlock block, HashMap<IRVariable, IREntity> var2entity,
+            HashMap<IRVariable, IREntity> reg2entity) {
         for (var phi : block.getPhiList().keySet()) {
             var2entity.put(phi, block.getPhiList().get(phi).getDest());
         }
-        // var reg2entity = new TreeMap<IRVariable, IREntity>();
+        // var reg2entity = new HashMap<IRVariable, IREntity>();
         var newInstList = new ArrayList<IRInst>();
         for (var inst : block.getInsts()) {
             if (inst instanceof IRAlloca) {
@@ -244,8 +245,8 @@ public class Mem2Reg {
             }
         }
         for (var Domchild : block.getDomChildren()) {
-            var var2entity2 = new TreeMap<IRVariable, IREntity>(var2entity);
-            var reg2entity2 = new TreeMap<IRVariable, IREntity>(reg2entity);
+            var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
             renameBlock(Domchild, var2entity2, reg2entity2);
         }
     }

@@ -29,9 +29,13 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
 
     private TreeMap<IRVariable, IRPhi> PhiList;
 
-    public IRBlock(IRLabel labelName) {
+    private int loopDepth;
+
+    public IRBlock(IRLabel labelName, int loopDepth) {
         this.labelName = labelName;
         this.returnInst = null;
+
+        this.loopDepth = loopDepth;
 
         // CFG
         this.successors = new ArrayList<IRBlock>();
@@ -88,5 +92,10 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     @Override
     public int compareTo(IRBlock rhs) {
         return labelName.compareTo(((IRBlock) rhs).getLabelName());
+    }
+
+    @Override
+    public int hashCode() {
+        return labelName.hashCode();
     }
 }

@@ -60,6 +60,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         counter = new ASMCounter();
         var paramCount = 0;
         var initStmt = new ASMBlock(new ASMLabel(node.getName()));
+        initStmt.setLoopDepth(0);
         curBlock = initStmt;
 
         var offsetStack = (4 * (node.getParams().size() - 8) + 15) / 16 * 16;
@@ -99,6 +100,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
 
     public void CalcCFG(IRBlock node) {
         var block = new ASMBlock(new ASMLabel(node.getLabelName().getLabel()));
+        block.setLoopDepth(node.getLoopDepth());
         label2block.put(node.getLabelName().getLabel(), block);
         if (node.getReturnInst() instanceof IRRet) {
             block.setSuccessor(new ArrayList<>());
@@ -167,6 +169,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                         midBlock = new ASMBlock(new ASMLabel(
                                 node.getLabelName().getLabel() + "." + blockLabel + ".PhiCreate."
                                         + (++CreateblockCnt)));
+                        midBlock.setLoopDepth(predBlock.getLoopDepth());
                         funcBlocks.add(midBlock);
                         label2new.put(blockLabel, midBlock.getLabel().getLabel());
                         label2block.put(midBlock.getLabel().getLabel(), midBlock);

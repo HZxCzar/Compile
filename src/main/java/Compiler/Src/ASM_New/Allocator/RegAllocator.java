@@ -60,6 +60,8 @@ public class RegAllocator {
     HashSet<ASMReg> spillTemp = new HashSet<>();
     BuiltInRegs BuiltInRegs;
 
+    HashMap<ASMReg, Double> regDepth = new HashMap<>();
+
     public RegAllocator(ASMRoot root) {
         this.root = root;
         BuiltInRegs = new BuiltInRegs();
@@ -165,6 +167,7 @@ public class RegAllocator {
         color.clear();
 
         regMap.clear();
+        regDepth.clear();
         for (var block : currentFunc.getBlocks()) {
             for (var inst : block.getInsts()) {
                 if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
@@ -179,6 +182,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -193,6 +197,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -207,6 +212,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                     // }
                 }
@@ -224,6 +230,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -238,6 +245,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -252,6 +260,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                     // }
                 }
@@ -269,6 +278,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -283,6 +293,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -297,8 +308,71 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
+                        regDepth.put(reg, (double) 0);
                     }
                     // }
+                }
+            }
+        }
+
+        // spill weight
+        for (var block : currentFunc.getBlocks()) {
+            double weight = Math.pow(10, block.getLoopDepth());
+            for (var inst : block.getPhiStmt().getInsts()) {
+                if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                    var reg = BuiltInRegs.getA0();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
+                    var reg = inst.getDef();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+            }
+            for (var inst : block.getInsts()) {
+                if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                    var reg = BuiltInRegs.getA0();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
+                    var reg = inst.getDef();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+            }
+            for (var inst : block.getReturnInst().getInsts()) {
+                if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                    var reg = BuiltInRegs.getA0();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
+                    var reg = inst.getDef();
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
+                }
+                for (var reg : inst.getUses()) {
+                    if (!(reg instanceof ASMPhysicalReg)) {
+                        regDepth.put(reg, regDepth.getOrDefault(reg, (double) 0) + weight);
+                    }
                 }
             }
         }
@@ -629,8 +703,13 @@ public class RegAllocator {
     public void SelectSpill() {
         ASMReg m = null;
         for (var reg : spillWorkList) {
-            if (m == null
-                    || regMap.get(reg) / degree.get(reg) < regMap.get(m) / degree.get(m) && !spillTemp.contains(reg)) {
+            // if (m == null
+            // || regMap.get(reg) / degree.get(reg) < regMap.get(m) / degree.get(m) &&
+            // !spillTemp.contains(reg)) {
+            // m = reg;
+            // }
+            if (m == null || regDepth.get(reg) / degree.get(reg) < regDepth.get(m) / degree.get(m)
+                    && !spillTemp.contains(reg)) {
                 m = reg;
             }
         }

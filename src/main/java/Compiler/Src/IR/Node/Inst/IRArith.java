@@ -39,6 +39,11 @@ public class IRArith extends IRInst {
     }
 
     @Override
+    public IRVariable getDest() {
+        return dest;
+    }
+
+    @Override
     public ArrayList<IRVariable> getUses() {
         ArrayList<IRVariable> res = new ArrayList<>();
         if (lhs instanceof IRVariable) {

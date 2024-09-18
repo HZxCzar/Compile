@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Entity;
 
+import java.util.Objects;
+
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Type.IRType;
 import Compiler.Src.Util.Error.BaseError;
@@ -32,5 +34,10 @@ public class IRVariable extends IREntity implements Comparable<IRVariable> {
     @Override
     public int compareTo(IRVariable rhs) {
         return getValue().compareTo(((IRVariable) rhs).getValue());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(value);
     }
 }

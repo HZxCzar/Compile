@@ -34,7 +34,7 @@ public class IRControl {
         this.counter = new IRCounter();
         this.initFunc = new IRFuncDef("main.global.init", new ArrayList<IRVariable>(), GlobalScope.irVoidType,
                 new ArrayList<IRBlock>());
-        this.initFunc.getBlockstmts().add(new IRBlock(new IRLabel("entry")));
+        this.initFunc.getBlockstmts().add(new IRBlock(new IRLabel("entry"),0));
         this.strDefs = new ArrayList<IRStrDef>();
         this.name2Size = new TreeMap<>();
         name2Size.put("i1", 1);
@@ -108,14 +108,14 @@ public class IRControl {
 
     public ArrayList<IRBlock> stmt2block(IRStmt stmts, IRType irType) {
         var blocks = new ArrayList<IRBlock>();
-        blocks.add(0, new IRBlock(new IRLabel("start")));
-        var enterblock = new IRBlock(new IRLabel("entry"));
+        blocks.add(0, new IRBlock(new IRLabel("start"),0));
+        var enterblock = new IRBlock(new IRLabel("entry"),0);
         for (var inst : stmts.getInsts()) {
             if (inst instanceof IRLabel) {
                 if (blocks.get(blocks.size() - 1).getReturnInst() == null) {
                     throw new IRError("Block doesn't have return instruction");
                 }
-                blocks.add(new IRBlock((IRLabel) inst));
+                blocks.add(new IRBlock((IRLabel) inst,((IRLabel)inst).getLoopDepth()));
             } else {
                 if (blocks.get(blocks.size() - 1).getReturnInst() != null) {
                     continue;
@@ -166,7 +166,7 @@ public class IRControl {
                     // blocks.get(blocks.size() - 1).addInsts(inst);
                     blocks.get(blocks.size() - 1).setReturnInst(br);
                 }
-                blocks.add(new IRBlock((IRLabel) inst));
+                blocks.add(new IRBlock((IRLabel) inst,((IRLabel)inst).getLoopDepth()));
             } else {
                 if (blocks.get(blocks.size() - 1).getReturnInst() != null) {
                     continue;
@@ -241,7 +241,7 @@ public class IRControl {
     }
 
     protected IRStmt initArray(ArrayList<IREntity> args, int full_length, int depth, TypeInfo innerType,
-            IRVariable mallocDest) {
+            IRVariable mallocDest,int loopDepth) {
         var stmts = new IRStmt();
         var init = new IRStmt();
         var cond = new IRStmt();
@@ -250,6 +250,7 @@ public class IRControl {
         // var mallocDest = new IRVariable(GlobalScope.irPtrType,
         // "%initArray.mallocDest." + depth + (++counter.ArrayCount));
         if (depth != args.size() - 1) {
+            ++loopDepth;
             var info = new ArrayList<IREntity>();
             info.add(args.get(depth));
             info.add(new IRLiteral(GlobalScope.irIntType, "4"));
@@ -298,8 +299,9 @@ public class IRControl {
             var fetch = new IRGetelementptr(++InstCounter.InstCounter, fetchDest, GlobalScope.irPtrType.typeName,
                     tmpdest, fetchargs);
             body.addInsts(fetch);
-            body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest));
-            var LoopNode = new IRLoop(IRLoop.addCount(), init, cond, update, body);// change
+            body.addBlockInsts(initArray(args, full_length, depth + 1, innerType, fetchDest,loopDepth));
+            var LoopNode = new IRLoop(IRLoop.addCount(), init, cond, update, body,loopDepth);// change
+            --loopDepth;
             stmts.addBlockInsts(LoopNode);
         } else {
             var tmpdest = new IRVariable(GlobalScope.irPtrType,

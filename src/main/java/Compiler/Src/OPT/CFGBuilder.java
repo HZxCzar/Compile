@@ -1,7 +1,8 @@
 package Compiler.Src.OPT;
 
+import java.util.HashMap;
 import java.util.HashSet;
-import java.util.TreeMap;
+import java.util.HashMap;
 
 import Compiler.Src.IR.Node.Stmt.IRBlock;
 import Compiler.Src.IR.Node.util.IRLabel;
@@ -12,7 +13,7 @@ import Compiler.Src.IR.Node.Inst.IRBranch;
 import Compiler.Src.IR.Node.Inst.IRRet;
 
 public class CFGBuilder {
-    private TreeMap<IRLabel, IRBlock> label2Block;
+    private HashMap<IRLabel, IRBlock> label2Block;
     private HashSet<IRBlock> visited = new HashSet<>();
     private IRFuncDef currentFunc;
 
@@ -25,7 +26,7 @@ public class CFGBuilder {
     public void visit(IRFuncDef funcDef) {
         var blocks = funcDef.getBlockstmts();
         currentFunc = funcDef;
-        label2Block = new TreeMap<IRLabel,IRBlock>();
+        label2Block = new HashMap<IRLabel,IRBlock>();
         visited = new HashSet<IRBlock>();
         for (var block : blocks) {
             label2Block.put(block.getLabelName(), block);

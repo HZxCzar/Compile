@@ -36,6 +36,11 @@ public class IRSelect extends IRInst {
     }
 
     @Override
+    public IRVariable getDest() {
+        return dest;
+    }
+
+    @Override
     public ArrayList<IRVariable> getUses() {
         ArrayList<IRVariable> res = new ArrayList<>();
         if (val1 instanceof IRVariable) {

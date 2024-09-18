@@ -1,8 +1,14 @@
 package Compiler.Src.OPT;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashMap;
+import java.util.HashMap;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
-import java.util.TreeMap;
+import java.util.HashMap;
+import java.util.HashMap;
 
 import org.antlr.v4.runtime.misc.Pair;
 
@@ -25,18 +31,148 @@ import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
 public class SSA implements IRVisitor<OPTError> {
     private HashSet<IRInst> EreaseWorkSet = new HashSet<>();
-    private TreeMap<IRVariable, IRInst> Var2Def = new TreeMap<>();
-    private TreeMap<IRVariable, IRGlobalDef> Var2GDef = new TreeMap<>();
-    private TreeMap<IRVariable, HashSet<IRInst>> Var2Use = new TreeMap<>();
-    private TreeMap<IRInst, IRBlock> Inst2Block = new TreeMap<>();
+    private HashMap<IRVariable, IRInst> Var2Def = new HashMap<>();
+    private HashMap<IRVariable, IRGlobalDef> Var2GDef = new HashMap<>();
+    private HashMap<IRVariable, HashSet<IRInst>> Var2Use = new HashMap<>();
+    private HashMap<IRInst, IRBlock> Inst2Block = new HashMap<>();
     private IRBlock currentBlock;
+
+    // code move
+    private HashMap<IRVariable, Pair<IRBlock, IRInst>> Var2Pair = new HashMap<>();
 
     @Override
     public OPTError visit(IRRoot root) throws BaseError {
         Collect(root);
         Run(root);
         Erease(root);
+        CodeMove(root);
         return new OPTError();
+    }
+
+    public void CodeMove(IRRoot root) {
+        for (var func : root.getFuncs()) {
+            codemove(func);
+        }
+    }
+
+    public void codemove(IRFuncDef func) {
+        Var2Pair = new HashMap<>();
+        var WorkList = new HashSet<IRInst>();
+        for (var para : func.getParams()) {
+            Var2Pair.put(para, null);
+        }
+        for (var block : func.getOrder2Block()) {
+            init(block, WorkList);
+        }
+        for (var block : func.getOrder2Block()) {
+            for (int i = 0; i < block.getInsts().size(); ++i) {
+                var inst = block.getInsts().get(i);
+                if (!WorkList.contains(inst)) {
+                    continue;
+                }
+                WorkList.remove(inst);
+                ArrayList<IRVariable> use = new ArrayList<>();
+                for (var unit : inst.getUses()) {
+                    if (Var2Pair.get(unit) != null) {
+                        use.add(unit);
+                    }
+                }
+                if (use.size() == 0) {
+                    continue;
+                }
+                var pair = FindEarly(block, use);
+                if (pair == null) {
+                    continue;
+                }
+                var earlyBlock = pair.a;
+                var earlyInst = pair.b;
+                int index;
+                if (earlyInst != null) {
+                    index = earlyBlock.getInsts().indexOf(earlyInst);
+                    block.getInsts().remove(i);
+                    earlyBlock.getInsts().add(index + 1, inst);
+                    Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+                } else {
+                    index = 0;
+                    block.getInsts().remove(i);
+                    earlyBlock.getInsts().add(index, inst);
+                    Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+                }
+            }
+        }
+    }
+
+    public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable> use) {
+        Pair<IRBlock, IRInst> res = null;
+        for (var var : use) {
+            var pair = Var2Pair.get(var);
+            if (pair == null) {
+                continue;
+            }
+            if (pair.b instanceof IRPhi) {
+                pair = new Pair<IRBlock, IRInst>(pair.a, null);
+            }
+            var tmp = block;
+            while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
+                tmp = tmp.getIdom();
+            }
+            if (!tmp.equals(pair.a)) {
+                throw new OPTError("Invalid idom in CodeMove");
+            }
+            if (res == null) {
+                res = pair;
+            } else {
+                if (pair.a.equals(res.a)) {
+                    if (pair.b != null) {
+                        var index_res = res.a.getInsts().indexOf(res.b);
+                        var index_pair = pair.a.getInsts().indexOf(pair.b);
+                        if (index_pair > index_res) {
+                            res = pair;
+                        }
+                    }
+                } else {
+                    var tmp1 = pair.a;
+                    while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
+                        tmp1 = tmp1.getIdom();
+                    }
+                    if (tmp1.equals(res.a)) {
+                        res = pair;
+                    }
+                }
+            }
+        }
+        return res;
+    }
+
+    public void init(IRBlock block, HashSet<IRInst> WorkList) {
+        for (var inst : block.getPhiList().values()) {
+            Var2Pair.put(((IRPhi) inst).getDest(), new Pair<>(block, inst));
+        }
+        for (var inst : block.getInsts()) {
+            if (!(inst instanceof IRLoad || inst instanceof IRStore || inst instanceof IRCall)) {
+                WorkList.add(inst);
+            }
+            if (inst instanceof IRArith) {
+                Var2Pair.put(((IRArith) inst).getDest(), new Pair<>(block, inst));
+            } else if (inst instanceof IRPhi) {
+                throw new OPTError("Phi in CodeMove");
+            } else if (inst instanceof IRLoad) {
+                Var2Pair.put(((IRLoad) inst).getDest(), new Pair<>(block, inst));
+            } else if (inst instanceof IRGetelementptr) {
+                Var2Pair.put(((IRGetelementptr) inst).getDest(), new Pair<>(block, inst));
+            } else if (inst instanceof IRIcmp) {
+                Var2Pair.put(((IRIcmp) inst).getDest(), new Pair<>(block, inst));
+            } else if (inst instanceof IRCall) {
+                if (((IRCall) inst).getDest() != null) {
+                    Var2Pair.put(((IRCall) inst).getDest(), new Pair<>(block, inst));
+                }
+            } else if (inst instanceof IRAlloca) {
+                throw new OPTError("Alloca in CodeMove");
+            }
+            // else{
+            // throw new OPTError("Invalid inst in CodeMove");
+            // }
+        }
     }
 
     public void Collect(IRRoot root) throws BaseError {
@@ -182,8 +318,8 @@ public class SSA implements IRVisitor<OPTError> {
     public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
         for (var phi : inBlock.getPhiList().entrySet()) {
             var phiInst = phi.getValue();
-            for (int i=0;i<phiInst.getLabels().size();++i) {
-                var label=phiInst.getLabels().get(i);
+            for (int i = 0; i < phiInst.getLabels().size(); ++i) {
+                var label = phiInst.getLabels().get(i);
                 if (label.equals(outBlock.getLabelName())) {
                     phiInst.getVals().remove(i);
                     phiInst.getLabels().remove(i);
@@ -193,17 +329,6 @@ public class SSA implements IRVisitor<OPTError> {
                     EreaseWorkSet.add(phiInst);
                 }
             }
-            // for (var label : phiInst.getLabels()) {
-            //     if (label.equals(outBlock.getLabelName())) {
-            //         var index = phiInst.getLabels().indexOf(label);
-            //         phiInst.getVals().remove(index);
-            //         phiInst.getLabels().remove(index);
-            //         if (phiInst.getVals().isEmpty()) {
-            //             throw new OPTError("PhiInst is empty");
-            //         }
-            //         EreaseWorkSet.add(phiInst);
-            //     }
-            // }
         }
     }
 

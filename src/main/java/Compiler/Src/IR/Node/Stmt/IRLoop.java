@@ -12,30 +12,30 @@ import Compiler.Src.Util.Error.BaseError;
 public class IRLoop extends IRStmt {
     public static int count = 0;
 
-    public IRLoop(int num, IRStmt init, IRStmt cond, IRStmt update, IRStmt body) {
-        var condLabel = new IRLabel("loop." + String.valueOf(num) + ".condLabel");
-        var updateLabel = new IRLabel("loop." + String.valueOf(num) + ".updateLabel");
-        var bodyLabel = new IRLabel("loop." + String.valueOf(num) + ".bodyLabel");
-        var endLabel = new IRLabel("loop." + String.valueOf(num) + ".endLabel");
+    public IRLoop(int num, IRStmt init, IRStmt cond, IRStmt update, IRStmt body, int loopDepth) {
+        var condLabel = new IRLabel("loop." + String.valueOf(num) + ".condLabel", loopDepth);
+        var updateLabel = new IRLabel("loop." + String.valueOf(num) + ".updateLabel", loopDepth);
+        var bodyLabel = new IRLabel("loop." + String.valueOf(num) + ".bodyLabel", loopDepth);
+        var endLabel = new IRLabel("loop." + String.valueOf(num) + ".endLabel", loopDepth);
         if (init != null) {
             addBlockInsts(init);
         }
-        addInsts(new IRBranch(++InstCounter.InstCounter,condLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
         addInsts(condLabel);
         if (cond != null) {
             addBlockInsts(cond);
-            addInsts(new IRBranch(++InstCounter.InstCounter,cond.getDest(),bodyLabel,endLabel));
+            addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
         } else {
-            addInsts(new IRBranch(++InstCounter.InstCounter,bodyLabel));
+            addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
         }
         addInsts(bodyLabel);
         addBlockInsts(body);
-        addInsts(new IRBranch(++InstCounter.InstCounter,updateLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter, updateLabel));
         addInsts(updateLabel);
         if (update != null) {
             addBlockInsts(update);
         }
-        addInsts(new IRBranch(++InstCounter.InstCounter,condLabel));
+        addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
         addInsts(endLabel);
     }
 

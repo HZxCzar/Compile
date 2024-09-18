@@ -36,4 +36,9 @@ public class IRType {
   public String toString() {
     return typeName;
   }
+
+  @Override
+  public int hashCode() {
+    return typeName.hashCode();
+  }
 }
