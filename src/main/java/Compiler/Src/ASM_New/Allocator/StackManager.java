@@ -38,6 +38,7 @@ public class StackManager {
 
     public void work(ASMFuncDef func) {
         var initBlock = func.getBlocks().get(0);
+        func.setStackSize(func.getStackSize() + 4);
         var total = (func.getStackSize() + 15) / 16 * 16;
         curBlock = initBlock;
         ((ASMLi) curBlock.getInsts().get(0)).setImm(total);
