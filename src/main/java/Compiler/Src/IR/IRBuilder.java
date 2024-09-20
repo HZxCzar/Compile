@@ -725,9 +725,9 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var num = IRIf.addCount();
             IRIf stmt;
             if (node.getOp().equals("&&")) {
-                stmt = new IRIf(num, lhsInst, rhsInst, null);
+                stmt = new IRIf(num, lhsInst, rhsInst, null,loopDepth);
             } else {
-                stmt = new IRIf(num, lhsInst, null, rhsInst);
+                stmt = new IRIf(num, lhsInst, null, rhsInst,loopDepth);
             }
             instList.addBlockInsts(stmt);
             var trueLiteral = new IRLiteral(GlobalScope.irBoolType, "true");
@@ -850,7 +850,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var falseInst = (IRStmt) node.getRight().accept(this);
         int num = IRIf.addCount();
         if (trueInst.getDest() == null) {
-            var ifInsts = new IRIf(num, condInst, trueInst, falseInst);
+            var ifInsts = new IRIf(num, condInst, trueInst, falseInst,loopDepth);
             instList.addBlockInsts(ifInsts);
         } else {
             // var resType = trueInst.getDest().getType();
@@ -872,7 +872,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             // var dest = new IRVariable(resType, "%.tmp.cond." + (++counter.loadCount));
             // instList.addInsts(new IRLoad(++InstCounter.InstCounter, dest, wirteDest));
             // instList.setDest(dest);
-            var stmt = new IRIf(num, condInst, trueInst, falseInst);
+            var stmt = new IRIf(num, condInst, trueInst, falseInst,loopDepth);
             var dest = new IRVariable(trueInst.getDest().getType(),
                     "%.conditional." + String.valueOf(counter.arithCount++));
             instList.addBlockInsts(stmt);
@@ -1033,7 +1033,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         enterASTNode(node);
         var InstList = new IRStmt();
         InstList.addInsts(new IRBranch(++InstCounter.InstCounter,
-                new IRLabel("loop." + String.valueOf(currentScope.LastLoop().getLoopCnt()) + ".endLabel")));
+                new IRLabel("loop." + String.valueOf(currentScope.LastLoop().getLoopCnt()) + ".endLabel",loopDepth)));
         exitASTNode(node);
         return InstList;
     }
@@ -1043,7 +1043,7 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         enterASTNode(node);
         var InstList = new IRStmt();
         InstList.addInsts(new IRBranch(++InstCounter.InstCounter,
-                new IRLabel("loop." + String.valueOf(currentScope.LastLoop().getLoopCnt()) + ".updateLabel")));
+                new IRLabel("loop." + String.valueOf(currentScope.LastLoop().getLoopCnt()) + ".updateLabel",loopDepth)));
         exitASTNode(node);
         return InstList;
     }
@@ -1102,9 +1102,9 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             enterASTIfNode(node, "else");
             var elseInst = (IRStmt) node.getElsestmt().accept(this);
             exitASTIfNode(node, "else");
-            instList.addBlockInsts(new IRIf(num, condInst, bodyInst, elseInst));
+            instList.addBlockInsts(new IRIf(num, condInst, bodyInst, elseInst,loopDepth));
         } else {
-            instList.addBlockInsts(new IRIf(num, condInst, bodyInst, null));
+            instList.addBlockInsts(new IRIf(num, condInst, bodyInst, null,loopDepth));
         }
         return instList;
     }

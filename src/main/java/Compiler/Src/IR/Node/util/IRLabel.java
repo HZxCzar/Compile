@@ -7,11 +7,11 @@ import Compiler.Src.IR.Node.Inst.IRInst;
 public class IRLabel extends IRInst{
     private String label;
     int loopDepth;
-    public IRLabel(String label) {
-        super(-1);
-        this.label = label;
-        this.loopDepth = 0;
-    }
+    // public IRLabel(String label) {
+    //     super(-1);
+    //     this.label = label;
+    //     this.loopDepth = 0;
+    // }
     public IRLabel(String label,int loopDepth) {
         super(-1);
         this.label = label;

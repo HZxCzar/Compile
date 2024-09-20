@@ -3,7 +3,9 @@ package Compiler.Src.ASM_New.Node.Inst.Presudo;
 import java.util.ArrayList;
 
 import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
+import Compiler.Src.ASM_New.Util.BuiltInRegs;
 import Compiler.Src.ASM_New.ASMVisitor;
+import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
 import Compiler.Src.ASM_New.Entity.ASMReg;
 import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
 import Compiler.Src.ASM_New.Node.Inst.*;
@@ -13,11 +15,15 @@ import Compiler.Src.ASM_New.Node.Inst.*;
 public class ASMCall extends ASMInst {
     private String funcName;
     private boolean hasReturnValue;
+    private int ArgSize;
+    private BuiltInRegs regs;
 
-    public ASMCall(int id,ASMBlock parent,String funcName,boolean hasReturnValue) {
+    public ASMCall(int id,ASMBlock parent,String funcName,boolean hasReturnValue,int ArgSize) {
         super(id, parent);
         this.funcName = funcName;
         this.hasReturnValue = hasReturnValue;
+        this.ArgSize = ArgSize;
+        this.regs = new BuiltInRegs();
     }
 
     @Override
@@ -43,7 +49,33 @@ public class ASMCall extends ASMInst {
     @Override
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
+        for (int i = 0; i < ArgSize; i++) {
+            ret.add(getA(i));
+        }
         return ret;
+    }
+
+    private ASMPhysicalReg getA(int i) {
+        switch(i) {
+            case 0:
+                return regs.getA0();
+            case 1:
+                return regs.getA1();
+            case 2:
+                return regs.getA2();
+            case 3:
+                return regs.getA3();
+            case 4:
+                return regs.getA4();
+            case 5:
+                return regs.getA5();
+            case 6:
+                return regs.getA6();
+            case 7:
+                return regs.getA7();
+            default:
+                return null;
+        }
     }
 
     @Override

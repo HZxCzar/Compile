@@ -57,14 +57,14 @@ public class LiveAnalysis {
         block.pred = new ArrayList<ASMBlock>();
         block.succ = new ArrayList<ASMBlock>();
         for (var inst : block.getInsts()) {
-            if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                    continue;
-                }
-                if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                    continue;
-                }
-            }
+            // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+            //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+            //         continue;
+            //     }
+            //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+            //         continue;
+            //     }
+            // }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
                     block.getUses().add(reg);
@@ -76,14 +76,14 @@ public class LiveAnalysis {
             block.getDef().add(inst.getDef());
         }
         for (var inst : block.getPhiStmt().getInsts()) {
-            if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                    continue;
-                }
-                if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                    continue;
-                }
-            }
+            // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+            //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+            //         continue;
+            //     }
+            //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+            //         continue;
+            //     }
+            // }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
                     block.getUses().add(reg);
@@ -95,14 +95,14 @@ public class LiveAnalysis {
             block.getDef().add(inst.getDef());
         }
         for (var inst : block.getReturnInst().getInsts()) {
-            if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                    continue;
-                }
-                if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                    continue;
-                }
-            }
+            // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+            //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+            //         continue;
+            //     }
+            //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+            //         continue;
+            //     }
+            // }
             inst.getUses().forEach(reg -> {
                 if (!block.getDef().contains(reg)) {
                     block.getUses().add(reg);

@@ -639,36 +639,36 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         int argNum = 0;
         int offset = 0;
 
-        var StoreInst = new ASMStmt();
-        var LoadInst = new ASMStmt();
+        // var StoreInst = new ASMStmt();
+        // var LoadInst = new ASMStmt();
 
-        // t1-t6
-        for (int i = 1; i < 7; ++i) {
-            StoreInst.addInst(
-                    new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getTReg(i), (i - 1) * 4, regs.getSp()));
-            LoadInst.addInst(
-                    new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getTReg(i), (i - 1) * 4, regs.getSp()));
-        }
+        // // t1-t6
+        // for (int i = 1; i < 7; ++i) {
+        //     StoreInst.addInst(
+        //             new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getTReg(i), (i - 1) * 4, regs.getSp()));
+        //     LoadInst.addInst(
+        //             new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getTReg(i), (i - 1) * 4, regs.getSp()));
+        // }
 
-        // s0-s11
-        for (int i = 0; i < 12; ++i) {
-            StoreInst.addInst(
-                    new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getSReg(i), (i + 6) * 4, regs.getSp()));
-            LoadInst.addInst(
-                    new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getSReg(i), (i + 6) * 4, regs.getSp()));
-        }
+        // // s0-s11
+        // for (int i = 0; i < 12; ++i) {
+        //     StoreInst.addInst(
+        //             new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getSReg(i), (i + 6) * 4, regs.getSp()));
+        //     LoadInst.addInst(
+        //             new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getSReg(i), (i + 6) * 4, regs.getSp()));
+        // }
 
-        // a0-a7
-        for (int i = 0; i < 8; ++i) {
-            if(i==0 && node.getDest() != null)
-            {
-                continue;
-            }
-            StoreInst.addInst(
-                    new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getArgReg(i), (i + 18) * 4, regs.getSp()));
-            LoadInst.addInst(
-                    new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), (i + 18) * 4, regs.getSp()));
-        }
+        // // a0-a7
+        // for (int i = 0; i < 8; ++i) {
+        //     if(i==0 && node.getDest() != null)
+        //     {
+        //         continue;
+        //     }
+        //     StoreInst.addInst(
+        //             new ASMStore(++ASMCounter.InstCount, curBlock, "sw", getArgReg(i), (i + 18) * 4, regs.getSp()));
+        //     LoadInst.addInst(
+        //             new ASMLoad(++ASMCounter.InstCount, curBlock, "lw", getArgReg(i), (i + 18) * 4, regs.getSp()));
+        // }
 
         var ComputeInst = new ASMStmt();
         if (node.getFuncName().equals("__malloc_array") || node.getFuncName().equals("_malloc")) {
@@ -730,18 +730,18 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         }
         InstList.appendInsts(0, ComputeInst);
         InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), 0));
-        InstList.appendInsts(StoreInst);
+        // InstList.appendInsts(StoreInst);
         var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {
             InstList.addInst(
                     new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getSp(), regs.getSp(), -offsetStack));
         }
-        InstList.addInst(new ASMCall(++ASMCounter.InstCount, curBlock, node.getFuncName(), node.getDest() != null));
+        InstList.addInst(new ASMCall(++ASMCounter.InstCount, curBlock, node.getFuncName(), node.getDest() != null,argNum));
         if (offset != 0) {
             InstList.addInst(
                     new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getSp(), regs.getSp(), offsetStack));
         }
-        InstList.appendInsts(LoadInst);
+        // InstList.appendInsts(LoadInst);
         if (node.getDest() != null) {
             var destInst = (ASMStmt) node.getDest().accept(this);
             var dest = destInst.getDest();

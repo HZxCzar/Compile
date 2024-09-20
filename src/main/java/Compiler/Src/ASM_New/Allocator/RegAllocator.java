@@ -26,6 +26,7 @@ import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
 import Compiler.Src.ASM_New.Node.ASMRoot;
 import Compiler.Src.ASM_New.Node.Global.ASMFuncDef;
 import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
+import Compiler.Src.ASM_New.Node.Stmt.ASMStmt;
 
 public class RegAllocator {
     private static final int K = 32;
@@ -112,7 +113,14 @@ public class RegAllocator {
                     }
                 }
                 block.getReturnInst().setInsts(newReturnInsts);
+
+                // var newLiveOut=new HashSet<ASMReg>();
+                // for (var reg : block.getLiveOut()) {
+                //     newLiveOut.add(getColor(reg));
+                // }
+                // block.setLiveOut(newLiveOut);
             }
+            new LiveAnalysis().LiveAnalysisMethod(func);
         }
     }
 
@@ -182,7 +190,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -197,7 +205,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -212,7 +220,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                     // }
                 }
@@ -230,7 +238,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -245,7 +253,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -260,7 +268,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                     // }
                 }
@@ -278,7 +286,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 if (inst.getDef() != null) {// && !FixedReg(inst.getDef())
@@ -293,7 +301,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                 }
                 for (var reg : inst.getUses()) {
@@ -308,7 +316,7 @@ public class RegAllocator {
                         initial.add(reg);
                         adjList.put(reg, new HashSet<>());
                         degree.put(reg, 0);
-                        regDepth.put(reg, (double) 0);
+                        // regDepth.put(reg, (double) 0);
                     }
                     // }
                 }

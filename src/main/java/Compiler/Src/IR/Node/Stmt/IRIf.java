@@ -14,11 +14,11 @@ public class IRIf extends IRStmt {
   public static int count = 0;
   private IRLabel condLabel, bodyLabel, elseLabel;
 
-  public IRIf(int num, IRStmt cond, IRStmt body, IRStmt elseBody) {
-    var condLabel = new IRLabel( "if." + String.valueOf(num) + ".cond");
-    var bodyLabel = new IRLabel("if." + String.valueOf(num) + ".body");
-    var elseLabel = new IRLabel("if." + String.valueOf(num) + ".else");
-    var endLabel = new IRLabel( "if." + String.valueOf(num) + ".end");
+  public IRIf(int num, IRStmt cond, IRStmt body, IRStmt elseBody, int loopDepth) {
+    var condLabel = new IRLabel( "if." + String.valueOf(num) + ".cond", loopDepth);
+    var bodyLabel = new IRLabel("if." + String.valueOf(num) + ".body", loopDepth);
+    var elseLabel = new IRLabel("if." + String.valueOf(num) + ".else", loopDepth);
+    var endLabel = new IRLabel( "if." + String.valueOf(num) + ".end", loopDepth);
     addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
     cond.addFront(condLabel);
     addBlockInsts(cond);
