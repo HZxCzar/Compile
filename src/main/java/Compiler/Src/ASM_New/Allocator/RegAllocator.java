@@ -29,7 +29,7 @@ import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
 import Compiler.Src.ASM_New.Node.Stmt.ASMStmt;
 
 public class RegAllocator {
-    private static final int K = 32;
+    private static final int K = 27;
 
     ASMRoot root;
     ASMFuncDef currentFunc;
@@ -116,7 +116,7 @@ public class RegAllocator {
 
                 // var newLiveOut=new HashSet<ASMReg>();
                 // for (var reg : block.getLiveOut()) {
-                //     newLiveOut.add(getColor(reg));
+                // newLiveOut.add(getColor(reg));
                 // }
                 // block.setLiveOut(newLiveOut);
             }
@@ -544,7 +544,7 @@ public class RegAllocator {
 
     public HashSet<ASMReg> Adjacent(ASMReg reg) {
         HashSet<ASMReg> ret = new HashSet<>(adjList.get(reg));
-        ret.removeIf(r -> selectStack.contains(r) || coloredNodes.contains(r));
+        ret.removeIf(r -> selectStack.contains(r) || coalescedNodes.contains(r));
         return ret;
     }
 
@@ -716,7 +716,7 @@ public class RegAllocator {
             // !spillTemp.contains(reg)) {
             // m = reg;
             // }
-            if (m == null || regDepth.get(reg) / degree.get(reg) < regDepth.get(m) / degree.get(m)
+            if ((m == null || regDepth.get(reg) / degree.get(reg) < regDepth.get(m) / degree.get(m))
                     && !spillTemp.contains(reg)) {
                 m = reg;
             }
@@ -730,14 +730,12 @@ public class RegAllocator {
     }
 
     public void AssignColors() {
+        // int a=1;
         while (!selectStack.isEmpty()) {
             var n = selectStack.pop();
-            // if (n instanceof ASMVirtualReg && ((ASMVirtualReg) n).getId() == 14) {
-            // int a=1;
-            // }
             HashSet<Integer> okColors = new HashSet<>();
-            for (int i = 5; i < K; ++i) {
-                okColors.add(i);
+            for (int i = 0; i < K; ++i) {
+                okColors.add(i+5);
             }
             for (var w : adjList.get(n)) {
                 var aw = GetAlias(w);
@@ -795,7 +793,9 @@ public class RegAllocator {
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
                     }
                 }
-                for (var reg : inst.getUses()) {
+                var useSize = inst.getUses().size();
+                for (int j = 0; j < useSize; ++j) {
+                    var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
                         var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
                         var imm = newRegs.get(reg);
@@ -831,7 +831,9 @@ public class RegAllocator {
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
                     }
                 }
-                for (var reg : inst.getUses()) {
+                var useSize = inst.getUses().size();
+                for (int j = 0; j < useSize; ++j) {
+                    var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
                         var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
                         var imm = newRegs.get(reg);
@@ -867,7 +869,9 @@ public class RegAllocator {
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
                     }
                 }
-                for (var reg : inst.getUses()) {
+                var useSize = inst.getUses().size();
+                for (int j = 0; j < useSize; ++j) {
+                    var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
                         var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
                         var imm = newRegs.get(reg);

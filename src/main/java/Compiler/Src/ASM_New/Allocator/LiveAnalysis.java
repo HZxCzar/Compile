@@ -70,6 +70,14 @@ public class LiveAnalysis {
                     block.getUses().add(reg);
                 }
             });
+            // if(inst instanceof ASMCall)
+            // {
+            //     ((ASMCall)inst).CallUses().forEach(reg -> {
+            //         if (!block.getDef().contains(reg)) {
+            //             block.getUses().add(reg);
+            //         }
+            //     });
+            // }
             if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                 block.getDef().add(BuiltInRegs.getA0());
             }
@@ -89,6 +97,14 @@ public class LiveAnalysis {
                     block.getUses().add(reg);
                 }
             });
+            // if(inst instanceof ASMCall)
+            // {
+            //     ((ASMCall)inst).CallUses().forEach(reg -> {
+            //         if (!block.getDef().contains(reg)) {
+            //             block.getUses().add(reg);
+            //         }
+            //     });
+            // }
             if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                 block.getDef().add(BuiltInRegs.getA0());
             }
@@ -108,6 +124,14 @@ public class LiveAnalysis {
                     block.getUses().add(reg);
                 }
             });
+            // if(inst instanceof ASMCall)
+            // {
+            //     ((ASMCall)inst).CallUses().forEach(reg -> {
+            //         if (!block.getDef().contains(reg)) {
+            //             block.getUses().add(reg);
+            //         }
+            //     });
+            // }
             if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                 block.getDef().add(BuiltInRegs.getA0());
             }

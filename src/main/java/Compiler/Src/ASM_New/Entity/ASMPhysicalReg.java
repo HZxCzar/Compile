@@ -1,5 +1,7 @@
 package Compiler.Src.ASM_New.Entity;
 
+import java.util.Objects;
+
 @lombok.Getter
 @lombok.Setter
 public class ASMPhysicalReg extends ASMReg {
@@ -125,5 +127,10 @@ public class ASMPhysicalReg extends ASMReg {
     @Override
     public int compareTo(ASMReg reg) {
         return name.compareTo(reg.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, -1);
     }
 }

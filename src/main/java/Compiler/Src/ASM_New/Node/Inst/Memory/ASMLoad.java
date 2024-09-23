@@ -15,7 +15,7 @@ public class ASMLoad extends ASMInst {
     private ASMReg rs2, rs1;
     private int imm;
 
-    public ASMLoad(int id,ASMBlock parent,String op, ASMReg rs2, int imm, ASMReg rs1) {
+    public ASMLoad(int id, ASMBlock parent, String op, ASMReg rs2, int imm, ASMReg rs1) {
         super(id, parent);
         this.op = op;
         this.rs2 = rs2;
@@ -33,6 +33,7 @@ public class ASMLoad extends ASMInst {
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
     @Override
     public void setDest(ASMReg reg) {
         rs2 = reg;

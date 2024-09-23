@@ -1,5 +1,7 @@
 package Compiler.Src.ASM_New.Entity;
 
+import java.util.Objects;
+
 @lombok.Getter
 @lombok.Setter
 public class ASMVirtualReg extends ASMReg{
@@ -36,5 +38,10 @@ public class ASMVirtualReg extends ASMReg{
             return nameComparison;
         }
         return Integer.compare(this.id, ((ASMVirtualReg)o).id);
+    }
+
+    @Override
+    public int hashCode() {
+            return Objects.hash(name, ((ASMVirtualReg) this).getId());
     }
 }

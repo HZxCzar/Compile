@@ -18,7 +18,7 @@ public class ASMCall extends ASMInst {
     private int ArgSize;
     private BuiltInRegs regs;
 
-    public ASMCall(int id,ASMBlock parent,String funcName,boolean hasReturnValue,int ArgSize) {
+    public ASMCall(int id, ASMBlock parent, String funcName, boolean hasReturnValue, int ArgSize) {
         super(id, parent);
         this.funcName = funcName;
         this.hasReturnValue = hasReturnValue;
@@ -36,6 +36,7 @@ public class ASMCall extends ASMInst {
     public <T> T accept(ASMVisitor<T> visitor) {
         return visitor.visit(this);
     }
+
     @Override
     public void setDest(ASMReg reg) {
         return;
@@ -49,14 +50,19 @@ public class ASMCall extends ASMInst {
     @Override
     public ArrayList<ASMReg> getUses() {
         var ret = new ArrayList<ASMReg>();
-        for (int i = 0; i < ArgSize; i++) {
-            ret.add(getA(i));
-        }
         return ret;
     }
 
-    private ASMPhysicalReg getA(int i) {
-        switch(i) {
+    // public ArrayList<ASMReg> CallUses() {
+    //     var ret = new ArrayList<ASMReg>();
+    //     for (int i = 0; i < ArgSize; i++) {
+    //         ret.add(getA(i));
+    //     }
+    //     return ret;
+    // }
+
+    public ASMPhysicalReg getA(int i) {
+        switch (i) {
             case 0:
                 return regs.getA0();
             case 1:

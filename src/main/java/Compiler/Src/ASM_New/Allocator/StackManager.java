@@ -1,6 +1,7 @@
 package Compiler.Src.ASM_New.Allocator;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 
 import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
 import Compiler.Src.ASM_New.Entity.ASMReg;
@@ -42,28 +43,49 @@ public class StackManager {
                 if (inst instanceof ASMCall) {
                     StoreInst = new ASMStmt();
                     LoadInst = new ASMStmt();
+                    HashSet<ASMReg> StoreSet = new HashSet<>();
+                    HashSet<ASMReg> LoadSet = new HashSet<>();
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
                             continue;
                         }
-                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                        LoadSet.add(reg);
+                        // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                        // reg2imm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
                     }
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
                             continue;
                         }
+                        StoreSet.add(reg);
+                        // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
+                        // reg2imm(reg), regs.getSp()));
+                    }
+                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                            : 8); ++index) {
+                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                            continue;
+                        }
+                        var reg = ((ASMCall) inst).getA(index);
+                        StoreSet.add(reg);
+                        LoadSet.add(reg);
+                    }
+                    for (var reg : StoreSet) {
+                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                                reg2imm(reg), regs.getSp()));
+                    }
+                    for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                                 reg2imm(reg), regs.getSp()));
                     }
@@ -74,12 +96,19 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
+                if(inst instanceof ASMCall)
+                {
+                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    {
+                        live.add(((ASMCall)inst).getA(r));
+                    }
+                }
                 if (LoadInst != null) {
-                    returnInst.addAll(((ASMCall) inst).getArgSize()>=8 ? 1 : 0, LoadInst.getInsts());
+                    returnInst.addAll(((ASMCall) inst).getArgSize() >= 8 ? 1 : 0, LoadInst.getInsts());
                 }
                 returnInst.add(0, inst);
                 if (StoreInst != null) {
-                    if (((ASMCall) inst).getArgSize()>=8) {
+                    if (((ASMCall) inst).getArgSize() >= 8) {
                         --i;
                         inst = block.getReturnInst().getInsts().get(i);
                         returnInst.add(0, inst);
@@ -98,25 +127,49 @@ public class StackManager {
                 if (inst instanceof ASMCall) {
                     StoreInst = new ASMStmt();
                     LoadInst = new ASMStmt();
+                    HashSet<ASMReg> StoreSet = new HashSet<>();
+                    HashSet<ASMReg> LoadSet = new HashSet<>();
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
                             continue;
                         }
-                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                        LoadSet.add(reg);
+                        // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                        // reg2imm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
                     }
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                            continue;
+                        }
+                        StoreSet.add(reg);
+                        // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
+                        // reg2imm(reg), regs.getSp()));
+                    }
+                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                            : 8); ++index) {
+                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                            continue;
+                        }
+                        var reg = ((ASMCall) inst).getA(index);
+                        StoreSet.add(reg);
+                        LoadSet.add(reg);
+                    }
+                    for (var reg : StoreSet) {
+                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                                reg2imm(reg), regs.getSp()));
+                    }
+                    for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                                 reg2imm(reg), regs.getSp()));
                     }
@@ -127,12 +180,19 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
+                if(inst instanceof ASMCall)
+                {
+                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    {
+                        live.add(((ASMCall)inst).getA(r));
+                    }
+                }
                 if (LoadInst != null) {
-                    phiInst.addAll(((ASMCall) inst).getArgSize()>=8 ? 1 : 0, LoadInst.getInsts());
+                    phiInst.addAll(((ASMCall) inst).getArgSize() >= 8 ? 1 : 0, LoadInst.getInsts());
                 }
                 phiInst.add(0, inst);
                 if (StoreInst != null) {
-                    if (((ASMCall) inst).getArgSize()>=8) {
+                    if (((ASMCall) inst).getArgSize() >= 8) {
                         --i;
                         inst = block.getPhiStmt().getInsts().get(i);
                         phiInst.add(0, inst);
@@ -151,25 +211,49 @@ public class StackManager {
                 if (inst instanceof ASMCall) {
                     StoreInst = new ASMStmt();
                     LoadInst = new ASMStmt();
+                    HashSet<ASMReg> StoreSet = new HashSet<>();
+                    HashSet<ASMReg> LoadSet = new HashSet<>();
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
                             continue;
                         }
-                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                        LoadSet.add(reg);
+                        // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                        // reg2imm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
                     }
                     for (var reg : live) {
                         assert (reg instanceof ASMPhysicalReg);
-                        if(reg.equals(regs.getSp())||reg.equals(regs.getRa())||reg.equals(regs.getT0())){
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                            continue;
+                        }
+                        StoreSet.add(reg);
+                        // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
+                        // reg2imm(reg), regs.getSp()));
+                    }
+                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                            : 8); ++index) {
+                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                            continue;
+                        }
+                        var reg = ((ASMCall) inst).getA(index);
+                        StoreSet.add(reg);
+                        LoadSet.add(reg);
+                    }
+                    for (var reg : StoreSet) {
+                        LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
+                                reg2imm(reg), regs.getSp()));
+                    }
+                    for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                                 reg2imm(reg), regs.getSp()));
                     }
@@ -180,12 +264,19 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
+                if(inst instanceof ASMCall)
+                {
+                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    {
+                        live.add(((ASMCall)inst).getA(r));
+                    }
+                }
                 if (LoadInst != null) {
-                    Inst.addAll(((ASMCall) inst).getArgSize()>=8 ? 1 : 0, LoadInst.getInsts());
+                    Inst.addAll(((ASMCall) inst).getArgSize() >= 8 ? 1 : 0, LoadInst.getInsts());
                 }
                 Inst.add(0, inst);
                 if (StoreInst != null) {
-                    if (((ASMCall) inst).getArgSize()>=8) {
+                    if (((ASMCall) inst).getArgSize() >= 8) {
                         --i;
                         inst = block.getInsts().get(i);
                         Inst.add(0, inst);

@@ -20,15 +20,10 @@ public abstract class ASMReg implements Comparable<ASMReg> {
     }
 
     @Override
-    public int compareTo(ASMReg o) {
-        return name.compareTo(o.name);
-    }
+    public abstract int compareTo(ASMReg o);
+    //     return name.compareTo(o.name);
+    // }
 
     @Override
-    public int hashCode() {
-        if (this instanceof ASMVirtualReg) {
-            return Objects.hash(name, ((ASMVirtualReg) this).getId());
-        }
-        return Objects.hash(name, -1);
-    }
+    public abstract int hashCode();
 }
