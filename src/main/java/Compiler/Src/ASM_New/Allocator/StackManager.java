@@ -98,7 +98,7 @@ public class StackManager {
                 }
                 if(inst instanceof ASMCall)
                 {
-                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
                     {
                         live.add(((ASMCall)inst).getA(r));
                     }
@@ -182,7 +182,7 @@ public class StackManager {
                 }
                 if(inst instanceof ASMCall)
                 {
-                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
                     {
                         live.add(((ASMCall)inst).getA(r));
                     }
@@ -266,7 +266,7 @@ public class StackManager {
                 }
                 if(inst instanceof ASMCall)
                 {
-                    for(int r=0;r<((ASMCall)inst).getArgSize();++r)
+                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
                     {
                         live.add(((ASMCall)inst).getA(r));
                     }
