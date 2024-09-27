@@ -234,22 +234,22 @@ public class SSA implements IRVisitor<OPTError> {
     public void Erease(IRRoot root) {
         EreaseWorkSet = new HashSet<>();
         for (var inst : Inst2Block.keySet()) {
-            if (inst instanceof IRPhi && ((IRPhi) inst).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
-                System.out.println("debug");
-            }
-            if (inst instanceof IRPhi && ((IRPhi) inst).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
-                System.out.println("debug");
-            }
+            // if (inst instanceof IRPhi && ((IRPhi) inst).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
+            //     System.out.println("debug");
+            // }
+            // if (inst instanceof IRPhi && ((IRPhi) inst).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
+            //     System.out.println("debug");
+            // }
             EreaseWorkSet.add(inst);
         }
         while (!EreaseWorkSet.isEmpty()) {
             var S = EreaseWorkSet.iterator().next();
-            if (S instanceof IRPhi && ((IRPhi) S).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
-                System.out.println("debug");
-            }
-            if (S instanceof IRPhi && ((IRPhi) S).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
-                System.out.println("debug");
-            }
+            // if (S instanceof IRPhi && ((IRPhi) S).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
+            //     System.out.println("debug");
+            // }
+            // if (S instanceof IRPhi && ((IRPhi) S).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
+            //     System.out.println("debug");
+            // }
             EreaseWorkSet.remove(S);
             if (S instanceof IRPhi) {
                 boolean flag = true;
