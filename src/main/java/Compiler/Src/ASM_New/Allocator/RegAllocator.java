@@ -120,7 +120,7 @@ public class RegAllocator {
                 // }
                 // block.setLiveOut(newLiveOut);
             }
-            new LiveAnalysis().LiveAnalysisMethod(func);
+            new LiveAnalysis().LiveAnalysisFinal(func);
         }
     }
 

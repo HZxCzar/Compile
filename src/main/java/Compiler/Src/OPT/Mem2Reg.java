@@ -140,15 +140,19 @@ public class Mem2Reg {
     public void AllocaCollector(IRFuncDef func) {
         Var2Type = new HashMap<>();
         Var2Block = new HashMap<>();
-        var entryBlock = func.getBlockstmts().get(0);
-        for (var inst : entryBlock.getInsts()) {
-            if (inst instanceof IRAlloca) {
-                Var2Type.put(((IRAlloca) inst).getDest(), ((IRAlloca) inst).getType());
-                Var2Block.put(((IRAlloca) inst).getDest(), new ArrayList<IRBlock>());
-            }
-        }
+        // var entryBlock = func.getBlockstmts().get(0);
+        // for (var inst : entryBlock.getInsts()) {
+        //     if (inst instanceof IRAlloca) {
+        //         Var2Type.put(((IRAlloca) inst).getDest(), ((IRAlloca) inst).getType());
+        //         Var2Block.put(((IRAlloca) inst).getDest(), new ArrayList<IRBlock>());
+        //     }
+        // }
         for (var block : func.getBlockstmts()) {
             for (var inst : block.getInsts()) {
+                if (inst instanceof IRAlloca) {
+                    Var2Type.put(((IRAlloca) inst).getDest(), ((IRAlloca) inst).getType());
+                    Var2Block.put(((IRAlloca) inst).getDest(), new ArrayList<IRBlock>());
+                }
                 if (inst instanceof IRStore) {
                     var dest = (IRVariable) ((IRStore) inst).getDest();
                     if (Var2Type.get(dest) == null) {
@@ -169,11 +173,20 @@ public class Mem2Reg {
     public void rename(IRFuncDef func) {
         var var2entity = new HashMap<IRVariable, IREntity>();
         var entryBlock = func.getBlockstmts().get(0);
-        for (var inst : entryBlock.getInsts()) {
-            if (inst instanceof IRAlloca) {
-                var2entity.put(((IRAlloca) inst).getDest(), null);
+        for(var block:func.getBlockstmts()){
+            if(block.getLabelName().getLabel().startsWith("entry")){
+                for (var inst : block.getInsts()) {
+                    if (inst instanceof IRAlloca) {
+                        var2entity.put(((IRAlloca) inst).getDest(), null);
+                    }
+                }
             }
         }
+        // for (var inst : entryBlock.getInsts()) {
+        //     if (inst instanceof IRAlloca) {
+        //         var2entity.put(((IRAlloca) inst).getDest(), null);
+        //     }
+        // }
         var reg2entity = new HashMap<IRVariable, IREntity>();
         renameBlock(entryBlock, var2entity, reg2entity);
     }
@@ -184,6 +197,16 @@ public class Mem2Reg {
             var2entity.put(phi, block.getPhiList().get(phi).getDest());
         }
         // var reg2entity = new HashMap<IRVariable, IREntity>();
+        for(var pair:block.getPhiList().entrySet()){
+            if(!pair.getKey().equals(pair.getValue().getDest())){
+                continue;
+            }
+            for(var val:pair.getValue().getVals()){
+                if(val instanceof IRVariable && reg2entity.containsKey(val)){
+                    pair.getValue().replaceUse((IRVariable)val, reg2entity.get(val));
+                }
+            }
+        }
         var newInstList = new ArrayList<IRInst>();
         for (var inst : block.getInsts()) {
             if (inst instanceof IRAlloca) {
@@ -236,6 +259,9 @@ public class Mem2Reg {
         for (var succ : block.getSuccessors()) {
             var phiList = succ.getPhiList();
             for (var key : phiList.keySet()) {
+                if(key.equals(phiList.get(key).getDest())){//TO FIX
+                    continue;
+                }
                 var entity = var2entity.get(key);
                 if (entity == null) {
                     entity = new IRLiteral(phiList.get(key).getType(), "0");

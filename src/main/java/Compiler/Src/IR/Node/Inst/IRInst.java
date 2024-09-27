@@ -12,6 +12,8 @@ import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.IRError;
 import Compiler.Src.Util.Error.OPTError;
 
+@lombok.Getter
+@lombok.Setter
 public class IRInst extends IRNode implements Comparable<IRInst> {
     protected int id;
     public IRInst(int id) {

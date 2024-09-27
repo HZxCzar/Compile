@@ -37,6 +37,21 @@ public class LiveAnalysis {
         }
     }
 
+    public void LiveAnalysisFinal(ASMFuncDef func) {
+        BuiltInRegs = new BuiltInRegs();
+        for (var block : func.getBlocks()) {
+            initFinal(block);
+        }
+        BuildCFG(func);
+        boolean changed = true;
+        while (changed) {
+            changed = false;
+            for (var block : func.getBlocks()) {
+                changed |= CalcLive(block);
+            }
+        }
+    }
+
     public boolean CallRelated(ASMReg reg) {
         if (reg instanceof ASMPhysicalReg) {
             if (((ASMPhysicalReg) reg).equals(BuiltInRegs.getSp())
@@ -132,6 +147,72 @@ public class LiveAnalysis {
             //         }
             //     });
             // }
+            if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                block.getDef().add(BuiltInRegs.getA0());
+            }
+            block.getDef().add(inst.getDef());
+        }
+    }
+
+    public void initFinal(ASMBlock block) {
+        block.uses = new HashSet<ASMReg>();
+        block.def = new HashSet<ASMReg>();
+        block.liveIn = new HashSet<ASMReg>();
+        block.liveOut = new HashSet<ASMReg>();
+        block.pred = new ArrayList<ASMBlock>();
+        block.succ = new ArrayList<ASMBlock>();
+        for (var inst : block.getInsts()) {
+            inst.getUses().forEach(reg -> {
+                if (!block.getDef().contains(reg)) {
+                    block.getUses().add(reg);
+                }
+            });
+            if(inst instanceof ASMCall)
+            {
+                ((ASMCall)inst).CallUses().forEach(reg -> {
+                    if (!block.getDef().contains(reg)) {
+                        block.getUses().add(reg);
+                    }
+                });
+            }
+            if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                block.getDef().add(BuiltInRegs.getA0());
+            }
+            block.getDef().add(inst.getDef());
+        }
+        for (var inst : block.getPhiStmt().getInsts()) {
+            inst.getUses().forEach(reg -> {
+                if (!block.getDef().contains(reg)) {
+                    block.getUses().add(reg);
+                }
+            });
+            if(inst instanceof ASMCall)
+            {
+                ((ASMCall)inst).CallUses().forEach(reg -> {
+                    if (!block.getDef().contains(reg)) {
+                        block.getUses().add(reg);
+                    }
+                });
+            }
+            if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
+                block.getDef().add(BuiltInRegs.getA0());
+            }
+            block.getDef().add(inst.getDef());
+        }
+        for (var inst : block.getReturnInst().getInsts()) {
+            inst.getUses().forEach(reg -> {
+                if (!block.getDef().contains(reg)) {
+                    block.getUses().add(reg);
+                }
+            });
+            if(inst instanceof ASMCall)
+            {
+                ((ASMCall)inst).CallUses().forEach(reg -> {
+                    if (!block.getDef().contains(reg)) {
+                        block.getUses().add(reg);
+                    }
+                });
+            }
             if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                 block.getDef().add(BuiltInRegs.getA0());
             }

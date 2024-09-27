@@ -53,13 +53,13 @@ public class ASMCall extends ASMInst {
         return ret;
     }
 
-    // public ArrayList<ASMReg> CallUses() {
-    //     var ret = new ArrayList<ASMReg>();
-    //     for (int i = 0; i < ArgSize; i++) {
-    //         ret.add(getA(i));
-    //     }
-    //     return ret;
-    // }
+    public ArrayList<ASMReg> CallUses() {
+        var ret = new ArrayList<ASMReg>();
+        for (int i = 0; i < (ArgSize<8?ArgSize:8); i++) {
+            ret.add(getA(i));
+        }
+        return ret;
+    }
 
     public ASMPhysicalReg getA(int i) {
         switch (i) {
