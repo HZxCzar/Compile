@@ -272,8 +272,8 @@ public class Mem2Reg {
         }
         for (var Domchild : block.getDomChildren()) {
             var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
-            renameBlock(Domchild, var2entity2, reg2entity2);
+            // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
+            renameBlock(Domchild, var2entity2, reg2entity);
         }
     }
 }
