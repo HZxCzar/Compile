@@ -18,7 +18,7 @@ public class IRVariable extends IREntity implements Comparable<IRVariable> {
     }
 
     public boolean isParameter() {
-        return !getValue().startsWith("@");//!getValue().startsWith("%.tmp.") && 
+        return !getValue().startsWith("%.tmp.") && !getValue().startsWith("@");//!getValue().startsWith("%.tmp.") && 
     }
 
     @Override
