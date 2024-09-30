@@ -133,11 +133,17 @@ public class Mem2Reg {
     public IRBlock intersect(IRBlock b1, IRBlock b2) { // LCA
         while (b1 != b2) {
             while (PostOrder.indexOf(b1) < PostOrder.indexOf(b2)) {
-                b1 = b1.getIdom();
+            b1 = b1.getIdom();
             }
             while (PostOrder.indexOf(b1) > PostOrder.indexOf(b2)) {
-                b2 = b2.getIdom();
+            b2 = b2.getIdom();
             }
+            // while (currentFunc.getBlock2Order().get(b1) < currentFunc.getBlock2Order().get(b2)) {
+            //     b1 = b1.getIdom();
+            // }
+            // while (currentFunc.getBlock2Order().get(b1) > currentFunc.getBlock2Order().get(b2)) {
+            //     b2 = b2.getIdom();
+            // }
         }
         return b1;
     }
@@ -328,14 +334,14 @@ public class Mem2Reg {
     public void BlockRename(IRBlock entryblock, HashMap<IRVariable, IREntity> entryvar2entity,
             HashMap<IRVariable, IREntity> entryreg2entity) {
         visited = new HashSet<IRBlock>();
-        Stack<Pair<IRBlock, Pair<HashMap<IRVariable, IREntity>, HashMap<IRVariable, IREntity>>>> WorkStack = new Stack<>();
-        WorkStack.push(new Pair<>(entryblock, new Pair<>(entryvar2entity, entryreg2entity)));
+        Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> WorkStack = new Stack<>();
+        WorkStack.push(new Pair<>(entryblock, entryvar2entity));
         visited.add(entryblock);
+        var reg2entity = entryreg2entity;
         while (!WorkStack.empty()) {
             var unit = WorkStack.pop();
             var block = unit.a;
-            var var2entity = unit.b.a;
-            var reg2entity = unit.b.b;
+            var var2entity = unit.b;
             for (var phi : block.getPhiList().keySet()) {
                 var2entity.put(phi, block.getPhiList().get(phi).getDest());
             }
@@ -413,15 +419,25 @@ public class Mem2Reg {
                     phiList.get(key).getLabels().add(block.getLabelName());
                 }
             }
-            for (var Domchild : block.getDomChildren()) {
+            for(int i=block.getDomChildren().size()-1;i>=0;--i)
+            {
                 var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-                // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
-                if(visited.contains(Domchild)){
+                var Domchild = block.getDomChildren().get(i);
+                if (visited.contains(Domchild)) {
                     System.out.println("Error");
                 }
                 visited.add(Domchild);
-                WorkStack.push(new Pair<>(Domchild, new Pair<>(var2entity2, reg2entity)));
+                WorkStack.push(new Pair<>(Domchild, var2entity2));
             }
+            // for (var Domchild : block.getDomChildren()) {
+            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            //     // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
+            //     if (visited.contains(Domchild)) {
+            //         System.out.println("Error");
+            //     }
+            //     visited.add(Domchild);
+            //     WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // }
         }
     }
 }
