@@ -49,7 +49,7 @@ public class CFGBuilder {
         for (var dead : deadBlock) {
             blocks.remove(dead);
         }
-        CalcRpo(funcDef.getBlockstmts().get(0));
+        // CalcRpo(funcDef.getBlockstmts().get(0));
     }
 
     public void visit(IRBlock block) {
@@ -74,14 +74,14 @@ public class CFGBuilder {
         }
     }
 
-    public void CalcRpo(IRBlock block) {
-        visited.add(block);
-        for (var succ : block.getSuccessors()) {
-            if (!visited.contains(succ)) {
-                CalcRpo(succ);
-            }
-        }
-        currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
-        currentFunc.getOrder2Block().add(0,block);
-    }
+    // public void CalcRpo(IRBlock block) {
+    //     visited.add(block);
+    //     for (var succ : block.getSuccessors()) {
+    //         if (!visited.contains(succ)) {
+    //             CalcRpo(succ);
+    //         }
+    //     }
+    //     currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
+    //     currentFunc.getOrder2Block().add(0,block);
+    // }
 }

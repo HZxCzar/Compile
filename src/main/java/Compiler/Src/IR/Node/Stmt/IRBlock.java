@@ -19,8 +19,8 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     private IRInst returnInst;
 
     // CFG
-    private ArrayList<IRBlock> successors;
-    private ArrayList<IRBlock> predecessors;
+    private HashSet<IRBlock> successors;
+    private HashSet<IRBlock> predecessors;
 
     // Mem2Reg
     private IRBlock idom;
@@ -38,8 +38,8 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
         this.loopDepth = loopDepth;
 
         // CFG
-        this.successors = new ArrayList<IRBlock>();
-        this.predecessors = new ArrayList<IRBlock>();
+        this.successors = new HashSet<IRBlock>();
+        this.predecessors = new HashSet<IRBlock>();
 
         // Mem2Reg
         this.idom = null;
