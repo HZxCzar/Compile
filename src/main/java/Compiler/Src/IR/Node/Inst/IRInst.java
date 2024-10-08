@@ -29,6 +29,10 @@ public class IRInst extends IRNode implements Comparable<IRInst> {
         throw new IRError("IRInst.getDest() is not implemented");
     }
 
+    public IRVariable getDef() {
+        throw new IRError("IRInst.getDest() is not implemented");
+    }
+
     public ArrayList<IRVariable> getUses() {
         throw new IRError("IRInst.getUses() is not implemented");
     }

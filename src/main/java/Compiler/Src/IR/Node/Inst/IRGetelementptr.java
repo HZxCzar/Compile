@@ -17,7 +17,7 @@ public class IRGetelementptr extends IRInst {
   private ArrayList<IREntity> infolist;
 
   // private ArrayList<IRVariable> indexlist;
-  public IRGetelementptr(int id,IRVariable dest, String type, IREntity ptr, ArrayList<IREntity> info) {
+  public IRGetelementptr(int id, IRVariable dest, String type, IREntity ptr, ArrayList<IREntity> info) {
     super(id);
     this.type = type;
     this.dest = dest;
@@ -32,10 +32,10 @@ public class IRGetelementptr extends IRInst {
 
   @Override
   public String toString() {
-    String str= dest.getValue() + " = getelementptr " + type.toString() + ", " + ptr.toString() + ", ";
-    for(int i=0;i<infolist.size();i++){
+    String str = dest.getValue() + " = getelementptr " + type.toString() + ", " + ptr.toString() + ", ";
+    for (int i = 0; i < infolist.size(); i++) {
       str += infolist.get(i).getType().toString() + " " + infolist.get(i).getValue();
-      if(i != infolist.size()-1){
+      if (i != infolist.size() - 1) {
         str += ", ";
       }
     }
@@ -43,33 +43,38 @@ public class IRGetelementptr extends IRInst {
   }
 
   @Override
-    public IRVariable getDest() {
-        return dest;
-    }
+  public IRVariable getDest() {
+    return dest;
+  }
 
   @Override
-    public ArrayList<IRVariable> getUses() {
-        ArrayList<IRVariable> res = new ArrayList<>();
-        if (ptr instanceof IRVariable) {
-            res.add((IRVariable) ptr);
-        }
-        for(var info: infolist){
-          if(info instanceof IRVariable){
-            res.add((IRVariable) info);
-          }
-        }
-        return res;
-    }
+  public IRVariable getDef() {
+    return dest;
+  }
 
-    @Override
-    public void replaceUse(IRVariable oldVar, IREntity newVar) {
-        if(ptr.equals(oldVar)){
-          ptr = newVar;
-        }
-        for(int i=0;i<infolist.size();i++){
-          if(infolist.get(i).equals(oldVar)){
-            infolist.set(i, newVar);
-          }
-        }
+  @Override
+  public ArrayList<IRVariable> getUses() {
+    ArrayList<IRVariable> res = new ArrayList<>();
+    if (ptr instanceof IRVariable) {
+      res.add((IRVariable) ptr);
     }
+    for (var info : infolist) {
+      if (info instanceof IRVariable) {
+        res.add((IRVariable) info);
+      }
+    }
+    return res;
+  }
+
+  @Override
+  public void replaceUse(IRVariable oldVar, IREntity newVar) {
+    if (ptr.equals(oldVar)) {
+      ptr = newVar;
+    }
+    for (int i = 0; i < infolist.size(); i++) {
+      if (infolist.get(i).equals(oldVar)) {
+        infolist.set(i, newVar);
+      }
+    }
+  }
 }

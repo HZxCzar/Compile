@@ -39,6 +39,11 @@ public class IRBranch extends IRInst {
     }
 
     @Override
+    public IRVariable getDef() {
+        return null;
+    }
+
+    @Override
     public String toString() {
         if(isJump) return "br label %" + trueLabel;
         return "br " + cond.toString() + ", label %" + trueLabel + ", label %" + falseLabel;

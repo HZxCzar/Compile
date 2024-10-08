@@ -24,6 +24,8 @@ public class IRFuncDef extends IRDef {
     private ArrayList<IRBlock> blockstmts;
     private boolean isBuiltIn = false;
 
+    private IRBlock endBlock;
+
     //CFG
     // private TreeMap<IRBlock, Integer> block2Order = new TreeMap<IRBlock, Integer>();
     private ArrayList<IRBlock> order2Block;

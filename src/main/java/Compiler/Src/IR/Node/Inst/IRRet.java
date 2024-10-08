@@ -31,6 +31,11 @@ public class IRRet extends IRInst {
     }
 
     @Override
+    public IRVariable getDef() {
+        return null;
+    }
+
+    @Override
     public <T> T accept(IRVisitor<T> visitor) throws BaseError {
         return visitor.visit(this);
     }

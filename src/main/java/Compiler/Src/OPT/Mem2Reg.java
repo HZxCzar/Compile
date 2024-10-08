@@ -117,7 +117,7 @@ public class Mem2Reg {
     public boolean calcIdom(IRBlock block) {
         IRBlock newIdom = null;
         for (var pred : block.getPredecessors()) {
-            if (newIdom == null) {
+            if (newIdom == null && pred.getIdom() != null) {//???
                 newIdom = pred;
             } else if (pred.getIdom() != null) {
                 newIdom = intersect(pred, newIdom);

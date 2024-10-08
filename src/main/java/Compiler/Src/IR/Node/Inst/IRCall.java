@@ -70,6 +70,11 @@ public class IRCall extends IRInst {
     }
 
     @Override
+    public IRVariable getDef() {
+        return dest;
+    }
+
+    @Override
     public ArrayList<IRVariable> getUses() {
         ArrayList<IRVariable> res = new ArrayList<>();
         for(var arg: args) {

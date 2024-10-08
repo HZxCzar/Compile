@@ -37,6 +37,11 @@ public class IRAlloca extends IRInst {
     }
 
     @Override
+    public IRVariable getDef() {
+        return dest;
+    }
+
+    @Override
     public ArrayList<IRVariable> getUses() {
         throw new IRError("IRAlloca.getUses() is not implemented");
     }

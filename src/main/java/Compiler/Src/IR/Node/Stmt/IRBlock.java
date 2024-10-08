@@ -1,6 +1,7 @@
 package Compiler.Src.IR.Node.Stmt;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
 
@@ -24,10 +25,13 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
 
     // Mem2Reg
     private IRBlock idom;
+    private IRBlock Ridom;
     private HashSet<IRBlock> DomFrontier;
+    private HashSet<IRBlock> RDomFrontier;
     private ArrayList<IRBlock> DomChildren;
+    private ArrayList<IRBlock> RDomChildren;
 
-    private TreeMap<IRVariable, IRPhi> PhiList;
+    private HashMap<IRVariable, IRPhi> PhiList;
 
     private int loopDepth;
 
@@ -43,10 +47,13 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
 
         // Mem2Reg
         this.idom = null;
+        this.Ridom = null;
         this.DomFrontier = new HashSet<IRBlock>();
+        this.RDomFrontier = new HashSet<IRBlock>();
         this.DomChildren = new ArrayList<IRBlock>();
+        this.RDomChildren = new ArrayList<IRBlock>();
 
-        this.PhiList = new TreeMap<IRVariable, IRPhi>();
+        this.PhiList = new HashMap<IRVariable, IRPhi>();
     }
 
     @Override
