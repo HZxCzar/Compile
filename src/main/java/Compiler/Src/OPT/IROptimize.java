@@ -9,7 +9,7 @@ public class IROptimize {
         new CFGBuilder().visit(root);
         new Mem2Reg().visit(root);
         new SSA().visit(root);
-        new ADCE().visit(root);
+        // new ADCE().visit(root);
         return;
     }
 }
