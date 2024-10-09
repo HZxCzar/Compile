@@ -418,7 +418,7 @@ public class SSA implements IRVisitor<OPTError> {
                         } else if (inst instanceof IRIcmp) {
                             if (((IRIcmp) inst).getLhs().getValue().equals("%call.2")) {
                                 int a = 1;
-                                System.out.println(V.get(((IRIcmp) inst).getLhs()).a);
+                                // System.out.println(V.get(((IRIcmp) inst).getLhs()).a);
                             }
                             if (((((IRIcmp) inst).getLhs() instanceof IRVariable)
                                     && (V.get(((IRIcmp) inst).getLhs()).a == 2))
@@ -566,12 +566,14 @@ public class SSA implements IRVisitor<OPTError> {
                         for (int i = 0; i < phiInst.getVals().size(); ++i) {
                             var val = phiInst.getVals().get(i);
                             var label = phiInst.getLabels().get(i);
-                            if (val instanceof IRVariable && V.get((IRVariable) val).a == 1) {
-                                tmp.getVals().add(V.get((IRVariable) val).b);
-                                tmp.getLabels().add(label);
-                            } else {
-                                tmp.getVals().add(val);
-                                tmp.getLabels().add(label);
+                            if (Excutable.contains(label2Block.get(label))) {
+                                if (val instanceof IRVariable && V.get((IRVariable) val).a == 1) {
+                                    tmp.getVals().add(V.get((IRVariable) val).b);
+                                    tmp.getLabels().add(label);
+                                } else {
+                                    tmp.getVals().add(val);
+                                    tmp.getLabels().add(label);
+                                }
                             }
                         }
                         PhiList.put(phiInst.getDef(), tmp);
