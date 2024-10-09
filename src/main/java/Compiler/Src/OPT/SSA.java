@@ -116,6 +116,9 @@ public class SSA implements IRVisitor<OPTError> {
             while (!WorkListB.isEmpty()) {
                 var block = WorkListB.iterator().next();
                 WorkListB.remove(block);
+                if(block.getLabelName().getLabel().equals("if.3.cond")) {
+                    int a = 1;
+                }
                 for (var phiInst : block.getPhiList().values()) {
                     if (phiInst.getDef().getValue().equals("%.tmp.binary.15")) {
                         int a = 1;
@@ -278,33 +281,116 @@ public class SSA implements IRVisitor<OPTError> {
                             WorkListB.add(succ);
                         }
                     }
-                } else if (block.getReturnInst() instanceof IRBranch
-                        && ((IRBranch) block.getReturnInst()).getCond() instanceof IRLiteral) {
+                } else if (block.getReturnInst() instanceof IRBranch) {
                     var inst = block.getReturnInst();
-                    if (((IRBranch) inst).getCond().getValue().equals("1")) {
-                        if (!Excutable
-                                .contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
-                            WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
-                            Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
-                            for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel()).getSuccessors()) {
-                                if (Excutable.contains(succ)) {
-                                    WorkListB.add(succ);
+                    if (Excutable.contains(block)) {
+                        if (((IRBranch) inst).getCond() instanceof IRVariable) {
+                            if (V.get(((IRBranch) inst).getCond()).a == 2) {
+                                if (!Excutable.contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
+                                    WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                    Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                    for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel())
+                                            .getSuccessors()) {
+                                        if (Excutable.contains(succ)) {
+                                            WorkListB.add(succ);
+                                        }
+                                    }
+                                }
+                                if (!Excutable.contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
+                                    WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                    Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                    for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel())
+                                            .getSuccessors()) {
+                                        if (Excutable.contains(succ)) {
+                                            WorkListB.add(succ);
+                                        }
+                                    }
+                                }
+                            } else if (V.get(((IRBranch) inst).getCond()).a == 1) {
+                                if (V.get(((IRBranch) inst).getCond()).b.getValue().equals("1")) {
+                                    if (!Excutable
+                                            .contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
+                                        WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                        Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                        for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel())
+                                                .getSuccessors()) {
+                                            if (Excutable.contains(succ)) {
+                                                WorkListB.add(succ);
+                                            }
+                                        }
+                                    }
+                                } else if (V.get(((IRBranch) inst).getCond()).b.getValue().equals("0")) {
+                                    if (!Excutable
+                                            .contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
+                                        WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                        Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                        for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel())
+                                                .getSuccessors()) {
+                                            if (Excutable.contains(succ)) {
+                                                WorkListB.add(succ);
+                                            }
+                                        }
+                                    }
+                                } else {
+                                    throw new OPTError("Invalid value in branch cond in SCCP");
                                 }
                             }
-                        }
-                    } else if (((IRBranch) inst).getCond().getValue().equals("0")) {
-                        if (!Excutable
-                                .contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
-                            WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
-                            Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
-                            for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel()).getSuccessors()) {
-                                if (Excutable.contains(succ)) {
-                                    WorkListB.add(succ);
+                        } else if (((IRBranch) inst).getCond() instanceof IRLiteral) {
+                            if (((IRBranch) inst).getCond().getValue().equals("1")) {
+                                if (!Excutable
+                                        .contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
+                                    WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                    Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                                    for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel())
+                                            .getSuccessors()) {
+                                        if (Excutable.contains(succ)) {
+                                            WorkListB.add(succ);
+                                        }
+                                    }
                                 }
+                            } else if (((IRBranch) inst).getCond().getValue().equals("0")) {
+                                if (!Excutable
+                                        .contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
+                                    WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                    Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                                    for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel())
+                                            .getSuccessors()) {
+                                        if (Excutable.contains(succ)) {
+                                            WorkListB.add(succ);
+                                        }
+                                    }
+                                }
+                            } else {
+                                throw new OPTError("Invalid value in branch cond in SCCP");
                             }
+                        } else {
+                            throw new OPTError("Invalid cond in branch in SCCP");
                         }
-                    } else {
-                        throw new OPTError("Invalid value in branch cond in SCCP");
+                        // if (((IRBranch) inst).getCond().getValue().equals("1")) {
+                        //     if (!Excutable
+                        //             .contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
+                        //         WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                        //         Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
+                        //         for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel()).getSuccessors()) {
+                        //             if (Excutable.contains(succ)) {
+                        //                 WorkListB.add(succ);
+                        //             }
+                        //         }
+                        //     }
+                        // } else if (((IRBranch) inst).getCond().getValue().equals("0")) {
+                        //     if (!Excutable
+                        //             .contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
+                        //         WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                        //         Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
+                        //         for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel()).getSuccessors()) {
+                        //             if (Excutable.contains(succ)) {
+                        //                 WorkListB.add(succ);
+                        //             }
+                        //         }
+                        //     }
+                        // } else {
+                        //     throw new OPTError("Invalid value in branch cond in SCCP");
+                        // }
                     }
                 }
             }
@@ -460,7 +546,7 @@ public class SSA implements IRVisitor<OPTError> {
                                 }
                             }
                         } else if (inst instanceof IRBranch) {
-                            if (!((IRBranch) inst).isJump()) {
+                            if (!((IRBranch) inst).isJump() && Excutable.contains(Inst2Block.get(inst))) {
                                 if (((IRBranch) inst).getCond() instanceof IRVariable) {
                                     if (V.get(((IRBranch) inst).getCond()).a == 2) {
                                         if (!Excutable.contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {

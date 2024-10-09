@@ -183,6 +183,10 @@ public class ADCE {
     public void Collect(IRFuncDef func) throws OPTError {
         for (var block : func.getBlockstmts()) {
             name2block.put(block.getLabelName(), block);
+            if(block.getLabelName().getLabel().equals("if.1.cond"))
+            {
+                int a=1;
+            }
             for (var inst : block.getPhiList().values()) {
                 var2def.put(((IRPhi) inst).getDef(), inst);
                 inst2block.put(inst, block);
@@ -266,6 +270,10 @@ public class ADCE {
                 }
             }
             var curblock = inst2block.get(x);
+            if(curblock==null)
+            {
+                int a=1;
+            }
             for (var pred : curblock.getRDomFrontier()) {
                 if (!Live.contains(pred.getReturnInst())) {
                     WorkList.add(pred.getReturnInst());
