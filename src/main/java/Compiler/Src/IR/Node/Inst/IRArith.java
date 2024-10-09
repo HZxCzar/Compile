@@ -1,11 +1,16 @@
 package Compiler.Src.IR.Node.Inst;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.antlr.v4.runtime.misc.Pair;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
+import Compiler.Src.IR.Entity.IRLiteral;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Type.IRType;
+import Compiler.Src.Util.Error.ASMError;
 import Compiler.Src.Util.Error.BaseError;
 // import Compiler.Src.Util.ScopeUtil.GlobalScope;
 import Compiler.Src.Util.Error.IRError;
@@ -46,6 +51,63 @@ public class IRArith extends IRInst {
     @Override
     public IRVariable getDef() {
         return dest;
+    }
+    
+    public IREntity Innercompute(HashMap<IRVariable, Pair<Integer, IREntity>> varMap) {
+        if(lhs instanceof IRVariable && varMap.get((IRVariable)lhs).a==0)
+        {
+            return null;
+        }
+        else if(rhs instanceof IRVariable && varMap.get((IRVariable)rhs).a==0)
+        {
+            return null;
+        }
+        int lval=lhs instanceof IRVariable?Integer.parseInt(varMap.get((IRVariable)lhs).b.getValue()):Integer.parseInt(lhs.getValue());
+        int rval=rhs instanceof IRVariable?Integer.parseInt(varMap.get((IRVariable)rhs).b.getValue()):Integer.parseInt(rhs.getValue());
+        var res = new IRLiteral(dest.getType(), "0");
+        switch (op) {
+                case "add" -> {
+                    res.setValue(String.valueOf(lval + rval));
+                }
+                case "sub" -> {
+                    res.setValue(String.valueOf(lval - rval));
+                }
+                case "mul" -> {
+                    res.setValue(String.valueOf(lval * rval));
+                }
+                case "sdiv" -> {
+                    if (rval == 0) {
+                        res.setValue("0");
+                    } else {
+                        res.setValue(String.valueOf(lval / rval));
+                    }
+                }
+                case "srem" -> {
+                    res.setValue(String.valueOf(lval % rval));
+                }
+                case "shl" -> {
+                    // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs << rhs));
+                    res.setValue(String.valueOf(lval << rval));
+                }
+                case "ashr" -> {
+                    // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs >> rhs));
+                    res.setValue(String.valueOf(lval >> rval));
+                }
+                case "and" -> {
+                    // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs & rhs));
+                    res.setValue(String.valueOf(lval & rval));
+                }
+                case "or" -> {
+                    // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs | rhs));
+                    res.setValue(String.valueOf(lval | rval));
+                }
+                case "xor" -> {
+                    // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs ^ rhs));
+                    res.setValue(String.valueOf(lval ^ rval));
+                }
+                default -> throw new ASMError("Unknown Binary operation");
+            }
+        return res;
     }
 
     @Override

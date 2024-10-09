@@ -1,11 +1,15 @@
 package Compiler.Src.IR.Node.Inst;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+
+import org.antlr.v4.runtime.misc.Pair;
 
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRLiteral;
 import Compiler.Src.IR.Entity.IRVariable;
+import Compiler.Src.Util.Error.ASMError;
 import Compiler.Src.Util.Error.BaseError;
 
 @lombok.Getter
@@ -23,6 +27,22 @@ public class IRGetelementptr extends IRInst {
     this.dest = dest;
     this.ptr = ptr;
     this.infolist = info;
+  }
+
+  public IREntity Innercompute(HashMap<IRVariable, Pair<Integer, IREntity>> varMap) {
+    var second = infolist.get(infolist.size() - 1);
+    if (ptr instanceof IRVariable && varMap.get((IRVariable) ptr).a == 0) {
+      return null;
+    } else if (second instanceof IRVariable && varMap.get((IRVariable) second).a == 0) {
+      return null;
+    }
+    int lval = ptr instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) ptr).b.getValue())
+        : Integer.parseInt(ptr.getValue().equals("null")?"0":ptr.getValue());
+    int rval = second instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) second).b.getValue())
+        : Integer.parseInt(second.getValue());
+    var res = new IRLiteral(dest.getType(), "0");
+    res.setValue(Integer.toString(lval + 4 * rval));
+    return res;
   }
 
   @Override
