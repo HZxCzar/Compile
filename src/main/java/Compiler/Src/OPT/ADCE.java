@@ -49,6 +49,7 @@ public class ADCE {
     private HashMap<IRLabel, IRBlock> name2block;
 
     public OPTError visit(IRRoot root) throws OPTError {
+        new CFGBuilder().visit(root);
         for (var func : root.getFuncs()) {
             WorkList = new HashSet<>();
             var2def = new HashMap<>();
