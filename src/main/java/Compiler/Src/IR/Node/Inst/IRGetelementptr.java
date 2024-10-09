@@ -36,7 +36,7 @@ public class IRGetelementptr extends IRInst {
     } else if (second instanceof IRVariable && varMap.get((IRVariable) second).a == 0) {
       return null;
     }
-    int lval = ptr instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) ptr).b.getValue())
+    int lval = ptr instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) ptr).b.getValue().equals("null")?"0":varMap.get((IRVariable) ptr).b.getValue())
         : Integer.parseInt(ptr.getValue().equals("null")?"0":ptr.getValue());
     int rval = second instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) second).b.getValue())
         : Integer.parseInt(second.getValue());

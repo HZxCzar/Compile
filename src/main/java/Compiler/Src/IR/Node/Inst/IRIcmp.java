@@ -40,9 +40,9 @@ public class IRIcmp extends IRInst {
                 || (rhs instanceof IRVariable && varMap.get((IRVariable) rhs).b == null)) {
             int a = 1;
         }
-        int lval = lhs instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) lhs).b.getValue())
+        int lval = lhs instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) lhs).b.getValue().equals("null")?"0":varMap.get((IRVariable) lhs).b.getValue())
                 : Integer.parseInt(lhs.getValue().equals("null")?"0":lhs.getValue());
-        int rval = rhs instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) rhs).b.getValue())
+        int rval = rhs instanceof IRVariable ? Integer.parseInt(varMap.get((IRVariable) rhs).b.getValue().equals("null")?"0":varMap.get((IRVariable) rhs).b.getValue())
                 : Integer.parseInt(rhs.getValue().equals("null")?"0":rhs.getValue());
         var res = new IRLiteral(dest.getType(), "0");
         switch (cond) {
