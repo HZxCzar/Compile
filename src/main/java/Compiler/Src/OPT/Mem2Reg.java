@@ -96,38 +96,38 @@ public class Mem2Reg {
         while (run) {
             run = false;
             for (int i = PostOrder.size() - 1; i >= 0; --i) {
-            var block = PostOrder.get(i);
-            if (block == entryBlock) {
-            continue;
-            }
-            if (calcIdom(block)) {
-            run = true;
-            }
+                var block = PostOrder.get(i);
+                if (block == entryBlock) {
+                    continue;
+                }
+                if (calcIdom(block)) {
+                    run = true;
+                }
             }
 
             // for (var block : func.getOrder2Block()) {
-            //     if (block == entryBlock) {
-            //         continue;
-            //     }
-            //     if (calcIdom(block)) {
-            //         run = true;
-            //     }
+            // if (block == entryBlock) {
+            // continue;
+            // }
+            // if (calcIdom(block)) {
+            // run = true;
+            // }
             // }
         }
 
         // build DomFrontier
         for (int i = PostOrder.size() - 1; i >= 0; --i) {
-        var block = PostOrder.get(i);
-        if (block.getIdom() != block) {
-        block.getIdom().getDomChildren().add(block);
-        }
-        calcDF(block);
+            var block = PostOrder.get(i);
+            if (block.getIdom() != block) {
+                block.getIdom().getDomChildren().add(block);
+            }
+            calcDF(block);
         }
         // for (var block : func.getOrder2Block()) {
-        //     if (block.getIdom() != block) {
-        //         block.getIdom().getDomChildren().add(block);
-        //     }
-        //     calcDF(block);
+        // if (block.getIdom() != block) {
+        // block.getIdom().getDomChildren().add(block);
+        // }
+        // calcDF(block);
         // }
         return;
     }
@@ -439,26 +439,22 @@ public class Mem2Reg {
                     phiList.get(key).getLabels().add(block.getLabelName());
                 }
             }
-            Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> TMP = new Stack<>();
-            for (var Domchild : block.getDomChildren()) {
-                var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-                visited.add(Domchild);
-                TMP.push(new Pair<>(Domchild, var2entity2));
-                // WorkStack.push(new Pair<>(Domchild, var2entity2));
-            }
-            while (!TMP.empty()) {
-                WorkStack.push(TMP.pop());
-            }
-            // for(int i=block.getDomChildren().size()-1;i>=0;--i)
-            // {
+            // Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> TMP = new Stack<>();
+            // for (var Domchild : block.getDomChildren()) {
             // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            // var Domchild = block.getDomChildren().get(i);
-            // if (visited.contains(Domchild)) {
-            // System.out.println("Error");
-            // }
             // visited.add(Domchild);
-            // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // TMP.push(new Pair<>(Domchild, var2entity2));
+            // // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
+            // while (!TMP.empty()) {
+            // WorkStack.push(TMP.pop());
+            // }
+            for (int i = block.getDomChildren().size() - 1; i >= 0; --i) {
+                var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+                var Domchild = block.getDomChildren().get(i);
+                visited.add(Domchild);
+                WorkStack.push(new Pair<>(Domchild, var2entity2));
+            }
             // for (var Domchild : block.getDomChildren()) {
             // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
             // // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);

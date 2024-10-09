@@ -28,7 +28,7 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     private IRBlock Ridom;
     private HashSet<IRBlock> DomFrontier;
     private HashSet<IRBlock> RDomFrontier;
-    private HashSet<IRBlock> DomChildren;
+    private ArrayList<IRBlock> DomChildren;
     private HashSet<IRBlock> RDomChildren;
 
     private HashMap<IRVariable, IRPhi> PhiList;
@@ -50,7 +50,7 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
         this.Ridom = null;
         this.DomFrontier = new HashSet<IRBlock>();
         this.RDomFrontier = new HashSet<IRBlock>();
-        this.DomChildren = new HashSet<IRBlock>();
+        this.DomChildren = new ArrayList<IRBlock>();
         this.RDomChildren = new HashSet<IRBlock>();
 
         this.PhiList = new HashMap<IRVariable, IRPhi>();
