@@ -1,5 +1,7 @@
 package Compiler.Src.IR.Node.util;
 
+import java.util.Objects;
+
 import Compiler.Src.IR.Node.Inst.IRInst;
 
 @lombok.Getter
@@ -28,5 +30,10 @@ public class IRLabel extends IRInst{
             return label.equals(((IRLabel) obj).getLabel());
         }
         return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(label);
     }
 }

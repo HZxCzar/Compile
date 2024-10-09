@@ -53,5 +53,8 @@ public class IRStore extends IRInst {
     if (src.equals(oldVar)) {
       src = newVar;
     }
+    if (dest.equals(oldVar)) {
+      dest = (IRVariable) newVar;
+    }
   }
 }
