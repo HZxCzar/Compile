@@ -19,14 +19,22 @@ public class CFGBuilder {
 
     public void visit(IRRoot root) {
         for (var func : root.getFuncs()) {
+            init(func);
             visit(func);
+        }
+    }
+
+    public void init(IRFuncDef func) {
+        for (var block : func.getBlockstmts()) {
+            block.getPredecessors().clear();
+            block.getSuccessors().clear();
         }
     }
 
     public void visit(IRFuncDef funcDef) {
         var blocks = funcDef.getBlockstmts();
         currentFunc = funcDef;
-        label2Block = new HashMap<IRLabel,IRBlock>();
+        label2Block = new HashMap<IRLabel, IRBlock>();
         visited = new HashSet<IRBlock>();
         for (var block : blocks) {
             label2Block.put(block.getLabelName(), block);
@@ -49,6 +57,7 @@ public class CFGBuilder {
         for (var dead : deadBlock) {
             blocks.remove(dead);
         }
+        funcDef.setBlockstmts(blocks);
         // CalcRpo(funcDef.getBlockstmts().get(0));
     }
 
@@ -75,13 +84,13 @@ public class CFGBuilder {
     }
 
     // public void CalcRpo(IRBlock block) {
-    //     visited.add(block);
-    //     for (var succ : block.getSuccessors()) {
-    //         if (!visited.contains(succ)) {
-    //             CalcRpo(succ);
-    //         }
-    //     }
-    //     currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
-    //     currentFunc.getOrder2Block().add(0,block);
+    // visited.add(block);
+    // for (var succ : block.getSuccessors()) {
+    // if (!visited.contains(succ)) {
+    // CalcRpo(succ);
+    // }
+    // }
+    // currentFunc.getBlock2Order().put(block, currentFunc.getBlock2Order().size());
+    // currentFunc.getOrder2Block().add(0,block);
     // }
 }

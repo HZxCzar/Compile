@@ -48,8 +48,10 @@ public class SSA implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRRoot root) throws BaseError {
+        new CFGBuilder().visit(root);
         Collect(root);
         Run(root);
+        new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> SCCP(func));
         // Erease(root);
         // CodeMove(root);
@@ -818,100 +820,100 @@ public class SSA implements IRVisitor<OPTError> {
         func.setBlockstmts(Blockstmts);
     }
 
-    public void CodeMove(IRRoot root) {
-        for (var func : root.getFuncs()) {
-            codemove(func);
-        }
-    }
+    // public void CodeMove(IRRoot root) {
+    //     for (var func : root.getFuncs()) {
+    //         codemove(func);
+    //     }
+    // }
 
-    public void codemove(IRFuncDef func) {
-        Var2Pair = new HashMap<>();
-        var WorkList = new HashSet<IRInst>();
-        for (var para : func.getParams()) {
-            Var2Pair.put(para, null);
-        }
-        for (var block : func.getOrder2Block()) {
-            init(block, WorkList);
-        }
-        for (var block : func.getOrder2Block()) {
-            for (int i = 0; i < block.getInsts().size(); ++i) {
-                var inst = block.getInsts().get(i);
-                if (!WorkList.contains(inst)) {
-                    continue;
-                }
-                WorkList.remove(inst);
-                ArrayList<IRVariable> use = new ArrayList<>();
-                for (var unit : inst.getUses()) {
-                    if (Var2Pair.get(unit) != null) {
-                        use.add(unit);
-                    }
-                }
-                if (use.size() == 0) {
-                    continue;
-                }
-                var pair = FindEarly(block, use);
-                if (pair == null) {
-                    continue;
-                }
-                var earlyBlock = pair.a;
-                var earlyInst = pair.b;
-                int index;
-                if (earlyInst != null) {
-                    index = earlyBlock.getInsts().indexOf(earlyInst);
-                    block.getInsts().remove(i);
-                    earlyBlock.getInsts().add(index + 1, inst);
-                    Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-                } else {
-                    index = 0;
-                    block.getInsts().remove(i);
-                    earlyBlock.getInsts().add(index, inst);
-                    Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-                }
-            }
-        }
-    }
+    // public void codemove(IRFuncDef func) {
+    //     Var2Pair = new HashMap<>();
+    //     var WorkList = new HashSet<IRInst>();
+    //     for (var para : func.getParams()) {
+    //         Var2Pair.put(para, null);
+    //     }
+    //     for (var block : func.getOrder2Block()) {
+    //         init(block, WorkList);
+    //     }
+    //     for (var block : func.getOrder2Block()) {
+    //         for (int i = 0; i < block.getInsts().size(); ++i) {
+    //             var inst = block.getInsts().get(i);
+    //             if (!WorkList.contains(inst)) {
+    //                 continue;
+    //             }
+    //             WorkList.remove(inst);
+    //             ArrayList<IRVariable> use = new ArrayList<>();
+    //             for (var unit : inst.getUses()) {
+    //                 if (Var2Pair.get(unit) != null) {
+    //                     use.add(unit);
+    //                 }
+    //             }
+    //             if (use.size() == 0) {
+    //                 continue;
+    //             }
+    //             var pair = FindEarly(block, use);
+    //             if (pair == null) {
+    //                 continue;
+    //             }
+    //             var earlyBlock = pair.a;
+    //             var earlyInst = pair.b;
+    //             int index;
+    //             if (earlyInst != null) {
+    //                 index = earlyBlock.getInsts().indexOf(earlyInst);
+    //                 block.getInsts().remove(i);
+    //                 earlyBlock.getInsts().add(index + 1, inst);
+    //                 Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+    //             } else {
+    //                 index = 0;
+    //                 block.getInsts().remove(i);
+    //                 earlyBlock.getInsts().add(index, inst);
+    //                 Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+    //             }
+    //         }
+    //     }
+    // }
 
-    public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable> use) {
-        Pair<IRBlock, IRInst> res = null;
-        for (var var : use) {
-            var pair = Var2Pair.get(var);
-            if (pair == null) {
-                continue;
-            }
-            if (pair.b instanceof IRPhi) {
-                pair = new Pair<IRBlock, IRInst>(pair.a, null);
-            }
-            var tmp = block;
-            while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
-                tmp = tmp.getIdom();
-            }
-            if (!tmp.equals(pair.a)) {
-                throw new OPTError("Invalid idom in CodeMove");
-            }
-            if (res == null) {
-                res = pair;
-            } else {
-                if (pair.a.equals(res.a)) {
-                    if (pair.b != null) {
-                        var index_res = res.a.getInsts().indexOf(res.b);
-                        var index_pair = pair.a.getInsts().indexOf(pair.b);
-                        if (index_pair > index_res) {
-                            res = pair;
-                        }
-                    }
-                } else {
-                    var tmp1 = pair.a;
-                    while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
-                        tmp1 = tmp1.getIdom();
-                    }
-                    if (tmp1.equals(res.a)) {
-                        res = pair;
-                    }
-                }
-            }
-        }
-        return res;
-    }
+    // public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable> use) {
+    //     Pair<IRBlock, IRInst> res = null;
+    //     for (var var : use) {
+    //         var pair = Var2Pair.get(var);
+    //         if (pair == null) {
+    //             continue;
+    //         }
+    //         if (pair.b instanceof IRPhi) {
+    //             pair = new Pair<IRBlock, IRInst>(pair.a, null);
+    //         }
+    //         var tmp = block;
+    //         while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
+    //             tmp = tmp.getIdom();
+    //         }
+    //         if (!tmp.equals(pair.a)) {
+    //             throw new OPTError("Invalid idom in CodeMove");
+    //         }
+    //         if (res == null) {
+    //             res = pair;
+    //         } else {
+    //             if (pair.a.equals(res.a)) {
+    //                 if (pair.b != null) {
+    //                     var index_res = res.a.getInsts().indexOf(res.b);
+    //                     var index_pair = pair.a.getInsts().indexOf(pair.b);
+    //                     if (index_pair > index_res) {
+    //                         res = pair;
+    //                     }
+    //                 }
+    //             } else {
+    //                 var tmp1 = pair.a;
+    //                 while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
+    //                     tmp1 = tmp1.getIdom();
+    //                 }
+    //                 if (tmp1.equals(res.a)) {
+    //                     res = pair;
+    //                 }
+    //             }
+    //         }
+    //     }
+    //     return res;
+    // }
 
     public void init(IRBlock block, HashSet<IRInst> WorkList) {
         for (var inst : block.getPhiList().values()) {
@@ -1000,190 +1002,190 @@ public class SSA implements IRVisitor<OPTError> {
         }
     }
 
-    public void Erease(IRRoot root) {
-        EreaseWorkSet = new HashSet<>();
-        for (var inst : Inst2Block.keySet()) {
-            // if (inst instanceof IRPhi && ((IRPhi)
-            // inst).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
-            // System.out.println("debug");
-            // }
-            // if (inst instanceof IRPhi && ((IRPhi)
-            // inst).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
-            // System.out.println("debug");
-            // }
-            EreaseWorkSet.add(inst);
-        }
-        while (!EreaseWorkSet.isEmpty()) {
-            var S = EreaseWorkSet.iterator().next();
-            // if (S instanceof IRPhi && ((IRPhi)
-            // S).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
-            // System.out.println("debug");
-            // }
-            // if (S instanceof IRPhi && ((IRPhi)
-            // S).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
-            // System.out.println("debug");
-            // }
-            EreaseWorkSet.remove(S);
-            if (S instanceof IRPhi) {
-                boolean flag = true;
-                var literal = ((IRPhi) S).getVals().get(0);
-                for (var val : ((IRPhi) S).getVals()) {
-                    if (val instanceof IRVariable) {
-                        flag = false;
-                        break;
-                    } else {
-                        if (!((IRLiteral) val).equals((IRLiteral) literal)) {
-                            flag = false;
-                            break;
-                        }
-                    }
-                }
-                if (flag) {
-                    var type = ((IRPhi) S).getType();
-                    var dest = ((IRPhi) S).getDest();
-                    var block = Inst2Block.get(S);
-                    block.RemoveInst(S);
-                    S = new IRArith(++InstCounter.InstCounter, dest, "add", type, literal,
-                            new IRLiteral(GlobalScope.irIntType, "0"));
-                    block.addFront(S);
-                    Inst2Block.put(S, block);
-                }
-            }
-            if (S instanceof IRBranch && ((IRBranch) S).getCond() instanceof IRLiteral) {
-                if (((IRBranch) S).isJump())
-                    continue;
-                var cond = (IRLiteral) ((IRBranch) S).getCond();
-                var TrueLabel = ((IRBranch) S).getTrueLabel();
-                var FalseLabel = ((IRBranch) S).getFalseLabel();
-                IRBlock outBlock, inBlock = null;
-                if (cond.getValue().equals("0")) {
-                    ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
-                    ((IRBranch) S).setTrueLabel(FalseLabel);
-                    ((IRBranch) S).setJump(true);
-                    outBlock = Inst2Block.get(S);
-                    for (var succ : outBlock.getSuccessors()) {
-                        if (succ.getLabelName().equals(TrueLabel)) {
-                            inBlock = succ;
-                            inBlock.getPredecessors().remove(outBlock);
-                            outBlock.getSuccessors().remove(inBlock);
-                            break;
-                        }
-                    }
-                } else if (cond.getValue().equals("1")) {
-                    ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
-                    ((IRBranch) S).setFalseLabel(TrueLabel);
-                    ((IRBranch) S).setJump(true);
-                    outBlock = Inst2Block.get(S);
-                    for (var succ : outBlock.getSuccessors()) {
-                        if (succ.getLabelName().equals(FalseLabel)) {
-                            inBlock = succ;
-                            inBlock.getPredecessors().remove(outBlock);
-                            outBlock.getSuccessors().remove(inBlock);
-                            break;
-                        }
-                    }
-                } else {
-                    continue;
-                }
-                RmvPhi(outBlock, inBlock);
-            }
-            var unitPair = isConstAssign(S);
-            if (unitPair != null) {
-                var block = Inst2Block.get(S);
-                block.RemoveInst(S);
-                var dest = unitPair.a;
-                var literal = unitPair.b;
-                for (var useInst : Var2Use.get(dest)) {
-                    useInst.replaceUse(dest, literal);
-                    EreaseWorkSet.add(useInst);
-                }
-            }
-        }
-    }
+    // public void Erease(IRRoot root) {
+    //     EreaseWorkSet = new HashSet<>();
+    //     for (var inst : Inst2Block.keySet()) {
+    //         // if (inst instanceof IRPhi && ((IRPhi)
+    //         // inst).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
+    //         // System.out.println("debug");
+    //         // }
+    //         // if (inst instanceof IRPhi && ((IRPhi)
+    //         // inst).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
+    //         // System.out.println("debug");
+    //         // }
+    //         EreaseWorkSet.add(inst);
+    //     }
+    //     while (!EreaseWorkSet.isEmpty()) {
+    //         var S = EreaseWorkSet.iterator().next();
+    //         // if (S instanceof IRPhi && ((IRPhi)
+    //         // S).getDest().getValue().equals("%.tmp.binary.3.inline.1")) {
+    //         // System.out.println("debug");
+    //         // }
+    //         // if (S instanceof IRPhi && ((IRPhi)
+    //         // S).getDest().getValue().equals("%.tmp.binary.3.inline.8")) {
+    //         // System.out.println("debug");
+    //         // }
+    //         EreaseWorkSet.remove(S);
+    //         if (S instanceof IRPhi) {
+    //             boolean flag = true;
+    //             var literal = ((IRPhi) S).getVals().get(0);
+    //             for (var val : ((IRPhi) S).getVals()) {
+    //                 if (val instanceof IRVariable) {
+    //                     flag = false;
+    //                     break;
+    //                 } else {
+    //                     if (!((IRLiteral) val).equals((IRLiteral) literal)) {
+    //                         flag = false;
+    //                         break;
+    //                     }
+    //                 }
+    //             }
+    //             if (flag) {
+    //                 var type = ((IRPhi) S).getType();
+    //                 var dest = ((IRPhi) S).getDest();
+    //                 var block = Inst2Block.get(S);
+    //                 block.RemoveInst(S);
+    //                 S = new IRArith(++InstCounter.InstCounter, dest, "add", type, literal,
+    //                         new IRLiteral(GlobalScope.irIntType, "0"));
+    //                 block.addFront(S);
+    //                 Inst2Block.put(S, block);
+    //             }
+    //         }
+    //         if (S instanceof IRBranch && ((IRBranch) S).getCond() instanceof IRLiteral) {
+    //             if (((IRBranch) S).isJump())
+    //                 continue;
+    //             var cond = (IRLiteral) ((IRBranch) S).getCond();
+    //             var TrueLabel = ((IRBranch) S).getTrueLabel();
+    //             var FalseLabel = ((IRBranch) S).getFalseLabel();
+    //             IRBlock outBlock, inBlock = null;
+    //             if (cond.getValue().equals("0")) {
+    //                 ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
+    //                 ((IRBranch) S).setTrueLabel(FalseLabel);
+    //                 ((IRBranch) S).setJump(true);
+    //                 outBlock = Inst2Block.get(S);
+    //                 for (var succ : outBlock.getSuccessors()) {
+    //                     if (succ.getLabelName().equals(TrueLabel)) {
+    //                         inBlock = succ;
+    //                         inBlock.getPredecessors().remove(outBlock);
+    //                         outBlock.getSuccessors().remove(inBlock);
+    //                         break;
+    //                     }
+    //                 }
+    //             } else if (cond.getValue().equals("1")) {
+    //                 ((IRBranch) S).setCond(new IRLiteral(GlobalScope.irBoolType, "true"));
+    //                 ((IRBranch) S).setFalseLabel(TrueLabel);
+    //                 ((IRBranch) S).setJump(true);
+    //                 outBlock = Inst2Block.get(S);
+    //                 for (var succ : outBlock.getSuccessors()) {
+    //                     if (succ.getLabelName().equals(FalseLabel)) {
+    //                         inBlock = succ;
+    //                         inBlock.getPredecessors().remove(outBlock);
+    //                         outBlock.getSuccessors().remove(inBlock);
+    //                         break;
+    //                     }
+    //                 }
+    //             } else {
+    //                 continue;
+    //             }
+    //             RmvPhi(outBlock, inBlock);
+    //         }
+    //         var unitPair = isConstAssign(S);
+    //         if (unitPair != null) {
+    //             var block = Inst2Block.get(S);
+    //             block.RemoveInst(S);
+    //             var dest = unitPair.a;
+    //             var literal = unitPair.b;
+    //             for (var useInst : Var2Use.get(dest)) {
+    //                 useInst.replaceUse(dest, literal);
+    //                 EreaseWorkSet.add(useInst);
+    //             }
+    //         }
+    //     }
+    // }
 
-    public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
-        for (var phi : inBlock.getPhiList().entrySet()) {
-            var phiInst = phi.getValue();
-            for (int i = 0; i < phiInst.getLabels().size(); ++i) {
-                var label = phiInst.getLabels().get(i);
-                if (label.equals(outBlock.getLabelName())) {
-                    phiInst.getVals().remove(i);
-                    phiInst.getLabels().remove(i);
-                    if (phiInst.getVals().isEmpty()) {
-                        throw new OPTError("PhiInst is empty");
-                    }
-                    EreaseWorkSet.add(phiInst);
-                }
-            }
-        }
-    }
+    // public void RmvPhi(IRBlock outBlock, IRBlock inBlock) {
+    //     for (var phi : inBlock.getPhiList().entrySet()) {
+    //         var phiInst = phi.getValue();
+    //         for (int i = 0; i < phiInst.getLabels().size(); ++i) {
+    //             var label = phiInst.getLabels().get(i);
+    //             if (label.equals(outBlock.getLabelName())) {
+    //                 phiInst.getVals().remove(i);
+    //                 phiInst.getLabels().remove(i);
+    //                 if (phiInst.getVals().isEmpty()) {
+    //                     throw new OPTError("PhiInst is empty");
+    //                 }
+    //                 EreaseWorkSet.add(phiInst);
+    //             }
+    //         }
+    //     }
+    // }
 
-    public Pair<IRVariable, IRLiteral> isConstAssign(IRInst S) {
-        if (S instanceof IRArith) {
-            if (((IRArith) S).getLhs() instanceof IRLiteral && ((IRArith) S).getRhs() instanceof IRLiteral) {
-                var Literal = new IRLiteral(GlobalScope.irIntType,
-                        String.valueOf(InnerCompute(((IRLiteral) ((IRArith) S).getLhs()).getValue(),
-                                ((IRLiteral) ((IRArith) S).getRhs()).getValue(), ((IRArith) S).getOp())));
-                return new Pair<IRVariable, IRLiteral>(((IRArith) S).getDest(), Literal);
-            }
-            return null;
-        } else if (S instanceof IRIcmp) {
-            if (((IRIcmp) S).getLhs() instanceof IRLiteral && ((IRIcmp) S).getRhs() instanceof IRLiteral) {
-                var Literal = new IRLiteral(GlobalScope.irIntType,
-                        String.valueOf(InnerCompute(((IRLiteral) ((IRIcmp) S).getLhs()).getValue(),
-                                ((IRLiteral) ((IRIcmp) S).getRhs()).getValue(), ((IRIcmp) S).getCond())));
-                return new Pair<IRVariable, IRLiteral>(((IRIcmp) S).getDest(), Literal);
-            }
-            return null;
-        }
-        return null;
-    }
+    // public Pair<IRVariable, IRLiteral> isConstAssign(IRInst S) {
+    //     if (S instanceof IRArith) {
+    //         if (((IRArith) S).getLhs() instanceof IRLiteral && ((IRArith) S).getRhs() instanceof IRLiteral) {
+    //             var Literal = new IRLiteral(GlobalScope.irIntType,
+    //                     String.valueOf(InnerCompute(((IRLiteral) ((IRArith) S).getLhs()).getValue(),
+    //                             ((IRLiteral) ((IRArith) S).getRhs()).getValue(), ((IRArith) S).getOp())));
+    //             return new Pair<IRVariable, IRLiteral>(((IRArith) S).getDest(), Literal);
+    //         }
+    //         return null;
+    //     } else if (S instanceof IRIcmp) {
+    //         if (((IRIcmp) S).getLhs() instanceof IRLiteral && ((IRIcmp) S).getRhs() instanceof IRLiteral) {
+    //             var Literal = new IRLiteral(GlobalScope.irIntType,
+    //                     String.valueOf(InnerCompute(((IRLiteral) ((IRIcmp) S).getLhs()).getValue(),
+    //                             ((IRLiteral) ((IRIcmp) S).getRhs()).getValue(), ((IRIcmp) S).getCond())));
+    //             return new Pair<IRVariable, IRLiteral>(((IRIcmp) S).getDest(), Literal);
+    //         }
+    //         return null;
+    //     }
+    //     return null;
+    // }
 
-    public int InnerCompute(String lhsStr, String rhsStr, String op) {
-        int lhs = lhsStr.equals("null") ? 0 : Integer.parseInt(lhsStr);
-        int rhs = rhsStr.equals("null") ? 0 : Integer.parseInt(rhsStr);
-        switch (op) {
-            case "add":
-                return lhs + rhs;
-            case "sub":
-                return lhs - rhs;
-            case "mul":
-                return lhs * rhs;
-            case "sdiv": {
-                if (rhs == 0) {
-                    return 0;
-                }
-                return lhs / rhs;
-            }
+    // public int InnerCompute(String lhsStr, String rhsStr, String op) {
+    //     int lhs = lhsStr.equals("null") ? 0 : Integer.parseInt(lhsStr);
+    //     int rhs = rhsStr.equals("null") ? 0 : Integer.parseInt(rhsStr);
+    //     switch (op) {
+    //         case "add":
+    //             return lhs + rhs;
+    //         case "sub":
+    //             return lhs - rhs;
+    //         case "mul":
+    //             return lhs * rhs;
+    //         case "sdiv": {
+    //             if (rhs == 0) {
+    //                 return 0;
+    //             }
+    //             return lhs / rhs;
+    //         }
 
-            case "srem":
-                return lhs % rhs;
-            case "shl":
-                return lhs << rhs;
-            case "ashr":
-                return lhs >> rhs;
-            case "and":
-                return lhs & rhs;
-            case "or":
-                return lhs | rhs;
-            case "xor":
-                return lhs ^ rhs;
-            case "eq":
-                return lhs == rhs ? 1 : 0;
-            case "ne":
-                return lhs != rhs ? 1 : 0;
-            case "slt":
-                return lhs < rhs ? 1 : 0;
-            case "sgt":
-                return lhs > rhs ? 1 : 0;
-            case "sle":
-                return lhs <= rhs ? 1 : 0;
-            case "sge":
-                return lhs >= rhs ? 1 : 0;
-            default:
-                throw new OPTError("Invalid op in InnerCompute");
-        }
-    }
+    //         case "srem":
+    //             return lhs % rhs;
+    //         case "shl":
+    //             return lhs << rhs;
+    //         case "ashr":
+    //             return lhs >> rhs;
+    //         case "and":
+    //             return lhs & rhs;
+    //         case "or":
+    //             return lhs | rhs;
+    //         case "xor":
+    //             return lhs ^ rhs;
+    //         case "eq":
+    //             return lhs == rhs ? 1 : 0;
+    //         case "ne":
+    //             return lhs != rhs ? 1 : 0;
+    //         case "slt":
+    //             return lhs < rhs ? 1 : 0;
+    //         case "sgt":
+    //             return lhs > rhs ? 1 : 0;
+    //         case "sle":
+    //             return lhs <= rhs ? 1 : 0;
+    //         case "sge":
+    //             return lhs >= rhs ? 1 : 0;
+    //         default:
+    //             throw new OPTError("Invalid op in InnerCompute");
+    //     }
+    // }
 
     public boolean isSideEffect(IRInst inst) {
         if (inst instanceof IRCall) {
@@ -1208,7 +1210,7 @@ public class SSA implements IRVisitor<OPTError> {
         for (var para : funcDef.getParams()) {
             Var2Def.put(para, null);
         }
-        for (var block : funcDef.getOrder2Block()) {
+        for (var block : funcDef.getBlockstmts()) {
             block.accept(this);
         }
         return new OPTError();

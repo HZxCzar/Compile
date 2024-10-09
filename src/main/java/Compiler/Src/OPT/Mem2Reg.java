@@ -47,6 +47,7 @@ public class Mem2Reg {
         PostOrder = new ArrayList<IRBlock>();
         visited = new HashSet<IRBlock>();
         buildDom(func);
+        // new DomTreeBuilder().visit(func);
         insertPhi(func);
         rename(func);
     }
@@ -94,7 +95,8 @@ public class Mem2Reg {
         boolean run = true;
         while (run) {
             run = false;
-            for (var block : func.getOrder2Block()) {
+            for (int i = PostOrder.size() - 1; i >= 0; --i) {
+                var block = PostOrder.get(i);
                 if (block == entryBlock) {
                     continue;
                 }
@@ -102,22 +104,38 @@ public class Mem2Reg {
                     run = true;
                 }
             }
+
+            // for (var block : func.getOrder2Block()) {
+            //     if (block == entryBlock) {
+            //         continue;
+            //     }
+            //     if (calcIdom(block)) {
+            //         run = true;
+            //     }
+            // }
         }
 
         // build DomFrontier
-        for (var block : func.getOrder2Block()) {
+        for (int i = PostOrder.size() - 1; i >= 0; --i) {
+            var block = PostOrder.get(i);
             if (block.getIdom() != block) {
                 block.getIdom().getDomChildren().add(block);
             }
             calcDF(block);
         }
+        // for (var block : func.getOrder2Block()) {
+        //     if (block.getIdom() != block) {
+        //         block.getIdom().getDomChildren().add(block);
+        //     }
+        //     calcDF(block);
+        // }
         return;
     }
 
     public boolean calcIdom(IRBlock block) {
         IRBlock newIdom = null;
         for (var pred : block.getPredecessors()) {
-            if (newIdom == null && pred.getIdom() != null) {//???
+            if (newIdom == null && pred.getIdom() != null) {// ???
                 newIdom = pred;
             } else if (pred.getIdom() != null) {
                 newIdom = intersect(pred, newIdom);
@@ -133,16 +151,18 @@ public class Mem2Reg {
     public IRBlock intersect(IRBlock b1, IRBlock b2) { // LCA
         while (b1 != b2) {
             while (PostOrder.indexOf(b1) < PostOrder.indexOf(b2)) {
-            b1 = b1.getIdom();
+                b1 = b1.getIdom();
             }
             while (PostOrder.indexOf(b1) > PostOrder.indexOf(b2)) {
-            b2 = b2.getIdom();
+                b2 = b2.getIdom();
             }
-            // while (currentFunc.getBlock2Order().get(b1) < currentFunc.getBlock2Order().get(b2)) {
-            //     b1 = b1.getIdom();
+            // while (currentFunc.getBlock2Order().get(b1) <
+            // currentFunc.getBlock2Order().get(b2)) {
+            // b1 = b1.getIdom();
             // }
-            // while (currentFunc.getBlock2Order().get(b1) > currentFunc.getBlock2Order().get(b2)) {
-            //     b2 = b2.getIdom();
+            // while (currentFunc.getBlock2Order().get(b1) >
+            // currentFunc.getBlock2Order().get(b2)) {
+            // b2 = b2.getIdom();
             // }
         }
         return b1;
@@ -419,24 +439,29 @@ public class Mem2Reg {
                     phiList.get(key).getLabels().add(block.getLabelName());
                 }
             }
-            for(int i=block.getDomChildren().size()-1;i>=0;--i)
-            {
+            for (var Domchild : block.getDomChildren()) {
                 var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-                var Domchild = block.getDomChildren().get(i);
-                if (visited.contains(Domchild)) {
-                    System.out.println("Error");
-                }
                 visited.add(Domchild);
                 WorkStack.push(new Pair<>(Domchild, var2entity2));
             }
+            // for(int i=block.getDomChildren().size()-1;i>=0;--i)
+            // {
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // var Domchild = block.getDomChildren().get(i);
+            // if (visited.contains(Domchild)) {
+            // System.out.println("Error");
+            // }
+            // visited.add(Domchild);
+            // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // }
             // for (var Domchild : block.getDomChildren()) {
-            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            //     // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
-            //     if (visited.contains(Domchild)) {
-            //         System.out.println("Error");
-            //     }
-            //     visited.add(Domchild);
-            //     WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
+            // if (visited.contains(Domchild)) {
+            // System.out.println("Error");
+            // }
+            // visited.add(Domchild);
+            // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
         }
     }
