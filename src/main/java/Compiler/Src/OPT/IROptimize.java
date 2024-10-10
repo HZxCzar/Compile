@@ -8,9 +8,9 @@ public class IROptimize {
         new Inlining().visit(root);
         new CFGBuilder().visit(root);
         new Mem2Reg().visit(root);
-        new SSA().visit(root);
+        // new SSA().visit(root);
         new ADCE().visit(root);
-        new CSE().visit(root);
+        // new CSE().visit(root);
         return;
     }
 }

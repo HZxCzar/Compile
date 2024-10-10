@@ -262,9 +262,9 @@ public class Mem2Reg {
         // }
         var reg2entity = new HashMap<IRVariable, IREntity>();
         // renameBlock(entryBlock, var2entity, reg2entity);
-        BlockRename(entryBlock, var2entity, reg2entity);
+        BlockRename(entryBlock, var2entity, reg2entity, 0);
         var2entity = new HashMap<IRVariable, IREntity>();
-        BlockRename(entryBlock, var2entity, reg2entity);
+        BlockRename(entryBlock, var2entity, reg2entity, 1);
     }
 
     public void renameBlock(IRBlock block, HashMap<IRVariable, IREntity> var2entity,
@@ -354,7 +354,7 @@ public class Mem2Reg {
     }
 
     public void BlockRename(IRBlock entryblock, HashMap<IRVariable, IREntity> entryvar2entity,
-            HashMap<IRVariable, IREntity> entryreg2entity) {
+            HashMap<IRVariable, IREntity> entryreg2entity, Integer Round) {
         visited = new HashSet<IRBlock>();
         Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> WorkStack = new Stack<>();
         WorkStack.push(new Pair<>(entryblock, entryvar2entity));
@@ -427,34 +427,36 @@ public class Mem2Reg {
                     block.getReturnInst().replaceUse(use, reg2entity.get(use));
                 }
             }
-            for (var succ : block.getSuccessors()) {
-                var phiList = succ.getPhiList();
-                for (var key : phiList.keySet()) {
-                    if (key.equals(phiList.get(key).getDest())) {// TO FIX
-                        continue;
+            if (Round == 0) {
+                for (var succ : block.getSuccessors()) {
+                    var phiList = succ.getPhiList();
+                    for (var key : phiList.keySet()) {
+                        if (key.equals(phiList.get(key).getDest())) {// TO FIX
+                            continue;
+                        }
+                        var entity = var2entity.get(key);
+                        if (entity == null) {
+                            entity = new IRLiteral(phiList.get(key).getType(), "0");
+                        }
+                        phiList.get(key).getVals().add(entity);
+                        phiList.get(key).getLabels().add(block.getLabelName());
                     }
-                    var entity = var2entity.get(key);
-                    if (entity == null) {
-                        entity = new IRLiteral(phiList.get(key).getType(), "0");
-                    }
-                    phiList.get(key).getVals().add(entity);
-                    phiList.get(key).getLabels().add(block.getLabelName());
                 }
             }
             // Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> TMP = new Stack<>();
             // for (var Domchild : block.getDomChildren()) {
-            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            //     visited.add(Domchild);
-            //     TMP.push(new Pair<>(Domchild, var2entity2));
-            //     // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // visited.add(Domchild);
+            // TMP.push(new Pair<>(Domchild, var2entity2));
+            // // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
             // for (var Domchild : block.getDomChildren()) {
-            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            //     TMP.push(new Pair<>(Domchild, var2entity2));
-            //     // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // TMP.push(new Pair<>(Domchild, var2entity2));
+            // // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
             // while (!TMP.empty()) {
-            //     WorkStack.push(TMP.pop());
+            // WorkStack.push(TMP.pop());
             // }
             // for (int i = block.getDomChildren().size() - 1; i >= 0; --i) {
             // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
@@ -468,9 +470,9 @@ public class Mem2Reg {
                 WorkStack.push(new Pair<>(Domchild, var2entity2));
             }
             // for (var Domchild : block.getDomChildren()) {
-            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            //     visited.add(Domchild);
-            //     WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // visited.add(Domchild);
+            // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
         }
     }
