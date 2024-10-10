@@ -461,22 +461,22 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             var rhs = IRLiteral2Int((IRLiteral) node.getRhs());
             switch (cond) {
                 case "eq" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs == rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs == rhs ? 1 : 0));
                 }
                 case "ne" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs != rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs != rhs ? 1 : 0));
                 }
                 case "slt" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs < rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs < rhs ? 1 : 0));
                 }
                 case "sgt" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs > rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs > rhs ? 1 : 0));
                 }
                 case "sle" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs <= rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs <= rhs ? 1 : 0));
                 }
                 case "sge" -> {
-                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getA0(), lhs >= rhs ? 1 : 0));
+                    InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, Dest, lhs >= rhs ? 1 : 0));
                 }
                 default -> throw new ASMError("Unknown Binary operation");
             }
