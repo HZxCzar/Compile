@@ -14,8 +14,8 @@ import Compiler.Src.IR.Node.Inst.IRRet;
 
 public class CFGBuilder {
     private HashMap<IRLabel, IRBlock> label2Block;
-    private HashSet<IRBlock> visited = new HashSet<>();
-    private IRFuncDef currentFunc;
+    // private HashSet<IRBlock> visited = new HashSet<>();
+    // private IRFuncDef currentFunc;
 
     public void visit(IRRoot root) {
         for (var func : root.getFuncs()) {
@@ -33,9 +33,9 @@ public class CFGBuilder {
 
     public void visit(IRFuncDef funcDef) {
         var blocks = funcDef.getBlockstmts();
-        currentFunc = funcDef;
+        // currentFunc = funcDef;
         label2Block = new HashMap<IRLabel, IRBlock>();
-        visited = new HashSet<IRBlock>();
+        // visited = new HashSet<IRBlock>();
         for (var block : blocks) {
             label2Block.put(block.getLabelName(), block);
         }

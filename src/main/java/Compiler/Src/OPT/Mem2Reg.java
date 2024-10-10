@@ -267,92 +267,6 @@ public class Mem2Reg {
         BlockRename(entryBlock, var2entity, reg2entity, 1);
     }
 
-    public void renameBlock(IRBlock block, HashMap<IRVariable, IREntity> var2entity,
-            HashMap<IRVariable, IREntity> reg2entity) {
-        for (var phi : block.getPhiList().keySet()) {
-            var2entity.put(phi, block.getPhiList().get(phi).getDest());
-        }
-        // var reg2entity = new HashMap<IRVariable, IREntity>();
-        for (var pair : block.getPhiList().entrySet()) {
-            if (!pair.getKey().equals(pair.getValue().getDest())) {
-                continue;
-            }
-            for (var val : pair.getValue().getVals()) {
-                if (val instanceof IRVariable && reg2entity.containsKey(val)) {
-                    pair.getValue().replaceUse((IRVariable) val, reg2entity.get(val));
-                }
-            }
-        }
-        var newInstList = new ArrayList<IRInst>();
-        for (var inst : block.getInsts()) {
-            if (inst instanceof IRAlloca) {
-                continue;
-            } else if (inst instanceof IRStore) {
-                if (((IRStore) inst).getDest().isParameter()) {
-                    var entity = ((IRStore) inst).getSrc();
-                    if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
-                        entity = reg2entity.get(entity);
-                    }
-                    var2entity.put(((IRStore) inst).getDest(), entity);
-                    continue;
-                }
-            } else if (inst instanceof IRLoad) {
-                if (((IRLoad) inst).getPtr().isParameter()) {
-                    var entity = var2entity.get(((IRLoad) inst).getPtr());
-                    if (entity == null) {
-                        entity = new IRLiteral(((IRLoad) inst).getDest().getType(), "0"); // alloca完第一次取
-                    } else if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
-                        entity = reg2entity.get(entity);
-                    }
-                    reg2entity.put(((IRLoad) inst).getDest(), entity);
-                    continue;
-                }
-            } else if (inst instanceof IRCall && ((IRCall) inst).getFuncName().equals("__string.copy")) {
-                if (((IRVariable) ((IRCall) inst).getArgs().get(0)).isParameter()) {
-                    var entity = ((IRCall) inst).getArgs().get(1);
-                    if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
-                        entity = reg2entity.get(entity);
-                    }
-                    var2entity.put((IRVariable) ((IRCall) inst).getArgs().get(0), entity);
-                    continue;
-                }
-            }
-            var uses = inst.getUses();
-            for (var use : uses) {
-                if (reg2entity.containsKey(use)) {
-                    inst.replaceUse(use, reg2entity.get(use));
-                }
-            }
-            newInstList.add(inst);
-        }
-
-        block.setInsts(newInstList);
-        for (var use : block.getReturnInst().getUses()) {
-            if (reg2entity.containsKey(use)) {
-                block.getReturnInst().replaceUse(use, reg2entity.get(use));
-            }
-        }
-        for (var succ : block.getSuccessors()) {
-            var phiList = succ.getPhiList();
-            for (var key : phiList.keySet()) {
-                if (key.equals(phiList.get(key).getDest())) {// TO FIX
-                    continue;
-                }
-                var entity = var2entity.get(key);
-                if (entity == null) {
-                    entity = new IRLiteral(phiList.get(key).getType(), "0");
-                }
-                phiList.get(key).getVals().add(entity);
-                phiList.get(key).getLabels().add(block.getLabelName());
-            }
-        }
-        for (var Domchild : block.getDomChildren()) {
-            var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
-            renameBlock(Domchild, var2entity2, reg2entity);
-        }
-    }
-
     public void BlockRename(IRBlock entryblock, HashMap<IRVariable, IREntity> entryvar2entity,
             HashMap<IRVariable, IREntity> entryreg2entity, Integer Round) {
         visited = new HashSet<IRBlock>();
@@ -477,3 +391,89 @@ public class Mem2Reg {
         }
     }
 }
+
+// public void renameBlock(IRBlock block, HashMap<IRVariable, IREntity> var2entity,
+//             HashMap<IRVariable, IREntity> reg2entity) {
+//         for (var phi : block.getPhiList().keySet()) {
+//             var2entity.put(phi, block.getPhiList().get(phi).getDest());
+//         }
+//         // var reg2entity = new HashMap<IRVariable, IREntity>();
+//         for (var pair : block.getPhiList().entrySet()) {
+//             if (!pair.getKey().equals(pair.getValue().getDest())) {
+//                 continue;
+//             }
+//             for (var val : pair.getValue().getVals()) {
+//                 if (val instanceof IRVariable && reg2entity.containsKey(val)) {
+//                     pair.getValue().replaceUse((IRVariable) val, reg2entity.get(val));
+//                 }
+//             }
+//         }
+//         var newInstList = new ArrayList<IRInst>();
+//         for (var inst : block.getInsts()) {
+//             if (inst instanceof IRAlloca) {
+//                 continue;
+//             } else if (inst instanceof IRStore) {
+//                 if (((IRStore) inst).getDest().isParameter()) {
+//                     var entity = ((IRStore) inst).getSrc();
+//                     if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
+//                         entity = reg2entity.get(entity);
+//                     }
+//                     var2entity.put(((IRStore) inst).getDest(), entity);
+//                     continue;
+//                 }
+//             } else if (inst instanceof IRLoad) {
+//                 if (((IRLoad) inst).getPtr().isParameter()) {
+//                     var entity = var2entity.get(((IRLoad) inst).getPtr());
+//                     if (entity == null) {
+//                         entity = new IRLiteral(((IRLoad) inst).getDest().getType(), "0"); // alloca完第一次取
+//                     } else if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
+//                         entity = reg2entity.get(entity);
+//                     }
+//                     reg2entity.put(((IRLoad) inst).getDest(), entity);
+//                     continue;
+//                 }
+//             } else if (inst instanceof IRCall && ((IRCall) inst).getFuncName().equals("__string.copy")) {
+//                 if (((IRVariable) ((IRCall) inst).getArgs().get(0)).isParameter()) {
+//                     var entity = ((IRCall) inst).getArgs().get(1);
+//                     if (entity instanceof IRVariable && reg2entity.containsKey((IRVariable) entity)) {
+//                         entity = reg2entity.get(entity);
+//                     }
+//                     var2entity.put((IRVariable) ((IRCall) inst).getArgs().get(0), entity);
+//                     continue;
+//                 }
+//             }
+//             var uses = inst.getUses();
+//             for (var use : uses) {
+//                 if (reg2entity.containsKey(use)) {
+//                     inst.replaceUse(use, reg2entity.get(use));
+//                 }
+//             }
+//             newInstList.add(inst);
+//         }
+
+//         block.setInsts(newInstList);
+//         for (var use : block.getReturnInst().getUses()) {
+//             if (reg2entity.containsKey(use)) {
+//                 block.getReturnInst().replaceUse(use, reg2entity.get(use));
+//             }
+//         }
+//         for (var succ : block.getSuccessors()) {
+//             var phiList = succ.getPhiList();
+//             for (var key : phiList.keySet()) {
+//                 if (key.equals(phiList.get(key).getDest())) {// TO FIX
+//                     continue;
+//                 }
+//                 var entity = var2entity.get(key);
+//                 if (entity == null) {
+//                     entity = new IRLiteral(phiList.get(key).getType(), "0");
+//                 }
+//                 phiList.get(key).getVals().add(entity);
+//                 phiList.get(key).getLabels().add(block.getLabelName());
+//             }
+//         }
+//         for (var Domchild : block.getDomChildren()) {
+//             var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+//             // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
+//             renameBlock(Domchild, var2entity2, reg2entity);
+//         }
+//     }

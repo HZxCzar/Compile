@@ -31,7 +31,7 @@ import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 import lombok.Builder.Default;
 
-public class SSA implements IRVisitor<OPTError> {
+public class SCCP implements IRVisitor<OPTError> {
     private HashSet<IRInst> EreaseWorkSet = new HashSet<>();
     private HashMap<IRVariable, IRInst> Var2Def = new HashMap<>();
     private HashMap<IRVariable, IRGlobalDef> Var2GDef = new HashMap<>();
@@ -52,13 +52,13 @@ public class SSA implements IRVisitor<OPTError> {
         Collect(root);
         Run(root);
         new CFGBuilder().visit(root);
-        root.getFuncs().forEach(func -> SCCP(func));
+        root.getFuncs().forEach(func -> work(func));
         // Erease(root);
         // CodeMove(root);
         return new OPTError();
     }
 
-    public void SCCP(IRFuncDef func) {
+    public void work(IRFuncDef func) {
         V = new HashMap<>();
         Excutable = new HashSet<>();
         Var2Use = new HashMap<IRVariable, HashSet<IRInst>>();

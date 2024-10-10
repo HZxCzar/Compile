@@ -65,6 +65,7 @@ public class ADCE {
             Work();
             Update(func);
         }
+        new CFGBuilder().visit(root);
         return new OPTError();
     }
 
