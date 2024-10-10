@@ -11,6 +11,7 @@ public class IROptimize {
         new ADCE().visit(root);
         new SCCP().visit(root);
         new CSE().visit(root);
+        new RovB().visit(root);
         return;
     }
 }

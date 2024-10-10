@@ -118,7 +118,7 @@ public class SCCP implements IRVisitor<OPTError> {
             while (!WorkListB.isEmpty()) {
                 var block = WorkListB.iterator().next();
                 WorkListB.remove(block);
-                if(block.getLabelName().getLabel().equals("if.3.cond")) {
+                if(block.getLabelName().getLabel().equals("inline.2")) {
                     int a = 1;
                 }
                 for (var phiInst : block.getPhiList().values()) {
@@ -639,6 +639,9 @@ public class SCCP implements IRVisitor<OPTError> {
         }
         var Blockstmts = new ArrayList<IRBlock>();
         for (var block : func.getBlockstmts()) {
+            if(block.getLabelName().getLabel().equals("inline.2")) {
+                int a = 1;
+            }
             if (Excutable.contains(block)) {
                 var PhiList = new HashMap<IRVariable, IRPhi>();
                 for (var phiInst : block.getPhiList().values()) {
