@@ -263,6 +263,8 @@ public class Mem2Reg {
         var reg2entity = new HashMap<IRVariable, IREntity>();
         // renameBlock(entryBlock, var2entity, reg2entity);
         BlockRename(entryBlock, var2entity, reg2entity);
+        var2entity = new HashMap<IRVariable, IREntity>();
+        BlockRename(entryBlock, var2entity, reg2entity);
     }
 
     public void renameBlock(IRBlock block, HashMap<IRVariable, IREntity> var2entity,
@@ -441,28 +443,34 @@ public class Mem2Reg {
             }
             // Stack<Pair<IRBlock, HashMap<IRVariable, IREntity>>> TMP = new Stack<>();
             // for (var Domchild : block.getDomChildren()) {
-            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            // visited.add(Domchild);
-            // TMP.push(new Pair<>(Domchild, var2entity2));
-            // // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            //     visited.add(Domchild);
+            //     TMP.push(new Pair<>(Domchild, var2entity2));
+            //     // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // }
+            // for (var Domchild : block.getDomChildren()) {
+            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            //     TMP.push(new Pair<>(Domchild, var2entity2));
+            //     // WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
             // while (!TMP.empty()) {
-            // WorkStack.push(TMP.pop());
+            //     WorkStack.push(TMP.pop());
             // }
-            for (int i = block.getDomChildren().size() - 1; i >= 0; --i) {
+            // for (int i = block.getDomChildren().size() - 1; i >= 0; --i) {
+            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            // var Domchild = block.getDomChildren().get(i);
+            // visited.add(Domchild);
+            // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            // }
+            for (var Domchild : block.getDomChildren()) {
                 var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-                var Domchild = block.getDomChildren().get(i);
                 visited.add(Domchild);
                 WorkStack.push(new Pair<>(Domchild, var2entity2));
             }
             // for (var Domchild : block.getDomChildren()) {
-            // var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
-            // // var reg2entity2 = new HashMap<IRVariable, IREntity>(reg2entity);
-            // if (visited.contains(Domchild)) {
-            // System.out.println("Error");
-            // }
-            // visited.add(Domchild);
-            // WorkStack.push(new Pair<>(Domchild, var2entity2));
+            //     var var2entity2 = new HashMap<IRVariable, IREntity>(var2entity);
+            //     visited.add(Domchild);
+            //     WorkStack.push(new Pair<>(Domchild, var2entity2));
             // }
         }
     }

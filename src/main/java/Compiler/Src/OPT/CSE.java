@@ -73,125 +73,131 @@ public class CSE {
         Var2Use = new HashMap<>();
         Collect(func);
         q = new LinkedList<>();
-        q.add(func.getBlockstmts().get(0));
         HashMap<RHS, ArrayList<IRVariable>> destMap = new HashMap<>();
         HashMap<RHS, ArrayList<IRBlock>> blockMap = new HashMap<>();
-        while (!q.isEmpty()) {
-            var block = q.poll();
-            for (int ind = 0; ind < block.getInsts().size(); ++ind) {
-                var inst = block.getInsts().get(ind);
-                RHS rhs1 = null, rhs2 = null;
-                if (inst instanceof IRArith) {
-                    rhs1 = new RHS(((IRArith) inst).getOp(), ((IRArith) inst).getLhs(), ((IRArith) inst).getRhs());
-                    var op = ((IRArith) inst).getOp();
-                    switch (op) {
-                        case "add":
-                            rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
-                                    ((IRArith) inst).getLhs());
-                            break;
-                        case "mul":
-                            rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
-                                    ((IRArith) inst).getLhs());
-                            break;
-                        case "and":
-                            rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
-                                    ((IRArith) inst).getLhs());
-                            break;
-                        case "or":
-                            rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
-                                    ((IRArith) inst).getLhs());
-                            break;
-                        case "xor":
-                            rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
-                                    ((IRArith) inst).getLhs());
-                            break;
+        for (int round = 0; round < 2; ++round) {
+            q.add(func.getBlockstmts().get(0));
+            while (!q.isEmpty()) {
+                var block = q.poll();
+                for (int ind = 0; ind < block.getInsts().size(); ++ind) {
+                    var inst = block.getInsts().get(ind);
+                    RHS rhs1 = null, rhs2 = null;
+                    if (inst instanceof IRArith) {
+                        rhs1 = new RHS(((IRArith) inst).getOp(), ((IRArith) inst).getLhs(), ((IRArith) inst).getRhs());
+                        var op = ((IRArith) inst).getOp();
+                        switch (op) {
+                            case "add":
+                                rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
+                                        ((IRArith) inst).getLhs());
+                                break;
+                            case "mul":
+                                rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
+                                        ((IRArith) inst).getLhs());
+                                break;
+                            case "and":
+                                rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
+                                        ((IRArith) inst).getLhs());
+                                break;
+                            case "or":
+                                rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
+                                        ((IRArith) inst).getLhs());
+                                break;
+                            case "xor":
+                                rhs2 = new RHS(op, ((IRArith) inst).getRhs(),
+                                        ((IRArith) inst).getLhs());
+                                break;
 
-                        default:
-                            break;
-                    }
-                } else if (inst instanceof IRIcmp) {
-                    rhs1 = new RHS(((IRIcmp) inst).getCond(), ((IRIcmp) inst).getLhs(), ((IRIcmp) inst).getRhs());
-                    var op = ((IRIcmp) inst).getCond();
-                    switch (op) {
-                        case "eq":
-                            rhs2 = new RHS(op, ((IRIcmp) inst).getRhs(),
-                                    ((IRIcmp) inst).getLhs());
-                            break;
-                        case "neq":
-                            rhs2 = new RHS(op, ((IRIcmp) inst).getRhs(),
-                                    ((IRIcmp) inst).getLhs());
-                            break;
-                        default:
-                            break;
-                    }
-                } else if (inst instanceof IRGetelementptr) {
-                    rhs1 = new RHS("IRGetelementptr", ((IRGetelementptr) inst).getPtr(), ((IRGetelementptr) inst)
-                            .getInfolist().get(((IRGetelementptr) inst).getInfolist().size() - 1));
-                } else {
-                    continue;
-                }
-                boolean flag = false;
-                if (destMap.get(rhs1) != null) {
-                    var destList = destMap.get(rhs1);
-                    var blockList = blockMap.get(rhs1);
-                    for (int i = 0; i < destList.size(); ++i) {
-                        if (isDomChildren(block, blockList.get(i))) {
-                            flag = true;
-                            replaceVariable(inst.getDef(), destList.get(i));
-                            block.getInsts().remove(ind);
-                            --ind;
-                            for (var use : inst.getUses()) {
-                                Var2Use.get(use).remove(inst);
-                            }
-                            break;
+                            default:
+                                break;
                         }
-                    }
-                }
-                if (!flag && rhs2 != null && destMap.get(rhs2) != null) {
-                    var destList = destMap.get(rhs2);
-                    var blockList = blockMap.get(rhs2);
-                    for (int i = 0; i < destList.size(); ++i) {
-                        if (isDomChildren(block, blockList.get(i))) {
-                            flag = true;
-                            replaceVariable(inst.getDef(), destList.get(i));
-                            block.getInsts().remove(ind);
-                            --ind;
-                            for (var use : inst.getUses()) {
-                                Var2Use.get(use).remove(inst);
-                            }
-                            break;
+                    } else if (inst instanceof IRIcmp) {
+                        rhs1 = new RHS(((IRIcmp) inst).getCond(), ((IRIcmp) inst).getLhs(), ((IRIcmp) inst).getRhs());
+                        var op = ((IRIcmp) inst).getCond();
+                        switch (op) {
+                            case "eq":
+                                rhs2 = new RHS(op, ((IRIcmp) inst).getRhs(),
+                                        ((IRIcmp) inst).getLhs());
+                                break;
+                            case "neq":
+                                rhs2 = new RHS(op, ((IRIcmp) inst).getRhs(),
+                                        ((IRIcmp) inst).getLhs());
+                                break;
+                            default:
+                                break;
                         }
-                    }
-                }
-                if (!flag) {
-                    if (destMap.get(rhs1) != null) {
-                        destMap.get(rhs1).add(inst.getDef());
-                        blockMap.get(rhs1).add(block);
+                    } else if (inst instanceof IRGetelementptr) {
+                        rhs1 = new RHS("IRGetelementptr", ((IRGetelementptr) inst).getPtr(), ((IRGetelementptr) inst)
+                                .getInfolist().get(((IRGetelementptr) inst).getInfolist().size() - 1));
                     } else {
-                        ArrayList<IRVariable> destList = new ArrayList<IRVariable>();
-                        destList.add(inst.getDef());
-                        destMap.put(rhs1, destList);
-                        ArrayList<IRBlock> blockList = new ArrayList<IRBlock>();
-                        blockList.add(block);
-                        blockMap.put(rhs1, blockList);
+                        continue;
                     }
-                    if (rhs2 != null) {
-                        if (destMap.get(rhs2) != null) {
-                            destMap.get(rhs2).add(inst.getDef());
-                            blockMap.get(rhs2).add(block);
+                    boolean flag = false;
+                    if (destMap.get(rhs1) != null) {
+                        var destList = destMap.get(rhs1);
+                        var blockList = blockMap.get(rhs1);
+                        for (int i = 0; i < destList.size(); ++i) {
+                            if (isDomChildren(block, blockList.get(i)) && !inst.getDef().equals(destList.get(i))) {
+                                flag = true;
+                                replaceVariable(inst.getDef(), destList.get(i));
+                                block.getInsts().remove(ind);
+                                --ind;
+                                for (var use : inst.getUses()) {
+                                    Var2Use.get(use).remove(inst);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (!flag && rhs2 != null && destMap.get(rhs2) != null) {
+                        var destList = destMap.get(rhs2);
+                        var blockList = blockMap.get(rhs2);
+                        for (int i = 0; i < destList.size(); ++i) {
+                            if (isDomChildren(block, blockList.get(i)) && !inst.getDef().equals(destList.get(i))) {
+                                flag = true;
+                                replaceVariable(inst.getDef(), destList.get(i));
+                                block.getInsts().remove(ind);
+                                --ind;
+                                for (var use : inst.getUses()) {
+                                    Var2Use.get(use).remove(inst);
+                                }
+                                break;
+                            }
+                        }
+                    }
+                    if (!flag) {
+                        if (destMap.get(rhs1) != null) {
+                            if (!destMap.get(rhs1).contains(inst.getDef())) {
+                                destMap.get(rhs1).add(inst.getDef());
+                                blockMap.get(rhs1).add(block);
+                            }
                         } else {
                             ArrayList<IRVariable> destList = new ArrayList<IRVariable>();
                             destList.add(inst.getDef());
-                            destMap.put(rhs2, destList);
+                            destMap.put(rhs1, destList);
                             ArrayList<IRBlock> blockList = new ArrayList<IRBlock>();
                             blockList.add(block);
-                            blockMap.put(rhs2, blockList);
+                            blockMap.put(rhs1, blockList);
+                        }
+                        if (rhs2 != null) {
+                            if (destMap.get(rhs2) != null) {
+                                if (!destMap.get(rhs2).contains(inst.getDef())) {
+                                    destMap.get(rhs2).add(inst.getDef());
+                                    blockMap.get(rhs2).add(block);
+                                }
+                            } else {
+                                ArrayList<IRVariable> destList = new ArrayList<IRVariable>();
+                                destList.add(inst.getDef());
+                                destMap.put(rhs2, destList);
+                                ArrayList<IRBlock> blockList = new ArrayList<IRBlock>();
+                                blockList.add(block);
+                                blockMap.put(rhs2, blockList);
+                            }
                         }
                     }
                 }
-            }
-            for (var domchild : block.getDomChildren()) {
-                q.add(domchild);
+                for (var domchild : block.getDomChildren()) {
+                    q.add(domchild);
+                }
             }
         }
     }
