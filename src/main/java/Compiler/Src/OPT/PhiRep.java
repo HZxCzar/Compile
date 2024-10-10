@@ -32,10 +32,12 @@ import Compiler.Src.IR.Util.InstCounter;
 import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
+import lombok.val;
 
 public class PhiRep {
     HashMap<IRVariable, IREntity> varMap;
     HashMap<IRVariable, HashSet<IRInst>> Var2Use;
+    boolean change;
 
     public void visit(IRRoot root) {
         new CFGBuilder().visit(root);
@@ -43,39 +45,60 @@ public class PhiRep {
     }
 
     public void work_on_func(IRFuncDef func) {
-        varMap = new HashMap<>();
-        Var2Use = new HashMap<>();
-        init(func);
-        for(var origin:varMap.keySet())
-        {
-            var rep = varMap.get(origin);
-            while(rep instanceof IRVariable && varMap.containsKey(rep))
-            {
-                rep = varMap.get(rep);
+        change = true;
+        while (change) {
+            change = false;
+            varMap = new HashMap<>();
+            Var2Use = new HashMap<>();
+            for (var block : func.getBlockstmts()) {
+                for (var phiInst : block.getPhiList().values()) {
+                    for (int i = 0; i < phiInst.getVals().size(); ++i) {
+                        var label = phiInst.getLabels().get(i);
+                        var valid = false;
+                        for (var pred : block.getPredecessors()) {
+                            if (pred.getLabelName().equals(label)) {
+                                valid = true;
+                            }
+                        }
+                        if (!valid) {
+                            change = true;
+                            phiInst.getVals().remove(i);
+                            phiInst.getLabels().remove(i);
+                            --i;
+                        }
+                    }
+                }
             }
-            varMap.put(origin, rep);
-        }
-        for(var origin:varMap.keySet())
-        {
-            for(var inst:Var2Use.get(origin))
-            {
-                inst.replaceUse(origin, varMap.get(origin));
+            init(func);
+            for (var origin : varMap.keySet()) {
+                var rep = varMap.get(origin);
+                while (rep instanceof IRVariable && varMap.containsKey(rep)) {
+                    rep = varMap.get(rep);
+                }
+                varMap.put(origin, rep);
+            }
+            for (var origin : varMap.keySet()) {
+                for (var inst : Var2Use.get(origin)) {
+                    change = true;
+                    inst.replaceUse(origin, varMap.get(origin));
+                }
             }
         }
     }
 
     public void init(IRFuncDef func) {
-        for (var block : func.getBlockstmts()) {
-            var phiList = new HashMap<IRVariable, IRPhi>();
-            for (var phi : block.getPhiList().values()) {
-                if (phi.getVals().size() == 1) {
-                    varMap.put(phi.getDef(), phi.getVals().get(0));
-                } else {
-                    phiList.put(phi.getDef(), phi);
-                }
-            }
-            block.setPhiList(phiList);
-        }
+        // for (var block : func.getBlockstmts()) {
+        //     var phiList = new HashMap<IRVariable, IRPhi>();
+        //     for (var phi : block.getPhiList().values()) {
+        //         if (phi.getVals().size() == 1) {
+        //             change = true;
+        //             varMap.put(phi.getDef(), phi.getVals().get(0));
+        //         } else {
+        //             phiList.put(phi.getDef(), phi);
+        //         }
+        //     }
+        //     block.setPhiList(phiList);
+        // }
         for (var arg : func.getParams()) {
             Var2Use.put(arg, new HashSet<IRInst>());
         }
@@ -83,6 +106,7 @@ public class PhiRep {
             var phiList = new HashMap<IRVariable, IRPhi>();
             for (var phiInst : block.getPhiList().values()) {
                 if (phiInst.getVals().size() == 1) {
+                    change = true;
                     varMap.put(phiInst.getDef(), phiInst.getVals().get(0));
                 } else {
                     phiList.put(phiInst.getDef(), phiInst);
