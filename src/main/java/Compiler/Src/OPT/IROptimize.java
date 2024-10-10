@@ -10,7 +10,7 @@ public class IROptimize {
         new Mem2Reg().visit(root);
         new SSA().visit(root);
         new ADCE().visit(root);
-        // new CSE().visit(root);
+        new CSE().visit(root);
         return;
     }
 }
