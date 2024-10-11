@@ -3,6 +3,9 @@ package Compiler.Src.OPT;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.LinkedList;
+
+import org.antlr.v4.runtime.misc.Pair;
+
 import java.util.HashMap;
 import java.util.HashMap;
 
@@ -25,7 +28,7 @@ public class Inlining {
     private HashMap<String, Integer> Callednum;
     private HashMap<IRVariable, IREntity> param2name;
     private HashMap<String, IRFuncDef> name2func;
-    private HashMap<String,IRBlock> label2block;
+    private HashMap<Pair<IRFuncDef, String>, IRBlock> label2block;
     private int InlineCount;
     private IRPhi PhiInst;
     private IRLabel curBlock;
@@ -54,7 +57,7 @@ public class Inlining {
     public void calc(IRFuncDef func) {
         int calltime = 0;
         for (var block : func.getBlockstmts()) {
-            label2block.put(block.getLabelName().getLabel(), block);
+            label2block.put(new Pair<IRFuncDef, String>(func, block.getLabelName().getLabel()), block);
             for (var inst : block.getInsts()) {
                 if (inst instanceof IRCall) {
                     calltime++;
@@ -97,7 +100,7 @@ public class Inlining {
             var inlineBlocks = inline(targetfunc, callinst, block.getLoopDepth());
             var succBlock = new IRBlock(new IRLabel("inline." + InlineCount, block.getLoopDepth()),
                     block.getLoopDepth());
-            label2block.put(succBlock.getLabelName().getLabel(), succBlock);
+            label2block.put(new Pair<IRFuncDef, String>(func, succBlock.getLabelName().getLabel()), succBlock);
             var prevInsts = new ArrayList<IRInst>();
             for (int j = 0; j < InlineIndex; ++j) {
                 prevInsts.add(block.getInsts().get(j));
@@ -115,16 +118,16 @@ public class Inlining {
             }
             inlineBlocks.add(succBlock);
             func.getBlockstmts().addAll(i + 1, inlineBlocks);
-            if(succBlock.getReturnInst() instanceof IRBranch)
-            {
-                var branch = (IRBranch)succBlock.getReturnInst();
-                if(branch.isJump())
-                {
-                    ModPhi(label2block.get(branch.getTrueLabel().getLabel()),block.getLabelName(),succBlock.getLabelName());
-                }
-                else{
-                    ModPhi(label2block.get(branch.getTrueLabel().getLabel()),block.getLabelName(),succBlock.getLabelName());
-                    ModPhi(label2block.get(branch.getFalseLabel().getLabel()),block.getLabelName(),succBlock.getLabelName());
+            if (succBlock.getReturnInst() instanceof IRBranch) {
+                var branch = (IRBranch) succBlock.getReturnInst();
+                if (branch.isJump()) {
+                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getTrueLabel().getLabel())), block.getLabelName(),
+                            succBlock.getLabelName());
+                } else {
+                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getTrueLabel().getLabel())), block.getLabelName(),
+                            succBlock.getLabelName());
+                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getFalseLabel().getLabel())), block.getLabelName(),
+                            succBlock.getLabelName());
                 }
             }
             ++InlineCount;
@@ -151,7 +154,7 @@ public class Inlining {
         for (var block : func.getBlockstmts()) {
             var newBlock = new IRBlock(new IRLabel(block.getLabelName().getLabel() + ".inline." + InlineCount,
                     block.getLoopDepth() + basedepth), block.getLoopDepth() + basedepth);
-            label2block.put(newBlock.getLabelName().getLabel(), newBlock);
+            label2block.put(new Pair<IRFuncDef, String>(func, newBlock.getLabelName().getLabel()), newBlock);
             curBlock = newBlock.getLabelName();
             for (var pair : block.getPhiList().entrySet()) {
                 newBlock.getPhiList().put((IRVariable) replaceEntity(pair.getKey()),
