@@ -10,10 +10,10 @@ public class IROptimize {
         new Tail().visit(root);
         new Inlining().visit(root);
         new ADCE().visit(root);
-        new Tail().visit(root);
-        new SCCP().visit(root);
-        new CSE().visit(root);
-        new RovB().visit(root);
+        // new Tail().visit(root);
+        // new SCCP().visit(root);
+        // new CSE().visit(root);
+        // new RovB().visit(root);
         return;
     }
 }
