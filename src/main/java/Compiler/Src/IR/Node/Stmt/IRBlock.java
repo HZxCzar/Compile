@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.TreeMap;
 
+import javax.print.DocFlavor.STRING;
+
+import Compiler.Src.ASM_New.Entity.ASMReg;
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Node.Inst.IRInst;
@@ -31,6 +34,15 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     private HashSet<IRBlock> DomChildren;
     private HashSet<IRBlock> RDomChildren;
 
+    // LiveAnalysis
+    private HashSet<IRVariable> liveIn;
+    private HashMap<IRLabel,HashSet<IRVariable>> liveInPhi;
+    private HashSet<IRVariable> liveOut;
+    public HashSet<IRVariable> uses = null;
+    public HashSet<IRVariable> def = null;
+    public HashMap<IRLabel,HashSet<IRVariable>> usesPhi = null;
+    public HashMap<IRLabel,HashSet<IRVariable>> defPhi = null;
+
     private HashMap<IRVariable, IRPhi> PhiList;
 
     private int loopDepth;
@@ -54,6 +66,15 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
         this.RDomChildren = new HashSet<IRBlock>();
 
         this.PhiList = new HashMap<IRVariable, IRPhi>();
+
+        // LiveAnalysis
+        this.liveIn = new HashSet<IRVariable>();
+        this.liveInPhi = new HashMap<IRLabel,HashSet<IRVariable>>();
+        this.liveOut = new HashSet<IRVariable>();
+        this.uses = new HashSet<IRVariable>();
+        this.def = new HashSet<IRVariable>();
+        this.usesPhi = new HashMap<IRLabel,HashSet<IRVariable>>();
+        this.defPhi = new HashMap<IRLabel,HashSet<IRVariable>>();
     }
 
     @Override
@@ -66,7 +87,7 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
         String str = labelName.toString() + ":\n";
         for (var phi : PhiList.values()) {
             str += "  " + phi.toString() + "\n";
-          }
+        }
         for (var inst : getInsts()) {
             str += "  " + inst.toString() + "\n";
         }
@@ -85,9 +106,9 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     }
 
     public void RemoveInst(IRInst inst) {
-        if(inst instanceof IRPhi) {
-            for(var var : getPhiList().entrySet()) {
-                if(var.getValue().equals(inst)) {
+        if (inst instanceof IRPhi) {
+            for (var var : getPhiList().entrySet()) {
+                if (var.getValue().equals(inst)) {
                     getPhiList().remove(var.getKey());
                     break;
                 }

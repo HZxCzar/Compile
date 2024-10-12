@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.TreeMap;
 
 import Compiler.Src.ASM_New.Util.ASMCounter;
+import Compiler.Src.ASM_New.Util.BuiltInRegs;
 import Compiler.Src.ASM_New.Entity.ASMReg;
 import Compiler.Src.ASM_New.ASMVisitor;
 import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
@@ -30,6 +31,8 @@ public class ASMBlock extends ASMStmt {
     public ArrayList<ASMBlock> pred = null;
     public ArrayList<ASMBlock> succ = null;
 
+    BuiltInRegs BuiltInRegs;
+
     // mem2reg
     private ArrayList<String> Successor;
     private ASMStmt PhiStmt;
@@ -51,6 +54,13 @@ public class ASMBlock extends ASMStmt {
 
         pred = new ArrayList<ASMBlock>();
         succ = new ArrayList<ASMBlock>();
+
+        BuiltInRegs = new BuiltInRegs();
+
+        liveIn.add(BuiltInRegs.getSp());
+        liveIn.add(BuiltInRegs.getRa());
+        liveOut.add(BuiltInRegs.getSp());
+        liveOut.add(BuiltInRegs.getRa());
     }
 
     public void PhiMove_Formal(ASMControl control) {

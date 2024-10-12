@@ -1,6 +1,7 @@
 package Compiler.Src.ASM_New.Allocator;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 
 import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
@@ -23,18 +24,45 @@ import Compiler.Src.Util.Error.OPTError;
 public class StackManager {
     BuiltInRegs regs;
     ASMBlock curBlock;
+    HashMap<ASMReg, Integer> color = new HashMap<>();
 
     public void visit(ASMRoot root) {
         regs = new BuiltInRegs();
         for (var func : root.getFuncs()) {
+            color = func.getColor();
             callmodify(func);
             work(func);
         }
     }
 
+    public ASMPhysicalReg getColor(ASMReg reg) {
+        if (reg instanceof ASMPhysicalReg) {
+            return (ASMPhysicalReg) reg;
+        } else {
+            if (color.get(reg) == null) {
+                throw new OPTError("getColor");
+                // int a=1;
+                // return null;
+            }
+            int imm = color.get(reg);
+            return regs.get(imm);
+        }
+    }
+
     public void callmodify(ASMFuncDef func) {
         for (var block : func.getBlocks()) {
-            var live = block.getLiveOut();
+            // var live = block.getLiveOut();
+            if(block.getLabel().getLabel().equals("sha1.if.13.end"))
+            {
+                int a=1;
+            }
+            HashSet<ASMReg> live = new HashSet<>();
+            for (var reg : block.getLiveOut()) {
+                // if(getColor(reg)!=null)
+                // {
+                    live.add(getColor(reg));
+                // }
+            }
             var returnInst = new ArrayList<ASMInst>();
             for (int i = block.getReturnInst().getInsts().size() - 1; i >= 0; --i) {
                 var inst = block.getReturnInst().getInsts().get(i);
@@ -96,11 +124,9 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
-                if(inst instanceof ASMCall)
-                {
-                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
-                    {
-                        live.add(((ASMCall)inst).getA(r));
+                if (inst instanceof ASMCall) {
+                    for (int r = 0; r < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize() : 8); ++r) {
+                        live.add(((ASMCall) inst).getA(r));
                     }
                 }
                 if (LoadInst != null) {
@@ -180,11 +206,9 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
-                if(inst instanceof ASMCall)
-                {
-                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
-                    {
-                        live.add(((ASMCall)inst).getA(r));
+                if (inst instanceof ASMCall) {
+                    for (int r = 0; r < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize() : 8); ++r) {
+                        live.add(((ASMCall) inst).getA(r));
                     }
                 }
                 if (LoadInst != null) {
@@ -264,11 +288,9 @@ public class StackManager {
                 for (var reg : inst.getUses()) {
                     live.add(reg);
                 }
-                if(inst instanceof ASMCall)
-                {
-                    for(int r=0;r<(((ASMCall)inst).getArgSize()<8?((ASMCall)inst).getArgSize():8);++r)
-                    {
-                        live.add(((ASMCall)inst).getA(r));
+                if (inst instanceof ASMCall) {
+                    for (int r = 0; r < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize() : 8); ++r) {
+                        live.add(((ASMCall) inst).getA(r));
                     }
                 }
                 if (LoadInst != null) {

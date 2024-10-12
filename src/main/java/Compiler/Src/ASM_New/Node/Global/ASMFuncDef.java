@@ -1,9 +1,11 @@
 package Compiler.Src.ASM_New.Node.Global;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import Compiler.Src.ASM_New.Entity.ASMReg;
 import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
 import Compiler.Src.ASM_New.ASMVisitor;
 import Compiler.Src.ASM_New.Node.ASMNode;
@@ -30,6 +32,8 @@ public class ASMFuncDef extends ASMNode {
 
     public int StackSize;
     public ASMVirtualReg topPointer;
+
+    public HashMap<ASMReg, Integer> color;
 
     public ASMFuncDef(String name, int paramCount) {
         this.name = name;
