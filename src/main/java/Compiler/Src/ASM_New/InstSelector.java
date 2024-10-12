@@ -123,6 +123,10 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             block.PhiMove_Formal(this);
         }
         initStmt.getSucc().add(funcBlocks.get(1));
+        for(int i=0;i<node.getParams().size();++i)
+        {
+            initStmt.getLiveOut().add(IR2ASM.get(node.getParams().get(i)));
+        }
         for (var succ : initStmt.getSucc()) {
             initStmt.getLiveOut().addAll(succ.getLiveOut());
         }

@@ -52,7 +52,7 @@ public class StackManager {
     public void callmodify(ASMFuncDef func) {
         for (var block : func.getBlocks()) {
             // var live = block.getLiveOut();
-            if(block.getLabel().getLabel().equals("sha1.if.13.end"))
+            if(block.getLabel().getLabel().equals("main.entry"))
             {
                 int a=1;
             }

@@ -60,15 +60,17 @@ public class LivenessAnalysis {
         for (var block : func.getBlockstmts()) {
             init(block);
         }
-        boolean changed = true;
-        while (changed) {
-            changed = false;
-            for (var block : func.getBlockstmts()) {
-                changed |= CalcLive(block);
-                // ++number;
-                // System.out.println(number);
+        // for (int i = 0; i < 2; ++i) {
+            boolean changed = true;
+            while (changed) {
+                changed = false;
+                for (var block : func.getBlockstmts()) {
+                    changed |= CalcLive(block);
+                    // ++number;
+                    // System.out.println(number);
+                }
             }
-        }
+        // }
     }
 
     public void init(IRBlock block) {
@@ -136,7 +138,7 @@ public class LivenessAnalysis {
                 var label = phi.getLabels().get(i);
                 if (val instanceof IRVariable) {
                     block.getUsesPhi().get(label).add((IRVariable) val);
-                    Block2Use.get(new Pair<IRBlock, IRLabel>(block, label)).add((IRVariable)val);
+                    Block2Use.get(new Pair<IRBlock, IRLabel>(block, label)).add((IRVariable) val);
                 }
             }
         }
@@ -182,6 +184,12 @@ public class LivenessAnalysis {
             block.setLiveInPhi(new HashMap<IRLabel, HashSet<IRVariable>>());
             block.setLiveOut(new HashSet<IRVariable>());
             for (var succ : block.getSuccessors()) {
+                if(succ==block){
+                    if(OldInPhi.get(block.getLabelName())==null){
+                        continue;
+                    }
+                    block.getLiveOut().addAll(OldInPhi.get(block.getLabelName()));
+                }
                 if (succ.getLiveInPhi() == null) {
                     continue;
                 }
