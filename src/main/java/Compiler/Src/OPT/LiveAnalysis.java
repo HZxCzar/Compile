@@ -42,6 +42,7 @@ public class LiveAnalysis {
     HashMap<IRVariable, IRBlock> Var2Def;
     HashMap<IRVariable, HashSet<IRBlock>> Var2Use;
     HashSet<IRVariable> phidef;
+    HashSet<Pair<IRBlock,IRVariable>> phiuse;
     IRFuncDef curFunc;
     // int number=0;
 
@@ -58,6 +59,7 @@ public class LiveAnalysis {
         Var2Def = new HashMap<IRVariable, IRBlock>();
         Var2Use = new HashMap<IRVariable, HashSet<IRBlock>>();
         phidef = new HashSet<IRVariable>();
+        phiuse = new HashSet<Pair<IRBlock,IRVariable>>();
         curFunc = func;
         Collect(func);
         // 要特判PHI的def
@@ -66,6 +68,13 @@ public class LiveAnalysis {
             for(var var:OldOut.get(block)){
                 if(!block.getLiveOut().contains(var) && !var.isGlobal()){
                     // throw new OPTError("LiveAnalysis Error");
+                    int a=1;
+                }
+            }
+        }
+        for(var block:func.getBlockstmts()){
+            for(var var:block.getLiveOut()){
+                if(!OldOut.get(block).contains(var)){
                     int a=1;
                 }
             }
@@ -105,6 +114,7 @@ public class LiveAnalysis {
                             Var2Use.put(val, new HashSet<IRBlock>());
                             Var2Use.get(val).add(block);
                         }
+                        phiuse.add(new Pair<IRBlock,IRVariable>(block,val));
                     } else {
                         if (Var2Use.containsKey(val)) {
                             Var2Use.get(val).add(pred);
@@ -159,7 +169,11 @@ public class LiveAnalysis {
                 continue;
             }
             for (var block : Var2Use.get(var)) {
-                if (block == def && Var2Use.get(var).size()>1) {
+                if (block == def) {
+                    if(phiuse.contains(new Pair<IRBlock,IRVariable>(block,var))){
+                        WorkList.add(block);
+                        Visited.add(block);
+                    }
                     continue;
                 }
                 for (var pred : block.getPredecessors()) {
