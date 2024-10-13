@@ -35,9 +35,9 @@ public class IRBlock extends IRStmt implements Comparable<IRBlock> {
     private HashSet<IRBlock> RDomChildren;
 
     // LiveAnalysis
-    private HashSet<IRVariable> liveIn;
-    private HashMap<IRLabel,HashSet<IRVariable>> liveInPhi;
-    private HashSet<IRVariable> liveOut;
+    public HashSet<IRVariable> liveIn;
+    public HashMap<IRLabel,HashSet<IRVariable>> liveInPhi;
+    public HashSet<IRVariable> liveOut;
     public HashSet<IRVariable> uses = null;
     public HashSet<IRVariable> def = null;
     public HashMap<IRLabel,HashSet<IRVariable>> usesPhi = null;

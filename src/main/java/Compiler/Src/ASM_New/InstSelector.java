@@ -102,12 +102,12 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 continue;
             }
             var IRBlock = ASM2IR.get(block);
-            for (var irin : IRBlock.getLiveIn()) {
-                if(IR2ASM.get(irin)!=null)
-                {
-                    block.getLiveIn().add(IR2ASM.get(irin));
-                }
-            }
+            // for (var irin : IRBlock.getLiveIn()) {
+            //     if(IR2ASM.get(irin)!=null)
+            //     {
+            //         block.getLiveIn().add(IR2ASM.get(irin));
+            //     }
+            // }
             for (var irout : IRBlock.getLiveOut()) {
                 if(IR2ASM.get(irout)!=null)
                 {
@@ -178,10 +178,46 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                         label2block.put(midBlock.getLabel().getLabel(), midBlock);
 
                         // midBlocks.add(midBlock);
-                        for (var irin : ASM2IR.get(block).getLiveInPhi().get(label)) {
-                            midBlock.getLiveIn().add(IR2ASM.get(irin));
+                        // for (var irin : ASM2IR.get(block).getLiveInPhi().get(label)) {
+                        //     midBlock.getLiveIn().add(IR2ASM.get(irin));
+                        // }
+                        // midBlock.getLiveOut().addAll(block.getLiveIn());
+
+                        IRBlock PredIRBlock=null;
+                        for(var pred:node.getPredecessors())
+                        {
+                            if(pred.getLabelName().equals(label))
+                            {
+                                PredIRBlock=pred;
+                                break;
+                            }
                         }
-                        midBlock.getLiveOut().addAll(block.getLiveIn());
+                        HashSet<IRVariable> predOut=new HashSet<>(PredIRBlock.getLiveOut());
+                        for(var phiInst:node.getPhiList().values())
+                        {
+                            for(int i=0;i<phiInst.getVals().size();++i)
+                            {
+                                var philabel=phiInst.getLabels().get(i);
+                                var val=phiInst.getVals().get(i);
+                                if(PredIRBlock.getLabelName().equals(philabel) && val instanceof IRVariable)
+                                {
+                                    predOut.remove(val);
+                                    predOut.add(phiInst.getDef());
+                                    break;
+                                }
+                            }
+                        }
+                        for(var out:predOut)
+                        {
+                            if(IR2ASM.get(out)!=null)
+                            {
+                                midBlock.getLiveOut().add(IR2ASM.get(out));
+                            }
+                            else if(!out.isGlobal()){
+                                throw new OPTError("Unknown var");
+                            }
+                        }
+
 
                         predBlock.replaceLabel(block.getLabel().getLabel(), midBlock.getLabel().getLabel());
                         midBlock.getSuccessor().add(blockLabel);
