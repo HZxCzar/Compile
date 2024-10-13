@@ -159,7 +159,7 @@ public class LiveAnalysis {
                 continue;
             }
             for (var block : Var2Use.get(var)) {
-                if (block == def) {
+                if (block == def && Var2Use.get(var).size()>1) {
                     continue;
                 }
                 for (var pred : block.getPredecessors()) {
