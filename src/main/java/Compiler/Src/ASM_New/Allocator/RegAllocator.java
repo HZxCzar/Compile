@@ -19,6 +19,7 @@ import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.ASMInst;
+import Compiler.Src.ASM_New.Node.Inst.Arithmetic.ASMArithR;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMCall;
 import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
 import Compiler.Src.ASM_New.Entity.ASMReg;
@@ -152,19 +153,15 @@ public class RegAllocator {
         }
     }
 
-    public void ChangeLiveOut()
-    {
+    public void ChangeLiveOut() {
         for (var block : currentFunc.getBlocks()) {
             HashSet<ASMReg> deadLiveOut = new HashSet<>();
-            for(var reg : block.getLiveOut())
-            {
-                if(spilledNodes.contains(reg))
-                {
+            for (var reg : block.getLiveOut()) {
+                if (spilledNodes.contains(reg)) {
                     deadLiveOut.add(reg);
                 }
             }
-            for(var reg : deadLiveOut)
-            {
+            for (var reg : deadLiveOut) {
                 block.getLiveOut().remove(reg);
             }
         }
@@ -755,7 +752,7 @@ public class RegAllocator {
             var n = selectStack.pop();
             HashSet<Integer> okColors = new HashSet<>();
             for (int i = 0; i < K; ++i) {
-                okColors.add(i+5);
+                okColors.add(i + 5);
             }
             for (var w : adjList.get(n)) {
                 var aw = GetAlias(w);
@@ -803,15 +800,18 @@ public class RegAllocator {
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
-                    // if (imm < -2048 || imm > 2047) {
-                    //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    //     block.addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                    //     block.addInst(i + 2,
-                    //             new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, BuiltInRegs.getSp()));
-                    // } else {
+                    if (imm < -2048 || imm > 2047) {
+                        var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        block.addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                        block.addInst(i + 2,
+                                new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                        immtmp));
+                        block.addInst(i + 3,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, immtmp));
+                    } else {
                         block.addInst(i + 1,
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
-                    // }
+                    }
                 }
                 var useSize = inst.getUses().size();
                 for (int j = 0; j < useSize; ++j) {
@@ -821,15 +821,19 @@ public class RegAllocator {
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
-                        // if (imm < -2048 || imm > 2047) {
-                        //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                        //     block.addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                        //     block.addInst(i + 1,
-                        //             new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0, BuiltInRegs.getSp()));
-                        // } else {
+                        if (imm < -2048 || imm > 2047) {
+                            var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                            block.addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
+                            block.addInst(i + 1,
+                                    new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                            immtmp));
+                            block.addInst(i + 2,
+                                    new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0,
+                                            immtmp));
+                        } else {
                             block.addInst(i,
                                     new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, imm, BuiltInRegs.getSp()));
-                        // }
+                        }
                     }
                 }
             }
@@ -841,15 +845,20 @@ public class RegAllocator {
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
-                    // if (imm < -2048 || imm > 2047) {
-                    //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    //     block.getPhiStmt().addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                    //     block.getPhiStmt().addInst(i + 2,
-                    //             new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, BuiltInRegs.getSp()));
-                    // } else {
+                    if (imm < -2048 || imm > 2047) {
+                        var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        block.getPhiStmt().addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block,
+                                immtmp, imm));
+                        block.getPhiStmt().addInst(i + 2,
+                                new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                        immtmp));
+                        block.getPhiStmt().addInst(i + 3,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0,
+                                        immtmp));
+                    } else {
                         block.getPhiStmt().addInst(i + 1,
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
-                    // }
+                    }
                 }
                 var useSize = inst.getUses().size();
                 for (int j = 0; j < useSize; ++j) {
@@ -859,15 +868,20 @@ public class RegAllocator {
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
-                        // if (imm < -2048 || imm > 2047) {
-                        //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                        //     block.getPhiStmt().addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                        //     block.getPhiStmt().addInst(i + 1,
-                        //             new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0, BuiltInRegs.getSp()));
-                        // } else {
+                        if (imm < -2048 || imm > 2047) {
+                            var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                            block.getPhiStmt().addInst(i, new ASMLi(++ASMCounter.InstCount, block,
+                                    immtmp, imm));
+                            block.getPhiStmt().addInst(i + 1,
+                                    new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                            immtmp));
+                            block.getPhiStmt().addInst(i + 2,
+                                    new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0,
+                                            immtmp));
+                        } else {
                             block.getPhiStmt().addInst(i,
                                     new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, imm, BuiltInRegs.getSp()));
-                        // }
+                        }
                     }
                 }
             }
@@ -879,15 +893,20 @@ public class RegAllocator {
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
-                    // if (imm < -2048 || imm > 2047) {
-                    //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    //     block.getReturnInst().addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                    //     block.getReturnInst().addInst(i + 2,
-                    //             new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0, BuiltInRegs.getSp()));
-                    // } else {
+                    if (imm < -2048 || imm > 2047) {
+                        var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        block.getReturnInst().addInst(i + 1, new ASMLi(++ASMCounter.InstCount, block,
+                                immtmp, imm));
+                        block.getReturnInst().addInst(i + 2,
+                                new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                        immtmp));
+                        block.getReturnInst().addInst(i + 3,
+                                new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, 0,
+                                        immtmp));
+                    } else {
                         block.getReturnInst().addInst(i + 1,
                                 new ASMStore(++ASMCounter.InstCount, block, "sw", tmp, imm, BuiltInRegs.getSp()));
-                    // }
+                    }
                 }
                 var useSize = inst.getUses().size();
                 for (int j = 0; j < useSize; ++j) {
@@ -897,15 +916,20 @@ public class RegAllocator {
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
-                        // if (imm < -2048 || imm > 2047) {
-                        //     var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
-                        //     block.getReturnInst().addInst(i, new ASMLi(++ASMCounter.InstCount, block, immtmp, imm));
-                        //     block.getReturnInst().addInst(i + 1,
-                        //             new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0, BuiltInRegs.getSp()));
-                        // } else {
+                        if (imm < -2048 || imm > 2047) {
+                            var immtmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                            block.getReturnInst().addInst(i, new ASMLi(++ASMCounter.InstCount, block,
+                                    immtmp, imm));
+                            block.getReturnInst().addInst(i + 1,
+                                    new ASMArithR(++ASMCounter.InstCount, block, "add", immtmp, BuiltInRegs.getSp(),
+                                            immtmp));
+                            block.getReturnInst().addInst(i + 2,
+                                    new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, 0,
+                                            immtmp));
+                        } else {
                             block.getReturnInst().addInst(i,
                                     new ASMLoad(++ASMCounter.InstCount, block, "lw", tmp, imm, BuiltInRegs.getSp()));
-                        // }
+                        }
                     }
                 }
             }
