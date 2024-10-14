@@ -203,6 +203,13 @@ public class ASMControl {
             String Labelname_old = curBlock.getLabel().getLabel();
             String Labelname_new = func.getName() + "." + Labelname_old;
             curBlock.setLabel(new ASMLabel(Labelname_new));
+            if(curBlock.getJlabel()!=null)
+            {
+                String Jlabelname_old = curBlock.getJlabel().getLabel();
+                String Jlabelname_new = func.getName() + "." + Jlabelname_old;
+                curBlock.setJlabel(new ASMLabel(Jlabelname_new));
+                curBlock.getJump().addFuncName(func.getName());
+            }
             var size = curBlock.getReturnInst().getInsts().size();
             for (int j = 0; j < size; j++) {
                 var inst = curBlock.getReturnInst().getInsts().get(j);

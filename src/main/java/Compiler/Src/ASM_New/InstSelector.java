@@ -720,12 +720,17 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         } else {
             var condInst = (ASMStmt) node.getCond().accept(this);
             var condDest = condInst.getDest();
+            String tmpLabel=curBlock.getLabel().getLabel()+".tmp.label";
             InstList.appendInsts(condInst);
             var condDest_true = new ASMVirtualReg(++ASMCounter.allocaCount);
             InstList.addInst(new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", condDest_true, condDest));
+            // InstList.addInst(
+            //         new ASMBezq(++ASMCounter.InstCount, curBlock, condDest_true, node.getTrueLabel().getLabel()));
             InstList.addInst(
-                    new ASMBezq(++ASMCounter.InstCount, curBlock, condDest_true, node.getTrueLabel().getLabel()));
+                    new ASMBezq(++ASMCounter.InstCount, curBlock, condDest_true, tmpLabel));
             InstList.addInst(new ASMJump(++ASMCounter.InstCount, curBlock, node.getFalseLabel().getLabel()));
+            curBlock.setJlabel(new ASMLabel(tmpLabel));
+            curBlock.setJump(new ASMJump(++ASMCounter.InstCount, curBlock, node.getTrueLabel().getLabel()));
         }
         return InstList;
     }

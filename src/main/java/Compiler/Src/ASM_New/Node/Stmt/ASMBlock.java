@@ -31,6 +31,9 @@ public class ASMBlock extends ASMStmt {
     public ArrayList<ASMBlock> pred = null;
     public ArrayList<ASMBlock> succ = null;
 
+    public ASMLabel jlabel;
+    public ASMJump jump;
+
     BuiltInRegs BuiltInRegs;
 
     // mem2reg
@@ -44,6 +47,9 @@ public class ASMBlock extends ASMStmt {
         this.returnInst = null;
         PhiStmt = new ASMStmt();
         src2dest = new TreeMap<ASMVirtualReg, ArrayList<ASMVirtualReg>>();
+
+        jlabel = null;
+        jump = null;
 
         Successor = new ArrayList<String>();
         
@@ -96,6 +102,11 @@ public class ASMBlock extends ASMStmt {
             str += PhiStmt.toString();
         }
         str += returnInst.toString();
+        if(jlabel!=null)
+        {
+            str += jlabel.toString() + ":\n";
+            str += "    "+jump.toString()+"\n";
+        }
         return str;
     }
 
@@ -110,9 +121,17 @@ public class ASMBlock extends ASMStmt {
                     ((ASMJump) inst).setLabel(newLabel);
                 }
             } else if (inst instanceof ASMBezq) {
-                if (((ASMBezq) inst).getLabel().equals(oldLabel)) {
-                    ((ASMBezq) inst).setLabel(newLabel);
+                if(jlabel==null)
+                {
+                    throw new OPTError("jlabel is null");
                 }
+                if(jump.getLabel().equals(oldLabel))
+                {
+                    jump.setLabel(newLabel);
+                }
+                // if (((ASMBezq) inst).getLabel().equals(oldLabel)) {
+                //     ((ASMBezq) inst).setLabel(newLabel);
+                // }
             }
         }
     }
