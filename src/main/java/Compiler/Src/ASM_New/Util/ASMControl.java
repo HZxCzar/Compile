@@ -133,18 +133,6 @@ public class ASMControl {
     }
 
     public ASMStmt LoadAt(ASMReg reg) {
-        // var InstList = new ASMStmt();
-        // if (offset > 2047 || offset < -2048) {
-        //     // var tmp1 = new ASMVirtualReg(++ASMCounter.allocaCount);
-        //     // var tmp2 = new ASMVirtualReg(++ASMCounter.allocaCount);
-        //     InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
-        //     InstList.addInst(
-        //             new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, 0, regs.getT0()));
-        // } else {
-        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, offset, regs.getSp()));
-        // }
-        // return InstList;
         var InstList = new ASMStmt();
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT0(), regs.getT0(), -4));
         // if (offset > 2047 || offset < -2048) {

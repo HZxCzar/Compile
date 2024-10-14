@@ -155,15 +155,16 @@ public class RegAllocator {
 
     public void ChangeLiveOut() {
         for (var block : currentFunc.getBlocks()) {
-            HashSet<ASMReg> deadLiveOut = new HashSet<>();
-            for (var reg : block.getLiveOut()) {
-                if (spilledNodes.contains(reg)) {
-                    deadLiveOut.add(reg);
-                }
-            }
-            for (var reg : deadLiveOut) {
-                block.getLiveOut().remove(reg);
-            }
+            // HashSet<ASMReg> deadLiveOut = new HashSet<>();
+            // for (var reg : block.getLiveOut()) {
+            //     if (spilledNodes.contains(reg)) {
+            //         deadLiveOut.add(reg);
+            //     }
+            // }
+            // for (var reg : deadLiveOut) {
+            //     block.getLiveOut().remove(reg);
+            // }
+            block.getLiveOut().removeAll(spilledNodes);
         }
     }
 
@@ -456,7 +457,7 @@ public class RegAllocator {
             for (int i = block.getPhiStmt().getInsts().size() - 1; i >= 0; --i) {
                 var inst = block.getPhiStmt().getInsts().get(i);
                 if (inst instanceof ASMMove) {
-                    // live.remove(inst.getDef());
+                    // live.removeAll(inst.getUses());
                     moveList.get(inst.getDef()).add((ASMMove) inst);
                     moveList.get(inst.getUses().get(0)).add((ASMMove) inst);
                     workListMoves.add((ASMMove) inst);
@@ -561,7 +562,7 @@ public class RegAllocator {
 
     public HashSet<ASMReg> Adjacent(ASMReg reg) {
         HashSet<ASMReg> ret = new HashSet<>(adjList.get(reg));
-        ret.removeIf(r -> selectStack.contains(r) || coalescedNodes.contains(r));
+        ret.removeIf(r -> coalescedNodes.contains(r) || selectStack.contains(r));
         return ret;
     }
 
@@ -796,7 +797,8 @@ public class RegAllocator {
             for (int i = 0; i < block.getInsts().size(); ++i) {
                 var inst = block.getInsts().get(i);
                 if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {
-                    var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    var tmp = BuiltInRegs.getT1();
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
@@ -818,7 +820,8 @@ public class RegAllocator {
                 for (int j = 0; j < useSize; ++j) {
                     var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
-                        var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        var tmp=j==0?BuiltInRegs.getT1():BuiltInRegs.getT2();
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
@@ -842,7 +845,8 @@ public class RegAllocator {
             for (int i = 0; i < block.getPhiStmt().getInsts().size(); ++i) {
                 var inst = block.getPhiStmt().getInsts().get(i);
                 if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {// 有无precolored？
-                    var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    var tmp = BuiltInRegs.getT1();
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
@@ -866,7 +870,8 @@ public class RegAllocator {
                 for (int j = 0; j < useSize; ++j) {
                     var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
-                        var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        var tmp=j==0?BuiltInRegs.getT1():BuiltInRegs.getT2();
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
@@ -891,7 +896,8 @@ public class RegAllocator {
             for (int i = 0; i < block.getReturnInst().getInsts().size(); ++i) {
                 var inst = block.getReturnInst().getInsts().get(i);
                 if (inst.getDef() != null && spilledNodes.contains(inst.getDef())) {
-                    var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                    var tmp = BuiltInRegs.getT1();
                     var imm = newRegs.get(inst.getDef());
                     inst.setDest(tmp);
                     spillTemp.add(tmp);
@@ -915,7 +921,8 @@ public class RegAllocator {
                 for (int j = 0; j < useSize; ++j) {
                     var reg = inst.getUses().get(j);
                     if (spilledNodes.contains(reg)) {
-                        var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        // var tmp = new ASMVirtualReg(++ASMCounter.allocaCount);
+                        var tmp=j==0?BuiltInRegs.getT1():BuiltInRegs.getT2();
                         var imm = newRegs.get(reg);
                         inst.replaceUse(reg, tmp);
                         spillTemp.add(tmp);
