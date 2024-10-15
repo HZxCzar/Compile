@@ -78,7 +78,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         LoadSet.add(reg);
@@ -93,7 +93,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         StoreSet.add(reg);
@@ -160,7 +160,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         LoadSet.add(reg);
@@ -175,7 +175,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         StoreSet.add(reg);
@@ -242,7 +242,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         LoadSet.add(reg);
@@ -257,7 +257,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT0())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
                             continue;
                         }
                         StoreSet.add(reg);
@@ -337,7 +337,7 @@ public class StackManager {
 
     public int reg2imm(ASMReg reg) {
         switch (reg.getName()) {
-            case "t1":
+            case "t0":
                 return 0;
             case "t2":
                 return 4;
