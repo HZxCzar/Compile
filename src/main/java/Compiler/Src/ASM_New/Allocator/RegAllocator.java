@@ -408,7 +408,7 @@ public class RegAllocator {
         if (reg instanceof ASMPhysicalReg) {
             if (((ASMPhysicalReg) reg).equals(BuiltInRegs.getSp())
                     || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getRa())
-                    || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getT0())) {
+                    || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getT1())) {
                 return false;
             }
             return true;
@@ -427,14 +427,14 @@ public class RegAllocator {
                     moveList.get(inst.getUses().get(0)).add((ASMMove) inst);
                     workListMoves.add((ASMMove) inst);
                 }
-                if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                    if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                        continue;
-                    }
-                    if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                        continue;
-                    }
-                }
+                // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+                //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+                //         continue;
+                //     }
+                //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+                //         continue;
+                //     }
+                // }
                 if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                     for (var l : live) {
                         AddEdge(l, BuiltInRegs.getA0());
@@ -462,14 +462,14 @@ public class RegAllocator {
                     moveList.get(inst.getUses().get(0)).add((ASMMove) inst);
                     workListMoves.add((ASMMove) inst);
                 }
-                if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                    if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                        continue;
-                    }
-                    if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                        continue;
-                    }
-                }
+                // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+                //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+                //         continue;
+                //     }
+                //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+                //         continue;
+                //     }
+                // }
                 if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                     for (var l : live) {
                         AddEdge(l, BuiltInRegs.getA0());
@@ -497,14 +497,14 @@ public class RegAllocator {
                     moveList.get(inst.getUses().get(0)).add((ASMMove) inst);
                     workListMoves.add((ASMMove) inst);
                 }
-                if (inst instanceof ASMLoad || inst instanceof ASMStore) {
-                    if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
-                        continue;
-                    }
-                    if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
-                        continue;
-                    }
-                }
+                // if (inst instanceof ASMLoad || inst instanceof ASMStore) {
+                //     if (inst instanceof ASMLoad && CallRelated(((ASMLoad) inst).getDef())) {
+                //         continue;
+                //     }
+                //     if (inst instanceof ASMStore && CallRelated(((ASMStore) inst).getUses().get(1))) {
+                //         continue;
+                //     }
+                // }
                 if (inst instanceof ASMCall && ((ASMCall) inst).isHasReturnValue()) {
                     for (var l : live) {
                         AddEdge(l, BuiltInRegs.getA0());
