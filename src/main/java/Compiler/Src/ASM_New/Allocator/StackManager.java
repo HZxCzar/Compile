@@ -33,6 +33,7 @@ public class StackManager {
             callmodify(func);
             work(func);
         }
+        new Jmove().visit(root);
     }
 
     public ASMPhysicalReg getColor(ASMReg reg) {

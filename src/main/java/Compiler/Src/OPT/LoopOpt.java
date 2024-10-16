@@ -34,53 +34,53 @@ import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
-class PtrUnit {
-    String type;
-    IREntity ptr;
-    ArrayList<IREntity> infolist;
+// class PtrUnit {
+//     String type;
+//     IREntity ptr;
+//     ArrayList<IREntity> infolist;
 
-    public PtrUnit() {
-        infolist = new ArrayList<>();
-    }
+//     public PtrUnit() {
+//         infolist = new ArrayList<>();
+//     }
 
-    public PtrUnit(IRGetelementptr inst) {
-        this.type = inst.getType();
-        this.ptr = inst.getPtr();
-        this.infolist = inst.getInfolist();
-    }
+//     public PtrUnit(IRGetelementptr inst) {
+//         this.type = inst.getType();
+//         this.ptr = inst.getPtr();
+//         this.infolist = inst.getInfolist();
+//     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj instanceof PtrUnit) {
-            boolean flag = true;
-            if (!((PtrUnit) obj).type.equals(type))
-                flag = false;
-            if (!((PtrUnit) obj).ptr.equals(ptr))
-                flag = false;
-            if (((PtrUnit) obj).infolist.size() != infolist.size())
-                flag = false;
-            for (int i = 0; i < infolist.size(); ++i) {
-                if (!((PtrUnit) obj).infolist.get(i).equals(infolist.get(i))) {
-                    flag = false;
-                    break;
-                }
-            }
-            return flag;
-        }
-        return false;
-    }
+//     @Override
+//     public boolean equals(Object obj) {
+//         if (obj instanceof PtrUnit) {
+//             boolean flag = true;
+//             if (!((PtrUnit) obj).type.equals(type))
+//                 flag = false;
+//             if (!((PtrUnit) obj).ptr.equals(ptr))
+//                 flag = false;
+//             if (((PtrUnit) obj).infolist.size() != infolist.size())
+//                 flag = false;
+//             for (int i = 0; i < infolist.size(); ++i) {
+//                 if (!((PtrUnit) obj).infolist.get(i).equals(infolist.get(i))) {
+//                     flag = false;
+//                     break;
+//                 }
+//             }
+//             return flag;
+//         }
+//         return false;
+//     }
 
-    @Override
-    public int hashCode() {
-        int result = Objects.hash(type);
-        result = 31 * result + Objects.hash(ptr.getValue());
-        for (int i = 0; i < infolist.size(); ++i) {
-            result = 31 * result + Objects.hash(infolist.get(i).getValue());
-        }
-        // result = 31 * result + infolist.hashCode();
-        return result;
-    }
-}
+//     @Override
+//     public int hashCode() {
+//         int result = Objects.hash(type);
+//         result = 31 * result + Objects.hash(ptr.getValue());
+//         for (int i = 0; i < infolist.size(); ++i) {
+//             result = 31 * result + Objects.hash(infolist.get(i).getValue());
+//         }
+//         // result = 31 * result + infolist.hashCode();
+//         return result;
+//     }
+// }
 
 class Loop {
     Loop parent;
@@ -91,7 +91,7 @@ class Loop {
     HashSet<IRBlock> selfblocks;
     HashSet<IRVariable> StoreUse;
     HashSet<IRVariable> defs;
-    HashSet<PtrUnit> ptrs;
+    // HashSet<PtrUnit> ptrs;
 
     public Loop(int depth) {
         this.parent = null;
@@ -101,7 +101,7 @@ class Loop {
         this.selfblocks = new HashSet<>();
         this.StoreUse = new HashSet<>();
         this.defs = new HashSet<>();
-        this.ptrs = new HashSet<>();
+        // this.ptrs = new HashSet<>();
     }
 }
 
@@ -135,10 +135,10 @@ public class LoopOpt {
             }
             boolean expand = true;
             HashSet<IRVariable> Changed = new HashSet<>();
-            HashSet<IRVariable> LoadFix = new HashSet<>();
-            HashSet<IRGetelementptr> getinst=new HashSet<>();
+            // HashSet<IRVariable> LoadFix = new HashSet<>();
+            // HashSet<IRGetelementptr> getinst=new HashSet<>();
             Changed.addAll(cur.defs);
-            HashSet<PtrUnit> PtrUse = new HashSet<>();
+            // HashSet<PtrUnit> PtrUse = new HashSet<>();
             // HashSet<IRVariable> StoreUse=new HashSet<>();
             // HashMap<IRVariable,IRInst> Var2Def=new HashMap<>();
             // HashSet<IRInst> headerInst=new HashSet<>();
@@ -159,62 +159,47 @@ public class LoopOpt {
                     if (inst instanceof IRCall) {
                         cur.call = true;
                     }
-                    if(inst instanceof IRGetelementptr)
-                    {
-                        getinst.add((IRGetelementptr)inst);
-                    }
-                }
-            }
-            for (var block : cur.selfblocks) {
-                for (var inst : block.getInsts()) {
-                    if (inst instanceof IRLoad) {
-                        if (cur.StoreUse.contains(((IRLoad) inst).getUses().get(0))) {
-                            if (!LoadFix.contains(((IRLoad) inst).getUses().get(0))) {
-                                LoadFix.add(((IRLoad) inst).getUses().get(0));
-                            }
-                            continue;
-                        } else if (cur.call && ((IRLoad) inst).getUses().get(0).isGlobal()) {
-                            if (!LoadFix.contains(((IRLoad) inst).getUses().get(0))) {
-                                LoadFix.add(((IRLoad) inst).getUses().get(0));
-                            }
-                            continue;
-                        }
-                    }
-                }
-            }
-            for(var inst:getinst)
-            {
-                if (LoadFix.contains(((IRGetelementptr) inst).getDef())) {
-                    var ptr = new PtrUnit((IRGetelementptr) inst);
-                    if (!cur.ptrs.contains(ptr)) {
-                        cur.ptrs.add(ptr);
-                    }
-                    // cur.StoreUse.add(inst.getDef());
-                    // continue;
-                }
-            }
-            for(var inst:getinst)
-            {
-                var ptrUnit=new PtrUnit(inst);
-                if(cur.ptrs.contains(ptrUnit))
-                {
-                    cur.StoreUse.add(inst.getDef());
+                    // if(inst instanceof IRGetelementptr)
+                    // {
+                    // getinst.add((IRGetelementptr)inst);
+                    // }
                 }
             }
             // for (var block : cur.selfblocks) {
-            //     for (var inst : block.getInsts()) {
-            //         if (inst instanceof IRGetelementptr) {
-            //             if (LoadFix.contains(((IRGetelementptr) inst).getDef())) {
-            //                 var ptr = new PtrUnit((IRGetelementptr) inst);
-            //                 if (!cur.ptrs.contains(ptr)) {
-            //                     cur.ptrs.add(ptr);
-            //                     expand = true;
-            //                 }
-            //                 cur.StoreUse.add(inst.getDef());
-            //                 continue;
-            //             }
-            //         }
-            //     }
+            // for (var inst : block.getInsts()) {
+            // if (inst instanceof IRLoad) {
+            // if (cur.StoreUse.contains(((IRLoad) inst).getUses().get(0))) {
+            // if (!LoadFix.contains(((IRLoad) inst).getUses().get(0))) {
+            // LoadFix.add(((IRLoad) inst).getUses().get(0));
+            // }
+            // continue;
+            // } else if (cur.call && ((IRLoad) inst).getUses().get(0).isGlobal()) {
+            // if (!LoadFix.contains(((IRLoad) inst).getUses().get(0))) {
+            // LoadFix.add(((IRLoad) inst).getUses().get(0));
+            // }
+            // continue;
+            // }
+            // }
+            // }
+            // }
+            // for(var inst:getinst)
+            // {
+            // if (LoadFix.contains(((IRGetelementptr) inst).getDef())) {
+            // var ptr = new PtrUnit((IRGetelementptr) inst);
+            // if (!cur.ptrs.contains(ptr)) {
+            // cur.ptrs.add(ptr);
+            // }
+            // // cur.StoreUse.add(inst.getDef());
+            // // continue;
+            // }
+            // }
+            // for(var inst:getinst)
+            // {
+            // var ptrUnit=new PtrUnit(inst);
+            // if(cur.ptrs.contains(ptrUnit))
+            // {
+            // cur.StoreUse.add(inst.getDef());
+            // }
             // }
             while (expand) {
                 expand = false;
@@ -233,12 +218,13 @@ public class LoopOpt {
                                 continue;
                             }
                         }
-                        if (inst instanceof IRGetelementptr) {
-                            if(cur.StoreUse.contains(inst.getDef()))
-                            {
-                                continue;
-                            }
-                        }
+                        // if (inst instanceof IRGetelementptr) {
+                        // // continue;
+                        // if(cur.StoreUse.contains(inst.getDef()))
+                        // {
+                        // continue;
+                        // }
+                        // }
                         for (var use : inst.getUses()) {
                             if (Changed.contains(use)) {
                                 flag = false;
@@ -246,12 +232,21 @@ public class LoopOpt {
                             }
                         }
                         if (flag) {
-                            Changed.remove(inst.getDef());
-                            // headerInst.add(inst);
-                            headerInstList.add(inst);
-                            block.getInsts().remove(i);
-                            i--;
-                            expand = true;
+                            if (inst instanceof IRGetelementptr) {
+                                // Changed.remove(inst.getDef());
+                                // headerInst.add(inst);
+                                headerInstList.add(inst);
+                                block.getInsts().remove(i);
+                                i--;
+                                expand = true;
+                            } else {
+                                Changed.remove(inst.getDef());
+                                // headerInst.add(inst);
+                                headerInstList.add(inst);
+                                block.getInsts().remove(i);
+                                i--;
+                                expand = true;
+                            }
                         }
                     }
                 }
@@ -271,7 +266,7 @@ public class LoopOpt {
             }
             cur.parent.StoreUse.addAll(cur.StoreUse);
             cur.parent.defs.addAll(cur.defs);
-            cur.parent.ptrs.addAll(cur.ptrs);
+            // cur.parent.ptrs.addAll(cur.ptrs);
             cur.parent.children.remove(cur);
         }
     }
