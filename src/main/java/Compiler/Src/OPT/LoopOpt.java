@@ -41,13 +41,15 @@ class Loop{
     ArrayList<Loop> children;
     HashSet<IRBlock> selfblocks;
     HashSet<IRVariable> StoreUse;
+    HashSet<IRVariable> defs;
     public Loop(int depth){
         this.parent = null;
         this.depth = depth;
         call=false;
         this.children = new ArrayList<>();
         this.selfblocks = new HashSet<>();
-        StoreUse=new HashSet<>();
+        this.StoreUse=new HashSet<>();
+        this.defs=new HashSet<>();
     }
 }
 
@@ -85,6 +87,7 @@ public class LoopOpt {
             }
             boolean expand=true;
             HashSet<IRVariable> Changed=new HashSet<>();
+            Changed.addAll(cur.defs);
             // HashSet<IRVariable> StoreUse=new HashSet<>();
             // HashMap<IRVariable,IRInst> Var2Def=new HashMap<>();
             // HashSet<IRInst> headerInst=new HashSet<>();
@@ -94,12 +97,14 @@ public class LoopOpt {
                 for(var phi:block.getPhiList().values())
                 {
                     Changed.add(phi.getDef());
+                    cur.defs.add(phi.getDef());
                 }
                 for(var inst:block.getInsts())
                 {
                     if(inst.getDef()!=null)
                     {
                         Changed.add(inst.getDef());
+                        cur.defs.add(inst.getDef());
                     }
                     if(inst instanceof IRStore)
                     {
@@ -131,6 +136,10 @@ public class LoopOpt {
                             {
                                 flag=false;
                             }
+                        }
+                        if(inst instanceof IRGetelementptr)
+                        {
+                            continue;
                         }
                         for(var use:inst.getUses())
                         {
@@ -170,6 +179,7 @@ public class LoopOpt {
                 cur.parent.call=true;
             }
             cur.parent.StoreUse.addAll(cur.StoreUse);
+            cur.parent.defs.addAll(cur.defs);
             cur.parent.children.remove(cur);
         }
     }
