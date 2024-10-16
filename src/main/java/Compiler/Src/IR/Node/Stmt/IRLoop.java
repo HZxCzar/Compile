@@ -16,7 +16,7 @@ public class IRLoop extends IRStmt {
         var condLabel = new IRLabel("loop." + String.valueOf(num) + ".condLabel", loopDepth);
         var updateLabel = new IRLabel("loop." + String.valueOf(num) + ".updateLabel", loopDepth);
         var bodyLabel = new IRLabel("loop." + String.valueOf(num) + ".bodyLabel", loopDepth);
-        var endLabel = new IRLabel("loop." + String.valueOf(num) + ".endLabel", loopDepth);
+        var endLabel = new IRLabel("loop." + String.valueOf(num) + ".endLabel", loopDepth-1);
         if (init != null) {
             addBlockInsts(init);
         }

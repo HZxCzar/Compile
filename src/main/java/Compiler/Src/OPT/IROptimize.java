@@ -7,6 +7,7 @@ public class IROptimize {
     {
         new CFGBuilder().visit(root);
         new Mem2Reg().visit(root);
+        new LoopOpt().visit(root);
         new Tail().visit(root);
         new Inlining().visit(root);
         new ADCE().visit(root);
