@@ -75,7 +75,8 @@ public class Inlining {
                         continue;
                     }
                     calltime++;
-                    Callednum.put(((IRCall) inst).getFuncName(), Callednum.get(((IRCall) inst).getFuncName()) + 1);
+                    Callednum.put(((IRCall) inst).getFuncName(),
+                            Callednum.getOrDefault(((IRCall) inst).getFuncName(), 0) + 1);
                 }
             }
         }
@@ -93,8 +94,10 @@ public class Inlining {
                     var callInst = (IRCall) inst;
                     if (name2func.get(callInst.getFuncName()) != null
                             && (Callednum.get(callInst.getFuncName()) <= 3
-                                    && Calltimes.get(callInst.getFuncName()) == 0 && name2func.get(callInst.getFuncName())
-                                            .getBlockstmts().size() <= 100)){
+                                    && Calltimes.get(callInst.getFuncName()) == 0
+                                    && name2func.get(callInst.getFuncName()).getBlockstmts().size() <= 20)) {// &&
+                                                                                                             // name2func.get(callInst.getFuncName()).getBlockstmts().size()
+                                                                                                             // <= 100)
                         InlineIndex = block.getInsts().indexOf(inst);
                         Callednum.put(callInst.getFuncName(), Callednum.get(callInst.getFuncName()) - 1);
                         Calltimes.put(func.getName(), Calltimes.get(func.getName()) - 1);
@@ -135,12 +138,15 @@ public class Inlining {
             if (succBlock.getReturnInst() instanceof IRBranch) {
                 var branch = (IRBranch) succBlock.getReturnInst();
                 if (branch.isJump()) {
-                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getTrueLabel().getLabel())), block.getLabelName(),
+                    ModPhi(label2block.get(new Pair<IRFuncDef, String>(func, branch.getTrueLabel().getLabel())),
+                            block.getLabelName(),
                             succBlock.getLabelName());
                 } else {
-                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getTrueLabel().getLabel())), block.getLabelName(),
+                    ModPhi(label2block.get(new Pair<IRFuncDef, String>(func, branch.getTrueLabel().getLabel())),
+                            block.getLabelName(),
                             succBlock.getLabelName());
-                    ModPhi(label2block.get(new Pair<IRFuncDef,String>(func,branch.getFalseLabel().getLabel())), block.getLabelName(),
+                    ModPhi(label2block.get(new Pair<IRFuncDef, String>(func, branch.getFalseLabel().getLabel())),
+                            block.getLabelName(),
                             succBlock.getLabelName());
                 }
             }
