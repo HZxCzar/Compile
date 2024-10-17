@@ -41,6 +41,10 @@ public class Inlining {
         label2block = new HashMap<>();
         InlineCount = 0;
         for (var func : root.getFuncs()) {
+            Callednum.put(func.getName(), 0);
+            Calltimes.put(func.getName(), 0);
+        }
+        for (var func : root.getFuncs()) {
             calc(func);
         }
         boolean run = true;
@@ -52,6 +56,13 @@ public class Inlining {
                 run |= visit(func);
             }
         }
+        for (int i = 0; i < root.getFuncs().size(); ++i) {
+            var func = root.getFuncs().get(i);
+            if (Callednum.get(func.getName()) == 0 && !func.getName().equals("main")) {
+                root.getFuncs().remove(i);
+                i--;
+            }
+        }
     }
 
     public void calc(IRFuncDef func) {
@@ -60,9 +71,11 @@ public class Inlining {
             label2block.put(new Pair<IRFuncDef, String>(func, block.getLabelName().getLabel()), block);
             for (var inst : block.getInsts()) {
                 if (inst instanceof IRCall) {
+                    if (!Callednum.containsKey(((IRCall) inst).getFuncName())) {
+                        continue;
+                    }
                     calltime++;
-                    Callednum.put(((IRCall) inst).getFuncName(),
-                            Callednum.getOrDefault(((IRCall) inst).getFuncName(), 0) + 1);
+                    Callednum.put(((IRCall) inst).getFuncName(), Callednum.get(((IRCall) inst).getFuncName()) + 1);
                 }
             }
         }
@@ -80,7 +93,8 @@ public class Inlining {
                     var callInst = (IRCall) inst;
                     if (name2func.get(callInst.getFuncName()) != null
                             && (Callednum.get(callInst.getFuncName()) <= 3
-                                    && Calltimes.get(callInst.getFuncName()) == 0)) {
+                                    && Calltimes.get(callInst.getFuncName()) == 0 && name2func.get(callInst.getFuncName())
+                                            .getBlockstmts().size() <= 100)){
                         InlineIndex = block.getInsts().indexOf(inst);
                         Callednum.put(callInst.getFuncName(), Callednum.get(callInst.getFuncName()) - 1);
                         Calltimes.put(func.getName(), Calltimes.get(func.getName()) - 1);
