@@ -105,7 +105,7 @@ class Loop {
     }
 }
 
-public class LoopOpt {
+public class LoopOpt {//one time, cus we don't collect outside getelementptr, some load can't be moved out
     Loop base;
     HashMap<IRBlock, Loop> block2loop;
 

@@ -37,6 +37,7 @@ public class Mem2Reg {
     private Stack<IRBlock> WorkStack = new Stack<IRBlock>();
 
     public void visit(IRRoot root) {
+        new CFGBuilder().visit(root);
         for (var func : root.getFuncs()) {
             visit(func);
         }
@@ -294,6 +295,10 @@ public class Mem2Reg {
             }
             var newInstList = new ArrayList<IRInst>();
             for (var inst : block.getInsts()) {
+                if(inst instanceof IRCall)
+                {
+                    int a=1;
+                }
                 if (inst instanceof IRAlloca) {
                     continue;
                 } else if (inst instanceof IRStore) {

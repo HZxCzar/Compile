@@ -16,6 +16,10 @@ public class IRVariable extends IREntity implements Comparable<IRVariable> {
     public boolean isGlobal() {
         return getValue().startsWith("@");
     }
+    public boolean isStr()
+    {
+        return getValue().startsWith("@str");
+    }
 
     public boolean isParameter() {
         return !getValue().startsWith("%.tmp.") && !getValue().startsWith("@");//!getValue().startsWith("%.tmp.") && 
