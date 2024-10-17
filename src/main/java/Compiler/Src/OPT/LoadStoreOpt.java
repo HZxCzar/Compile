@@ -109,7 +109,7 @@ public class LoadStoreOpt {
             }
             var start = func.getBlockstmts().get(1);
             String glob = pair.getKey();
-            IRVariable globunit = new IRVariable(Var2Type.get(glob), glob);
+            IRVariable globunit = new IRVariable(GlobalScope.irPtrType, glob);
             IRVariable local = new IRVariable(GlobalScope.irPtrType,
                     "%" + glob.substring(1) + ".local." + func.getName());
             IRVariable tmp = new IRVariable(Var2Type.get(glob),
@@ -121,9 +121,9 @@ public class LoadStoreOpt {
                 inst.replaceUse(globunit, local);
             }
             for (var block : RetBlock) {
-                if (block.getInsts().size() == 0) {
-                    continue;
-                }
+                // if (block.getInsts().size() == 0) {
+                //     continue;
+                // }
                 IRVariable tmpret = new IRVariable(Var2Type.get(glob), "%" + glob.substring(1)
                         + ".local.tmp.ret." + func.getName() + "." + block.getLabelName().getLabel());
                 block.getInsts().add(new IRLoad(++InstCounter.InstCounter, tmpret, local));
