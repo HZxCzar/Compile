@@ -78,6 +78,10 @@ public class PhiRep {
                 varMap.put(origin, rep);
             }
             for (var origin : varMap.keySet()) {
+                if(!Var2Use.containsKey(origin))
+                {
+                    continue;
+                }
                 for (var inst : Var2Use.get(origin)) {
                     change = true;
                     inst.replaceUse(origin, varMap.get(origin));
@@ -103,12 +107,20 @@ public class PhiRep {
             Var2Use.put(arg, new HashSet<IRInst>());
         }
         for (var block : func.getBlockstmts()) {
+            if(block.getLabelName().getLabel().equals("inline.3.inline.11.inline.15"))
+            {
+                int a=1;
+            }
             var phiList = new HashMap<IRVariable, IRPhi>();
             for (var phiInst : block.getPhiList().values()) {
                 if (phiInst.getVals().size() == 1) {
                     change = true;
                     varMap.put(phiInst.getDef(), phiInst.getVals().get(0));
                 } else {
+                    if(phiInst.getDef().getValue().equals("%call.5.inline.11.inline.15"))
+                    {
+                        int a=1;
+                    }
                     phiList.put(phiInst.getDef(), phiInst);
                     if (Var2Use.get(phiInst.getDef()) == null) {
                         Var2Use.put(phiInst.getDef(), new HashSet<IRInst>());
