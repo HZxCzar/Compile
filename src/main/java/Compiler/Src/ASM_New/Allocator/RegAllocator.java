@@ -404,17 +404,17 @@ public class RegAllocator {
         }
     }
 
-    public boolean CallRelated(ASMReg reg) {
-        if (reg instanceof ASMPhysicalReg) {
-            if (((ASMPhysicalReg) reg).equals(BuiltInRegs.getSp())
-                    || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getRa())
-                    || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getT1())) {
-                return false;
-            }
-            return true;
-        }
-        return false;
-    }
+    // public boolean CallRelated(ASMReg reg) {
+    //     if (reg instanceof ASMPhysicalReg) {
+    //         if (((ASMPhysicalReg) reg).equals(BuiltInRegs.getSp())
+    //                 || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getRa())
+    //                 || ((ASMPhysicalReg) reg).equals(BuiltInRegs.getT1())) {
+    //             return false;
+    //         }
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public void Build(ASMFuncDef func) {
         for (var block : func.getBlocks()) {

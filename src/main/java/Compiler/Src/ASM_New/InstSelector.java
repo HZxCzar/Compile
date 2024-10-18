@@ -814,7 +814,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             }
         }
         InstList.appendInsts(0, ComputeInst);
-        InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(), 0));
+        // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(), 0));
         // InstList.appendInsts(StoreInst);
         var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {

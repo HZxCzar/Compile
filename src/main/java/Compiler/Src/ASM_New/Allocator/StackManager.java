@@ -79,7 +79,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) ) {//|| reg.equals(regs.getT1())
                             continue;
                         }
                         LoadSet.add(reg);
@@ -94,7 +94,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) { //|| reg.equals(regs.getT1())
                             continue;
                         }
                         StoreSet.add(reg);
@@ -161,7 +161,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {// || reg.equals(regs.getT1())
                             continue;
                         }
                         LoadSet.add(reg);
@@ -176,7 +176,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {// || reg.equals(regs.getT1())
                             continue;
                         }
                         StoreSet.add(reg);
@@ -243,7 +243,7 @@ public class StackManager {
                         if (reg.equals(regs.getA0()) && ((ASMCall) inst).isHasReturnValue()) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {// || reg.equals(regs.getT1())
                             continue;
                         }
                         LoadSet.add(reg);
@@ -258,7 +258,7 @@ public class StackManager {
                         if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {
                             continue;
                         }
-                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa()) || reg.equals(regs.getT1())) {
+                        if (reg.equals(regs.getSp()) || reg.equals(regs.getRa())) {// || reg.equals(regs.getT1())
                             continue;
                         }
                         StoreSet.add(reg);
@@ -340,56 +340,58 @@ public class StackManager {
         switch (reg.getName()) {
             case "t0":
                 return 0;
-            case "t2":
+            case "t1":
                 return 4;
-            case "t3":
+            case "t2":
                 return 8;
-            case "t4":
+            case "t3":
                 return 12;
-            case "t5":
+            case "t4":
                 return 16;
-            case "t6":
+            case "t5":
                 return 20;
-            case "s0":
+            case "t6":
                 return 24;
-            case "s1":
+            case "s0":
                 return 28;
-            case "s2":
+            case "s1":
                 return 32;
-            case "s3":
+            case "s2":
                 return 36;
-            case "s4":
+            case "s3":
                 return 40;
-            case "s5":
+            case "s4":
                 return 44;
-            case "s6":
+            case "s5":
                 return 48;
-            case "s7":
+            case "s6":
                 return 52;
-            case "s8":
+            case "s7":
                 return 56;
-            case "s9":
+            case "s8":
                 return 60;
-            case "s10":
+            case "s9":
                 return 64;
-            case "s11":
+            case "s10":
                 return 68;
-            case "a0":
+            case "s11":
                 return 72;
-            case "a1":
+            case "a0":
                 return 76;
-            case "a2":
+            case "a1":
                 return 80;
-            case "a3":
+            case "a2":
                 return 84;
-            case "a4":
+            case "a3":
                 return 88;
-            case "a5":
+            case "a4":
                 return 92;
-            case "a6":
+            case "a5":
                 return 96;
-            case "a7":
+            case "a6":
                 return 100;
+            case "a7":
+                return 104;
             default:
                 throw new OPTError("reg2imm");
         }
