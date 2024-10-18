@@ -645,82 +645,6 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
         var resType = new IRType((TypeInfo) node.getInfo().getType());
         var dest = new IRVariable(resType, "%.tmp.binary." + (++counter.arithCount));
         if (node.getOp().equals("&&") || node.getOp().equals("||")) {
-            // var writeDest = new IRVariable(GlobalScope.irPtrType, "%writeDest.tmp." +
-            // (++counter.arithCount));
-            // instList.addInsts(new IRAlloca(++InstCounter.InstCounter, writeDest,
-            // GlobalScope.irBoolType));
-            // var tmpdest = new IRVariable(resType, "%.tmp.binary." +
-            // (++counter.arithCount));
-            // if (!resType.equals(GlobalScope.irBoolType)) {
-            // throw new IRError("Logical operator must be bool");
-            // }
-            // if (node.getOp().equals("&&")) {
-            // var bodystmt = new IRStmt();
-            // var elsestmt = new IRStmt();
-            // bodystmt.addBlockInsts(rhsInst);
-            // var rhsdest = rhsInst.getDest();
-            // if (rhsdest.getType().equals(GlobalScope.irBoolType)) {
-            // bodystmt.addInsts(
-            // new IRIcmp(++InstCounter.InstCounter, tmpdest, "eq", GlobalScope.irBoolType,
-            // rhsdest,
-            // new IRLiteral(GlobalScope.irBoolType, "true")));
-            // } else if (rhsdest.getType().equals(GlobalScope.irIntType)) {
-            // bodystmt.addInsts(
-            // new IRIcmp(++InstCounter.InstCounter, tmpdest, "ne", GlobalScope.irIntType,
-            // rhsdest,
-            // new IRLiteral(GlobalScope.irIntType, "0")));
-            // } else {
-            // throw new IRError("Logical operator must be bool or int");
-            // }
-            // bodystmt.addInsts(new IRStore(++InstCounter.InstCounter, writeDest,
-            // tmpdest));
-            // // bodystmt.setDest(dest);
-            // elsestmt.addInsts(new IRStore(++InstCounter.InstCounter, writeDest,
-            // new IRLiteral(GlobalScope.irBoolType, "false")));
-            // var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, elsestmt);
-            // instList.addBlockInsts(ifInst);
-            // instList.addInsts(new IRLoad(++InstCounter.InstCounter, dest, writeDest));
-            // // var condLabel = ifInst.getCondLabel();
-            // // var bodyLabel = ifInst.getBodyLabel();
-            // // vals.add(new IRLiteral(GlobalScope.irBoolType, "false"));
-            // // Labels.add(condLabel);
-            // // vals.add(rhsInst.getDest());
-            // // Labels.add(bodyLabel);
-            // // instList.addInsts(new IRPhi(dest, resType, vals, Labels));
-            // } else {
-            // var bodystmt = new IRStmt();
-            // var elsestmt = new IRStmt();
-            // bodystmt.addInsts(new IRStore(++InstCounter.InstCounter, writeDest,
-            // new IRLiteral(GlobalScope.irBoolType, "true")));
-            // elsestmt.addBlockInsts(rhsInst);
-            // var rhsdest = rhsInst.getDest();
-            // if (rhsdest.getType().equals(GlobalScope.irBoolType)) {
-            // elsestmt.addInsts(
-            // new IRIcmp(++InstCounter.InstCounter, tmpdest, "eq", GlobalScope.irBoolType,
-            // rhsdest,
-            // new IRLiteral(GlobalScope.irBoolType, "true")));
-            // } else if (rhsdest.getType().equals(GlobalScope.irIntType)) {
-            // elsestmt.addInsts(
-            // new IRIcmp(++InstCounter.InstCounter, tmpdest, "ne", GlobalScope.irIntType,
-            // rhsdest,
-            // new IRLiteral(GlobalScope.irIntType, "0")));
-            // } else {
-            // throw new IRError("Logical operator must be bool or int");
-            // }
-            // elsestmt.addInsts(new IRStore(++InstCounter.InstCounter, writeDest,
-            // tmpdest));
-            // // elsestmt.setDest(dest);
-            // var ifInst = new IRIf(IRIf.addCount(), lhsInst, bodystmt, elsestmt);
-            // instList.addBlockInsts(ifInst);
-            // instList.addInsts(new IRLoad(++InstCounter.InstCounter, dest, writeDest));
-            // // var condLabel = ifInst.getCondLabel();
-            // // var elseLabel = ifInst.getElseLabel();
-            // // vals.add(new IRLiteral(GlobalScope.irBoolType, "true"));
-            // // Labels.add(condLabel);
-            // // vals.add(rhsInst.getDest());
-            // // Labels.add(elseLabel);
-            // // instList.addInsts(new IRPhi(dest, resType, vals, Labels));
-            // }
             var rhsDest = rhsInst.getDest();
             var num = IRIf.addCount();
             IRIf stmt;
@@ -853,25 +777,6 @@ public class IRBuilder extends IRControl implements ASTVisitor<IRNode> {
             var ifInsts = new IRIf(num, condInst, trueInst, falseInst,loopDepth);
             instList.addBlockInsts(ifInsts);
         } else {
-            // var resType = trueInst.getDest().getType();
-            // var wirteDest = new IRVariable(GlobalScope.irPtrType, "%cond.tmp." +
-            // (++counter.allocaCount));
-            // instList.addInsts(new IRAlloca(++InstCounter.InstCounter, wirteDest,
-            // resType));
-            // var truestmt = new IRStmt();
-            // truestmt.addBlockInsts(trueInst);
-            // truestmt.addInsts(new IRStore(++InstCounter.InstCounter, wirteDest,
-            // trueInst.getDest()));
-
-            // var falsestmt = new IRStmt();
-            // falsestmt.addBlockInsts(falseInst);
-            // falsestmt.addInsts(new IRStore(++InstCounter.InstCounter, wirteDest,
-            // falseInst.getDest()));
-            // var ifInst = new IRIf(num, condInst, truestmt, falsestmt);
-            // instList.addBlockInsts(ifInst);
-            // var dest = new IRVariable(resType, "%.tmp.cond." + (++counter.loadCount));
-            // instList.addInsts(new IRLoad(++InstCounter.InstCounter, dest, wirteDest));
-            // instList.setDest(dest);
             var stmt = new IRIf(num, condInst, trueInst, falseInst,loopDepth);
             var dest = new IRVariable(trueInst.getDest().getType(),
                     "%.conditional." + String.valueOf(counter.arithCount++));
