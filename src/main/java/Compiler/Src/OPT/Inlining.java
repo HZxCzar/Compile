@@ -95,7 +95,7 @@ public class Inlining {
                     if (name2func.get(callInst.getFuncName()) != null
                             && (Callednum.get(callInst.getFuncName()) <= 3
                                     && Calltimes.get(callInst.getFuncName()) == 0
-                                    && name2func.get(callInst.getFuncName()).getBlockstmts().size() <= 20)) {// &&
+                                    && name2func.get(callInst.getFuncName()).getBlockstmts().size() <= 50)) {// &&
                                                                                                              // name2func.get(callInst.getFuncName()).getBlockstmts().size()
                                                                                                              // <= 100)
                         InlineIndex = block.getInsts().indexOf(inst);
