@@ -1,5 +1,6 @@
 package Compiler.Src.IR;
 import Compiler.Src.Util.Error.BaseError;
+import Compiler.Src.ASM_New.Node.ASMNode;
 import Compiler.Src.IR.Entity.*;
 import Compiler.Src.IR.Node.*;
 import Compiler.Src.IR.Node.Def.*;
@@ -26,6 +27,7 @@ public interface IRVisitor<T> {
     public T visit(IRIcmp node) throws BaseError;
     // public T visit(IRJump node) throws BaseError;
     public T visit(IRStore node) throws BaseError;
+    public T visit(IROptBranch node) throws BaseError;
     // public T visit(IRCommentNode node) throws BaseError;
     // public T visit(IRCustomNode node) throws BaseError;
     // public T visit(IRLabelNode node) throws BaseError;

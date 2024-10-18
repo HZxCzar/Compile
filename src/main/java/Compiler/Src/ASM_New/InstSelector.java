@@ -23,6 +23,7 @@ import Compiler.Src.IR.Node.Def.*;
 import Compiler.Src.IR.Node.Inst.*;
 import Compiler.Src.IR.Node.Stmt.*;
 import Compiler.Src.IR.Type.*;
+import Compiler.Src.OPT.IRBranchOpt;
 import Compiler.Src.Util.Error.ASMError;
 import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
@@ -38,6 +39,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
 
     @Override
     public ASMNode visit(IRRoot node) throws BaseError {
+        new IRBranchOpt().visit(node);
         curBlock = null;
         var root = new ASMRoot();
         IR2ASM = new HashMap<>();
@@ -103,14 +105,13 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             }
             var IRBlock = ASM2IR.get(block);
             // for (var irin : IRBlock.getLiveIn()) {
-            //     if(IR2ASM.get(irin)!=null)
-            //     {
-            //         block.getLiveIn().add(IR2ASM.get(irin));
-            //     }
+            // if(IR2ASM.get(irin)!=null)
+            // {
+            // block.getLiveIn().add(IR2ASM.get(irin));
+            // }
             // }
             for (var irout : IRBlock.getLiveOut()) {
-                if(IR2ASM.get(irout)!=null)
-                {
+                if (IR2ASM.get(irout) != null) {
                     block.getLiveOut().add(IR2ASM.get(irout));
                 }
             }
@@ -123,8 +124,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             block.PhiMove_Formal(this);
         }
         initStmt.getSucc().add(funcBlocks.get(1));
-        for(int i=0;i<node.getParams().size();++i)
-        {
+        for (int i = 0; i < node.getParams().size(); ++i) {
             initStmt.getLiveOut().add(IR2ASM.get(node.getParams().get(i)));
         }
         for (var succ : initStmt.getSucc()) {
@@ -179,45 +179,36 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
 
                         // midBlocks.add(midBlock);
                         // for (var irin : ASM2IR.get(block).getLiveInPhi().get(label)) {
-                        //     midBlock.getLiveIn().add(IR2ASM.get(irin));
+                        // midBlock.getLiveIn().add(IR2ASM.get(irin));
                         // }
                         // midBlock.getLiveOut().addAll(block.getLiveIn());
 
-                        IRBlock PredIRBlock=null;
-                        for(var pred:node.getPredecessors())
-                        {
-                            if(pred.getLabelName().equals(label))
-                            {
-                                PredIRBlock=pred;
+                        IRBlock PredIRBlock = null;
+                        for (var pred : node.getPredecessors()) {
+                            if (pred.getLabelName().equals(label)) {
+                                PredIRBlock = pred;
                                 break;
                             }
                         }
-                        HashSet<IRVariable> predOut=new HashSet<>(PredIRBlock.getLiveOut());
-                        for(var phiInst:node.getPhiList().values())
-                        {
-                            for(int i=0;i<phiInst.getVals().size();++i)
-                            {
-                                var philabel=phiInst.getLabels().get(i);
-                                var val=phiInst.getVals().get(i);
-                                if(PredIRBlock.getLabelName().equals(philabel) && val instanceof IRVariable)
-                                {
+                        HashSet<IRVariable> predOut = new HashSet<>(PredIRBlock.getLiveOut());
+                        for (var phiInst : node.getPhiList().values()) {
+                            for (int i = 0; i < phiInst.getVals().size(); ++i) {
+                                var philabel = phiInst.getLabels().get(i);
+                                var val = phiInst.getVals().get(i);
+                                if (PredIRBlock.getLabelName().equals(philabel) && val instanceof IRVariable) {
                                     predOut.remove(val);
                                     predOut.add(phiInst.getDef());
                                     break;
                                 }
                             }
                         }
-                        for(var out:predOut)
-                        {
-                            if(IR2ASM.get(out)!=null)
-                            {
+                        for (var out : predOut) {
+                            if (IR2ASM.get(out) != null) {
                                 midBlock.getLiveOut().add(IR2ASM.get(out));
-                            }
-                            else if(!out.isGlobal()){
+                            } else if (!out.isGlobal()) {
                                 throw new OPTError("Unknown var");
                             }
                         }
-
 
                         predBlock.replaceLabel(block.getLabel().getLabel(), midBlock.getLabel().getLabel());
                         midBlock.getSuccessor().add(blockLabel);
@@ -266,7 +257,15 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 block.getSuccessor().add(trueLabel);
                 block.getSuccessor().add(falseLabel);
             }
-        } else {
+        } 
+        else if (node.getReturnInst() instanceof IROptBranch) {
+                var trueLabel = ((IROptBranch) node.getReturnInst()).getTrueLabel().getLabel();
+                var falseLabel = ((IROptBranch) node.getReturnInst()).getFalseLabel().getLabel();
+                block.setSuccessor(new ArrayList<>());
+                block.getSuccessor().add(trueLabel);
+                block.getSuccessor().add(falseLabel);
+        }
+        else {
             throw new ASMError("Unknown return inst");
         }
     }
@@ -289,9 +288,8 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         ASM2IR.put(block, node);
         curBlock = block;
 
-        //Collect
-        for(var phi : node.getPhiList().values())
-        {
+        // Collect
+        for (var phi : node.getPhiList().values()) {
             phi.getDef().accept(this);
         }
 
@@ -450,7 +448,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "sub" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMUnarry(++ASMCounter.InstCount, curBlock, "neg", tmpDest, rhsDest));
                     InstList.addInst(
@@ -588,7 +586,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             switch (cond) {
                 case "eq" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "xori", tmpDest, lhsDest, rhs));
                     InstList.addInst(
@@ -596,7 +594,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "ne" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "xori", tmpDest, lhsDest, rhs));
                     InstList.addInst(
@@ -608,7 +606,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "sgt" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "slti", tmpDest, lhsDest, rhs + 1));
                     InstList.addInst(new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", Dest, tmpDest));
@@ -618,7 +616,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "sge" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "slti", tmpDest, lhsDest, rhs));
                     InstList.addInst(
@@ -636,7 +634,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             switch (cond) {
                 case "eq" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "xori", tmpDest, rhsDest, lhs));
                     InstList.addInst(
@@ -644,7 +642,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "ne" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "xori", tmpDest, rhsDest, lhs));
                     InstList.addInst(
@@ -652,7 +650,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "slt" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "slti", tmpDest, rhsDest, lhs + 1));
                     InstList.addInst(
@@ -664,7 +662,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "sle" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(
                             new ASMArithI(++ASMCounter.InstCount, curBlock, "slti", tmpDest, rhsDest, lhs));
                     InstList.addInst(
@@ -685,14 +683,14 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             switch (cond) {
                 case "eq" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "xor", tmpDest, lhsDest, rhsDest));
                     InstList.addInst(
                             new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", Dest, tmpDest));
                 }
                 case "ne" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "xor", tmpDest, lhsDest, rhsDest));
                     InstList.addInst(
                             new ASMUnarry(++ASMCounter.InstCount, curBlock, "snez", Dest, tmpDest));
@@ -705,14 +703,14 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                 }
                 case "sle" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "slt", tmpDest, rhsDest, lhsDest));
                     InstList.addInst(
                             new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", Dest, tmpDest));
                 }
                 case "sge" -> {
                     // var tmpDest = new ASMVirtualReg(++ASMCounter.allocaCount);
-                    var tmpDest=regs.getT0();
+                    var tmpDest = regs.getT0();
                     InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "slt", tmpDest, lhsDest, rhsDest));
                     InstList.addInst(
                             new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", Dest, tmpDest));
@@ -733,18 +731,47 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         } else {
             var condInst = (ASMStmt) node.getCond().accept(this);
             var condDest = condInst.getDest();
-            String tmpLabel=curBlock.getLabel().getLabel()+".tmp.label";
+            String tmpLabel = curBlock.getLabel().getLabel() + ".tmp.label";
             InstList.appendInsts(condInst);
             // var condDest_true = new ASMVirtualReg(++ASMCounter.allocaCount);
-            var condDest_true=regs.getT0();
+            var condDest_true = regs.getT0();
             InstList.addInst(new ASMUnarry(++ASMCounter.InstCount, curBlock, "seqz", condDest_true, condDest));
             InstList.addInst(
-                    new ASMBeq(++ASMCounter.InstCount, curBlock, condDest_true, tmpLabel));
+                    new ASMBeq(++ASMCounter.InstCount, curBlock, condDest_true, null, tmpLabel, 0));
             InstList.addInst(new ASMJump(++ASMCounter.InstCount, curBlock, node.getFalseLabel().getLabel()));
             curBlock.setJlabel(new ASMLabel(tmpLabel));
             curBlock.setJump(new ASMJump(++ASMCounter.InstCount, curBlock, node.getTrueLabel().getLabel()));
         }
         return InstList;
+    }
+
+    @Override
+    public ASMNode visit(IROptBranch node) throws BaseError {
+        var InstList = new ASMStmt();
+        String tmpLabel = curBlock.getLabel().getLabel() + ".tmp.label";
+        curBlock.setJlabel(new ASMLabel(tmpLabel));
+        curBlock.setJump(new ASMJump(++ASMCounter.InstCount, curBlock, node.getTrueLabel().getLabel()));
+        if (node.isEq) {
+            var lhsInst = (ASMStmt) node.getCond1().accept(this);
+            var rhsInst = (ASMStmt) node.getCond2().accept(this);
+            InstList.appendInsts(lhsInst);
+            InstList.appendInsts(rhsInst);
+            var lhsDest = lhsInst.getDest();
+            var rhsDest = rhsInst.getDest();
+            InstList.addInst(new ASMBeq(++ASMCounter.InstCount, curBlock, lhsDest, rhsDest, tmpLabel, 1));
+            InstList.addInst(new ASMJump(++ASMCounter.InstCount, curBlock, node.getFalseLabel().getLabel()));
+            return InstList;
+        } else {
+            var lhsInst = (ASMStmt) node.getCond1().accept(this);
+            var rhsInst = (ASMStmt) node.getCond2().accept(this);
+            InstList.appendInsts(lhsInst);
+            InstList.appendInsts(rhsInst);
+            var lhsDest = lhsInst.getDest();
+            var rhsDest = rhsInst.getDest();
+            InstList.addInst(new ASMBeq(++ASMCounter.InstCount, curBlock, lhsDest, rhsDest, tmpLabel, 2));
+            InstList.addInst(new ASMJump(++ASMCounter.InstCount, curBlock, node.getFalseLabel().getLabel()));
+            return InstList;
+        }
     }
 
     @Override
@@ -812,7 +839,8 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             }
         }
         InstList.appendInsts(0, ComputeInst);
-        // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(), 0));
+        // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(),
+        // 0));
         // InstList.appendInsts(StoreInst);
         var offsetStack = (4 * offset + 15) / 16 * 16;
         if (offset != 0) {
@@ -856,9 +884,9 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
         InstList.appendInsts(IndexInst);
         var IndexDest = IndexInst.getDest();
         // var tmpDest1 = new ASMVirtualReg(++ASMCounter.allocaCount);
-        var tmpDest1=regs.getT0();
+        var tmpDest1 = regs.getT0();
         // var tmpDest2 = new ASMVirtualReg(++ASMCounter.allocaCount);
-        var tmpDest2=regs.getT1();
+        var tmpDest2 = regs.getT1();
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "slli", tmpDest2, IndexDest, 2));
         InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", tmpDest1, PtrDest, tmpDest2));
         InstList.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, DestDest, tmpDest1));
@@ -936,10 +964,6 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
             if (!counter.name2reg.containsKey(node.getValue())) {
                 entity = new ASMVirtualReg(++ASMCounter.allocaCount);
                 counter.name2reg.put(node.getValue(), entity);
-                if(entity.getId()==6)
-                {
-                    int a=1;
-                }
                 IR2ASM.put(node, entity);
             } else {
                 entity = counter.name2reg.get(node.getValue());
