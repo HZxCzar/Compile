@@ -68,7 +68,20 @@ public class CSE {
         root.getFuncs().forEach(func -> work(func));
     }
 
+    public boolean jud(IRFuncDef func)
+    {
+        if(func.getBlockstmts().size()>4000)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public void work(IRFuncDef func) {
+        if(jud(func))
+        {
+            return;
+        }
         new DomTreeBuilder().visit(func);
         Var2Use = new HashMap<>();
         Collect(func);

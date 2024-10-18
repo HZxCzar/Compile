@@ -57,8 +57,20 @@ public class SCCP implements IRVisitor<OPTError> {
         // CodeMove(root);
         return new OPTError();
     }
+    public boolean jud(IRFuncDef func)
+    {
+        if(func.getBlockstmts().size()>4000)
+        {
+            return true;
+        }
+        return false;
+    }
 
     public void work(IRFuncDef func) {
+        if(jud(func))
+        {
+            return;
+        }
         V = new HashMap<>();
         Excutable = new HashSet<>();
         Var2Use = new HashMap<IRVariable, HashSet<IRInst>>();

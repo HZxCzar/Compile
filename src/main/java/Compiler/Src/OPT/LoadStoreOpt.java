@@ -47,6 +47,15 @@ public class LoadStoreOpt {
         root.getFuncs().forEach(func -> work_on_func(func));
     }
 
+    public boolean jud(IRFuncDef func)
+    {
+        if(func.getBlockstmts().size()>4000)
+        {
+            return true;
+        }
+        return false;
+    }
+
     public void BuildCallMap(IRRoot root) {
         forbid = new HashSet<>();
         for (var func : root.getFuncs()) {
@@ -71,6 +80,10 @@ public class LoadStoreOpt {
     }
 
     public void work_on_func(IRFuncDef func) {
+        if(jud(func))
+        {
+            return;
+        }
         if (func.getName().equals("main.global.init"))
             return;
         else if (forbid.contains(func)) {

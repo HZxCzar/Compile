@@ -115,10 +115,22 @@ public class LoopOpt {//one time, cus we don't collect outside getelementptr, so
     }
 
     public void work_on_func(IRFuncDef func) {
+        if(jud(func))
+        {
+            return;
+        }
         base = new Loop(0);
         block2loop = new HashMap<>();
         LoopConstruct(func);
         work(func);
+    }
+    public boolean jud(IRFuncDef func)
+    {
+        if(func.getBlockstmts().size()>4000)
+        {
+            return true;
+        }
+        return false;
     }
 
     public void work(IRFuncDef func) {
