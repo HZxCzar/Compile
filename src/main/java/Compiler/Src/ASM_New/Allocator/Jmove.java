@@ -13,7 +13,7 @@ import Compiler.Src.ASM_New.Node.Inst.ASMInst;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMCall;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
@@ -63,7 +63,7 @@ public class Jmove {
                     var jump=block.getJump();
                     if(func.getBlocks().get(i+1).getLabel().getLabel().equals(jump.getLabel()) && block.getReturnInst().getInsts().size()>=2)
                     {
-                        var bezqInst=(ASMBezq)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2);
+                        var bezqInst=(ASMBeq)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2);
                         bezqInst.setLabel(jump.getLabel());
                         block.setJlabel(null);
                         block.setJump(null);

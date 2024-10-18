@@ -18,7 +18,7 @@ import Compiler.Src.ASM_New.Node.Inst.Arithmetic.*;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMRet;
 

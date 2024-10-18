@@ -13,7 +13,7 @@ import Compiler.Src.ASM_New.Node.Inst.Arithmetic.ASMArithR;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMRet;
@@ -204,8 +204,8 @@ public class ASMControl {
                 if (inst instanceof ASMJump) {
                     ((ASMJump) inst).addFuncName(func.getName());
                 }
-                if (inst instanceof ASMBezq) {
-                    ((ASMBezq) inst).addFuncName(func.getName());
+                if (inst instanceof ASMBeq) {
+                    ((ASMBeq) inst).addFuncName(func.getName());
                 }
                 if (inst instanceof ASMRet) {
                     if (j != size - 1) {

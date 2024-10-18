@@ -11,7 +11,7 @@ import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMCall;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMRet;
 import Compiler.Src.ASM_New.Entity.ASMPhysicalReg;
@@ -240,8 +240,8 @@ public class LiveAnalysis {
             }
             if (size > 1) {
                 var BeqzInst = block.getReturnInst().getInsts().get(size - 2);
-                if (BeqzInst instanceof ASMBezq) {
-                    var nextBlock = label2Block.get(((ASMBezq) BeqzInst).getLabel());
+                if (BeqzInst instanceof ASMBeq) {
+                    var nextBlock = label2Block.get(((ASMBeq) BeqzInst).getLabel());
                     block.addSucc(nextBlock);
                     nextBlock.addPred(block);
                 }

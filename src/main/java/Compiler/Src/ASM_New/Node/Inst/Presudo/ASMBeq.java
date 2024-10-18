@@ -10,11 +10,11 @@ import Compiler.Src.ASM_New.Node.Inst.ASMInst;
 
 @lombok.Getter
 @lombok.Setter
-public class ASMBezq extends ASMInst {
+public class ASMBeq extends ASMInst {
     private ASMReg rs1;
     private String Label;
 
-    public ASMBezq(int id,ASMBlock parent,ASMReg rs1, String label) {
+    public ASMBeq(int id,ASMBlock parent,ASMReg rs1, String label) {
         super(id, parent);
         this.rs1 = rs1;
         Label = label;

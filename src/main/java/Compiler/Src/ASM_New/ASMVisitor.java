@@ -36,7 +36,7 @@ public interface ASMVisitor<T> {
 
     public T visit(ASMStore node);
 
-    public T visit(ASMBezq node);
+    public T visit(ASMBeq node);
 
     public T visit(ASMLi node);
 

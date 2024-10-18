@@ -14,7 +14,7 @@ import Compiler.Src.ASM_New.Entity.ASMVirtualReg;
 import Compiler.Src.ASM_New.Node.Inst.ASMInst;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMBranch;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Util.ASMLabel;
 import Compiler.Src.ASM_New.Util.ASMControl;
@@ -191,7 +191,7 @@ public class ASMBlock extends ASMStmt {
                 if (((ASMJump) inst).getLabel().equals(oldLabel)) {
                     ((ASMJump) inst).setLabel(newLabel);
                 }
-            } else if (inst instanceof ASMBezq) {
+            } else if (inst instanceof ASMBeq) {
                 if (jlabel == null) {
                     throw new OPTError("jlabel is null");
                 }

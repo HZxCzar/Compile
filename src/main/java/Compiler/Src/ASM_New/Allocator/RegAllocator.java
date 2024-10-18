@@ -14,7 +14,7 @@ import Compiler.Src.ASM_New.Util.BuiltInRegs;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.ASM_New.Node.Inst.Control.ASMJump;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMStore;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBezq;
+import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMBeq;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMMove;
 import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMLi;
 import Compiler.Src.ASM_New.Node.Inst.Memory.ASMLoad;
