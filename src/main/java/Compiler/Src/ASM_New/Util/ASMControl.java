@@ -121,13 +121,15 @@ public class ASMControl {
         var InstList = new ASMStmt();
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT1(), regs.getT1(), -4));
         // if (offset > 2047 || offset < -2048) {
-            InstList.addInst(
-                    new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT1(), regs.getSp(), regs.getT1()));
-            InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, 0, regs.getT1()));
+        InstList.addInst(
+                new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT1(), regs.getSp(), regs.getT1()));
+        InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, 0, regs.getT1()));
         // } else {
-        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, offset, regs.getSp()));
+        // InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg,
+        // offset, regs.getSp()));
         // }
-        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getT0(), regs.getT0(), regs.getSp()));
+        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub",
+        // regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT1(), regs.getT1(), 4));
         return InstList;
     }
@@ -136,14 +138,17 @@ public class ASMControl {
         var InstList = new ASMStmt();
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT1(), regs.getT1(), -4));
         // if (offset > 2047 || offset < -2048) {
-            // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), offset));
-            InstList.addInst(
-                    new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT1(), regs.getSp(), regs.getT1()));
-            InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, 0, regs.getT1()));
+        // InstList.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(),
+        // offset));
+        InstList.addInst(
+                new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT1(), regs.getSp(), regs.getT1()));
+        InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "lw", reg, 0, regs.getT1()));
         // } else {
-        //     InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg, offset, regs.getSp()));
+        // InstList.addInst(new ASMStore(++ASMCounter.InstCount, curBlock, "sw", reg,
+        // offset, regs.getSp()));
         // }
-        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getT0(), regs.getT0(), regs.getSp()));
+        // InstList.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "sub",
+        // regs.getT0(), regs.getT0(), regs.getSp()));
         InstList.addInst(new ASMArithI(++ASMCounter.InstCount, curBlock, "addi", regs.getT1(), regs.getT1(), 4));
         return InstList;
     }
@@ -171,19 +176,18 @@ public class ASMControl {
         initInst.addInst(1,
                 new ASMArithR(++ASMCounter.InstCount, curBlock, "sub", regs.getSp(), regs.getSp(), regs.getT1()));
         initInst.appendInsts(StoreAt(regs.getRa()));
-        // if (func.getTopPointer() != null) {
-        //     // initInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT0(), total));
-        //     initInst.addInst(
-        //             new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getT0(), regs.getSp(), regs.getT0()));
-        // }
-
-        // initInst.appendInsts(StoreInst);
 
         initBlock.appendInsts(0, initInst);
         var jumpStmt = new ASMStmt();
-        var jumpInst = new ASMJump(++ASMCounter.InstCount, curBlock,
-                func.getName() + "." + func.getBlocks().get(1).getLabel().getLabel());
-        jumpStmt.addInst(jumpInst);
+        // if (func.getBlocks().size() > 1) {
+            var jumpInst = new ASMJump(++ASMCounter.InstCount, curBlock,
+                    func.getName() + "." + func.getBlocks().get(1).getLabel().getLabel());
+            jumpStmt.addInst(jumpInst);
+        // } else {
+        //     jumpStmt.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(), total));
+        //     jumpStmt.appendInsts(LoadAt(regs.getRa()));
+        //     jumpStmt.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, regs.getSp(), regs.getT1()));
+        // }
         initBlock.setReturnInst(jumpStmt);
         curBlock = null;
         for (int i = 1; i < func.getBlocks().size(); i++) {
@@ -191,8 +195,7 @@ public class ASMControl {
             String Labelname_old = curBlock.getLabel().getLabel();
             String Labelname_new = func.getName() + "." + Labelname_old;
             curBlock.setLabel(new ASMLabel(Labelname_new));
-            if(curBlock.getJlabel()!=null)
-            {
+            if (curBlock.getJlabel() != null) {
                 String Jlabelname_old = curBlock.getJlabel().getLabel();
                 String Jlabelname_new = func.getName() + "." + Jlabelname_old;
                 curBlock.setJlabel(new ASMLabel(Jlabelname_new));
@@ -215,8 +218,6 @@ public class ASMControl {
                         returnInst.addInst(new ASMLi(++ASMCounter.InstCount, curBlock, regs.getT1(), total));
                         returnInst.appendInsts(LoadAt(regs.getRa()));
                         returnInst.addInst(new ASMMove(++ASMCounter.InstCount, curBlock, regs.getSp(), regs.getT1()));
-                        // returnInst.addInst(new ASMArithR(++ASMCounter.InstCount, curBlock, "add", regs.getSp(),
-                        //         regs.getSp(), regs.getT0()));
                         curBlock.getReturnInst().appendInsts(j, returnInst);
                     }
                     break;

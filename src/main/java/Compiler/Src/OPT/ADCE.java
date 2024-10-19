@@ -48,10 +48,8 @@ public class ADCE {
     private HashMap<IRInst, IRBlock> inst2block;
     private HashMap<IRLabel, IRBlock> name2block;
 
-    public boolean jud(IRFuncDef func)
-    {
-        if(func.getBlockstmts().size()>4000)
-        {
+    public boolean jud(IRFuncDef func) {
+        if (func.getBlockstmts().size() > 4000) {
             return true;
         }
         return false;
@@ -60,8 +58,7 @@ public class ADCE {
     public OPTError visit(IRRoot root) throws OPTError {
         new CFGBuilder().visit(root);
         for (var func : root.getFuncs()) {
-            if(jud(func))
-            {
+            if (jud(func)) {
                 continue;
             }
             WorkList = new HashSet<>();
@@ -95,6 +92,20 @@ public class ADCE {
         CalcRpo(entryBlock);
         entryBlock.setRidom(entryBlock);
         entryBlock.getSuccessors().add(entryBlock);
+        HashSet<IRBlock> visitedBlocks = new HashSet<>();
+        for (int i = PostOrder.size() - 1; i >= 0; i--)
+        {
+            visitedBlocks.add(PostOrder.get(i));
+        }
+        for(int i=0;i<func.getBlockstmts().size();++i)
+        {
+            var block=func.getBlockstmts().get(i);
+            if(!visitedBlocks.contains(block))
+            {
+                func.getBlockstmts().remove(i);
+                --i;
+            }
+        }
         // build DomTree
         boolean run = true;
         while (run) {
@@ -103,10 +114,6 @@ public class ADCE {
                 var block = PostOrder.get(i);
                 if (entryBlock.getPredecessors().contains(block)) {
                     continue;
-                }
-                if(block.getLabelName().getLabel().equals("loop.2.updateLabel"))
-                {
-                    int a=1;
                 }
                 if (calcRidom(block)) {
                     run = true;
@@ -118,10 +125,6 @@ public class ADCE {
         for (int i = PostOrder.size() - 1; i >= 0; i--) {
             var block = PostOrder.get(i);
             if (block.getRidom() != block && block.getRidom() != entryBlock) {
-                if(block.getRidom()==null)
-                {
-                    int a=1;
-                }
                 block.getRidom().getRDomChildren().add(block);
             }
             calcDF(block);
@@ -197,23 +200,19 @@ public class ADCE {
     public void Collect(IRFuncDef func) throws OPTError {
         for (var block : func.getBlockstmts()) {
             name2block.put(block.getLabelName(), block);
-            if(block.getLabelName().getLabel().equals("if.1.cond"))
-            {
-                int a=1;
-            }
             for (var inst : block.getPhiList().values()) {
                 var2def.put(((IRPhi) inst).getDef(), inst);
                 inst2block.put(inst, block);
             }
             for (var inst : block.getInsts()) {
-                if (inst instanceof IRGetelementptr) {
-                    int a = 1;
-                }
                 var2def.put(inst.getDef(), inst);
                 inst2block.put(inst, block);
                 if (SideEffect(inst)) {
                     WorkList.add(inst);
                 }
+            }
+            if (SideEffect(block.getReturnInst())) {
+                WorkList.add(block.getReturnInst());
             }
             inst2block.put(block.getReturnInst(), block);
             if (block.getReturnInst() instanceof IRBranch) {
@@ -252,9 +251,6 @@ public class ADCE {
                     continue;
                 }
                 while (!LiveBlock.contains(iter) && iter != iter.getRidom()) {
-                    if (iter.getRidom() == null) {
-                        int a = 1;
-                    }
                     iter = iter.getRidom();
                 }
                 block.setReturnInst(new IRBranch(++InstCounter.InstCounter, iter.getLabelName()));
@@ -284,19 +280,12 @@ public class ADCE {
                 }
             }
             var curblock = inst2block.get(x);
-            if(curblock==null)
-            {
-                int a=1;
-            }
             for (var pred : curblock.getRDomFrontier()) {
                 if (!Live.contains(pred.getReturnInst())) {
                     WorkList.add(pred.getReturnInst());
                 }
             }
             for (var use : x.getUses()) {
-                if (use.getValue().equals("%.tmp.index.10")) {
-                    int a = 1;
-                }
                 var def = var2def.get(use);
                 if (def != null && !Live.contains(def)) {
                     WorkList.add(def);

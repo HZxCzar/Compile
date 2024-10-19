@@ -58,6 +58,9 @@ public class CFGBuilder {
             blocks.remove(dead);
         }
         funcDef.setBlockstmts(blocks);
+        if(funcDef.getBlockstmts().size() == 0){
+            throw new OPTError("empty function");
+        }
         // CalcRpo(funcDef.getBlockstmts().get(0));
     }
 
