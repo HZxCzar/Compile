@@ -206,7 +206,7 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                             if (IR2ASM.get(out) != null) {
                                 midBlock.getLiveOut().add(IR2ASM.get(out));
                             } else if (!out.isGlobal()) {
-                                continue;
+                                continue;//due to IRBranchOpt
                                 // throw new OPTError("Unknown var");
                             }
                         }
