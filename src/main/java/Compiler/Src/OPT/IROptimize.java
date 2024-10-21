@@ -14,6 +14,7 @@ public class IROptimize {
         new SCCP().visit(root);
         new CSE().visit(root);
         new RovB().visit(root);
+        new Other().visit(root);
         new LiveAnalysis().visit(root);
         return;
     }
