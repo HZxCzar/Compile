@@ -127,6 +127,9 @@ public class Other {
                     }
                 } else if (inst instanceof IRStore) {
                     var2base.put(((IRStore) inst).getDest(), null);
+                }else if(inst instanceof IRCall)
+                {
+                    var2base.clear();
                 }
             }
             for(var use:block.getReturnInst().getUses())
