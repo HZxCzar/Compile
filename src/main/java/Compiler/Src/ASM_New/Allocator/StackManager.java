@@ -101,15 +101,15 @@ public class StackManager {
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                         // reg2imm(reg), regs.getSp()));
                     }
-                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
-                            : 8); ++index) {
-                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
-                            continue;
-                        }
-                        var reg = ((ASMCall) inst).getA(index);
-                        StoreSet.add(reg);
-                        LoadSet.add(reg);
-                    }
+                    // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                    //         : 8); ++index) {
+                    //     if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                    //         continue;
+                    //     }
+                    //     var reg = ((ASMCall) inst).getA(index);
+                    //     StoreSet.add(reg);
+                    //     LoadSet.add(reg);
+                    // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
                                 reg2imm(reg), regs.getSp()));
@@ -183,15 +183,15 @@ public class StackManager {
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                         // reg2imm(reg), regs.getSp()));
                     }
-                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
-                            : 8); ++index) {
-                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
-                            continue;
-                        }
-                        var reg = ((ASMCall) inst).getA(index);
-                        StoreSet.add(reg);
-                        LoadSet.add(reg);
-                    }
+                    // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                    //         : 8); ++index) {
+                    //     if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                    //         continue;
+                    //     }
+                    //     var reg = ((ASMCall) inst).getA(index);
+                    //     StoreSet.add(reg);
+                    //     LoadSet.add(reg);
+                    // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
                                 reg2imm(reg), regs.getSp()));
@@ -265,15 +265,15 @@ public class StackManager {
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
                         // reg2imm(reg), regs.getSp()));
                     }
-                    for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
-                            : 8); ++index) {
-                        if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
-                            continue;
-                        }
-                        var reg = ((ASMCall) inst).getA(index);
-                        StoreSet.add(reg);
-                        LoadSet.add(reg);
-                    }
+                    // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
+                    //         : 8); ++index) {
+                    //     if (index == 0 && ((ASMCall) inst).isHasReturnValue()) {
+                    //         continue;
+                    //     }
+                    //     var reg = ((ASMCall) inst).getA(index);
+                    //     StoreSet.add(reg);
+                    //     LoadSet.add(reg);
+                    // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
                                 reg2imm(reg), regs.getSp()));
