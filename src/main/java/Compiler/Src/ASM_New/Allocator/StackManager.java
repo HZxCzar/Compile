@@ -23,12 +23,15 @@ import Compiler.Src.Util.Error.OPTError;
 
 public class StackManager {
     BuiltInRegs regs;
+    ASMFuncDef curFunc;
     ASMBlock curBlock;
     HashMap<ASMReg, Integer> color = new HashMap<>();
+    HashMap<ASMReg,Integer> reg2pos=new HashMap<>();
 
     public void visit(ASMRoot root) {
         regs = new BuiltInRegs();
         for (var func : root.getFuncs()) {
+            curFunc = func;
             color = func.getColor();
             callmodify(func);
             work(func);
@@ -51,6 +54,7 @@ public class StackManager {
     }
 
     public void callmodify(ASMFuncDef func) {
+        reg2pos.clear();
         for (var block : func.getBlocks()) {
             // var live = block.getLiveOut();
             if(block.getLabel().getLabel().equals("main.entry"))
@@ -84,7 +88,7 @@ public class StackManager {
                         }
                         LoadSet.add(reg);
                         // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
@@ -99,7 +103,7 @@ public class StackManager {
                         }
                         StoreSet.add(reg);
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
                     //         : 8); ++index) {
@@ -112,11 +116,11 @@ public class StackManager {
                     // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                     for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                 }
                 if (inst.getDef() != null) {
@@ -166,7 +170,7 @@ public class StackManager {
                         }
                         LoadSet.add(reg);
                         // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
@@ -181,7 +185,7 @@ public class StackManager {
                         }
                         StoreSet.add(reg);
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
                     //         : 8); ++index) {
@@ -194,11 +198,11 @@ public class StackManager {
                     // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                     for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                 }
                 if (inst.getDef() != null) {
@@ -248,7 +252,7 @@ public class StackManager {
                         }
                         LoadSet.add(reg);
                         // LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     if (((ASMCall) inst).isHasReturnValue()) {
                         live.remove(regs.getA0());
@@ -263,7 +267,7 @@ public class StackManager {
                         }
                         StoreSet.add(reg);
                         // StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                        // reg2imm(reg), regs.getSp()));
+                        // getimm(reg), regs.getSp()));
                     }
                     // for (int index = 0; index < (((ASMCall) inst).getArgSize() < 8 ? ((ASMCall) inst).getArgSize()
                     //         : 8); ++index) {
@@ -276,11 +280,11 @@ public class StackManager {
                     // }
                     for (var reg : StoreSet) {
                         LoadInst.addInst(new ASMLoad(++ASMCounter.InstCount, block, "lw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                     for (var reg : LoadSet) {
                         StoreInst.addInst(new ASMStore(++ASMCounter.InstCount, block, "sw", reg,
-                                reg2imm(reg), regs.getSp()));
+                                getimm(reg), regs.getSp()));
                     }
                 }
                 if (inst.getDef() != null) {
@@ -334,6 +338,20 @@ public class StackManager {
             }
         }
         curBlock = null;
+    }
+
+    public int getimm(ASMReg reg)
+    {
+        if(reg2pos.get(reg)==null)
+        {
+            int imm=curFunc.getStackSize()+4;
+            curFunc.setStackSize(curFunc.getStackSize()+4);
+            reg2pos.put(reg,imm);
+            return imm;
+        }
+        else{
+            return reg2pos.get(reg);
+        }
     }
 
     public int reg2imm(ASMReg reg) {
