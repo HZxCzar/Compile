@@ -6,11 +6,9 @@
 	.p2align	1
 	.type	print,@function
 print:
-	lui	a1, %hi(.L.str)
-	addi	a1, a1, %lo(.L.str)
-	mv	a2, a0
-	mv	a0, a1
-	mv	a1, a2
+	mv a1,a0
+	lui	a0, %hi(.L.str)
+	addi	a0, a0, %lo(.L.str)
 	tail	printf
 .Lfunc_end0:
 	.size	print, .Lfunc_end0-print
@@ -19,11 +17,9 @@ print:
 	.p2align	1
 	.type	println,@function
 println:
-	lui	a1, %hi(.L.str.1)
-	addi	a1, a1, %lo(.L.str.1)
-	mv	a2, a0
-	mv	a0, a1
-	mv	a1, a2
+	mv a1,a0
+	lui	a0, %hi(.L.str.1)
+	addi	a0, a0, %lo(.L.str.1)
 	tail	printf
 .Lfunc_end1:
 	.size	println, .Lfunc_end1-println
@@ -32,11 +28,9 @@ println:
 	.p2align	1
 	.type	printInt,@function
 printInt:
-	lui	a1, %hi(.L.str.2)
-	addi	a1, a1, %lo(.L.str.2)
-	mv	a2, a0
-	mv	a0, a1
-	mv	a1, a2
+	mv a1,a0
+	lui	a0, %hi(.L.str.2)
+	addi	a0, a0, %lo(.L.str.2)
 	tail	printf
 .Lfunc_end2:
 	.size	printInt, .Lfunc_end2-printInt
@@ -45,11 +39,9 @@ printInt:
 	.p2align	1
 	.type	printlnInt,@function
 printlnInt:
-	lui	a1, %hi(.L.str.3)
-	addi	a1, a1, %lo(.L.str.3)
-	mv	a2, a0
-	mv	a0, a1
-	mv	a1, a2
+	mv a1,a0
+	lui	a0, %hi(.L.str.3)
+	addi	a0, a0, %lo(.L.str.3)
 	tail	printf
 .Lfunc_end3:
 	.size	printlnInt, .Lfunc_end3-printlnInt

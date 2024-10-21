@@ -37,10 +37,10 @@ public class Other {
     public void visit(IRRoot root) {
         new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> replaceLoad(func));
-        root.getFuncs().forEach(func -> efficiency_killer(func));
+        root.getFuncs().forEach(func -> Icmp_Killer(func));
     }
 
-    public void efficiency_killer(IRFuncDef func)
+    public void Icmp_Killer(IRFuncDef func)
     {
         HashMap<IRVariable,IREntity> rep=new HashMap<>();
         for(var block:func.getBlockstmts())
