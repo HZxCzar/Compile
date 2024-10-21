@@ -40,14 +40,14 @@ public class Tail {
     private HashMap<IRVariable, IRBlock> tailMap;
     private HashSet<IRVariable> WorkList;
 
-    public boolean jud(IRFuncDef func)
-    {
-        if(func.getBlockstmts().size()>4000)
-        {
-            return true;
-        }
-        return false;
-    }
+    // public boolean jud(IRFuncDef func)
+    // {
+    //     if(func.getBlockstmts().size()>4000)
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public void visit(IRRoot root) {
         new CFGBuilder().visit(root);
@@ -55,10 +55,10 @@ public class Tail {
     }
 
     public void work_on_func(IRFuncDef func) {
-        if(jud(func))
-        {
-            return;
-        }
+        // if(jud(func))
+        // {
+        //     return;
+        // }
         var entry = func.getBlockstmts().get(0);
         if (entry.getPhiList().size() != 0) {
             throw new OPTError("Tail: entry block has phi");

@@ -40,20 +40,20 @@ public class RovB {
         root.getFuncs().forEach(func -> rmvSingle(func));
         root.getFuncs().forEach(func -> rmvSucc(func));
     }
-    public boolean jud(IRFuncDef func)
-    {
-        if(func.getBlockstmts().size()>4000)
-        {
-            return true;
-        }
-        return false;
-    }
+    // public boolean jud(IRFuncDef func)
+    // {
+    //     if(func.getBlockstmts().size()>4000)
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public void rmvSingle(IRFuncDef func) {
-        if(jud(func))
-        {
-            return;
-        }
+        // if(jud(func))
+        // {
+        //     return;
+        // }
         var change = true;
         while (change) {
             change = false;
@@ -110,10 +110,10 @@ public class RovB {
     }
 
     public void rmvSucc(IRFuncDef func) {
-        if(jud(func))
-        {
-            return;
-        }
+        // if(jud(func))
+        // {
+        //     return;
+        // }
         var change = true;
         while (change) {
             change = false;

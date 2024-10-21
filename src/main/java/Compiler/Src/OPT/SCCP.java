@@ -58,20 +58,20 @@ public class SCCP implements IRVisitor<OPTError> {
         // CodeMove(root);
         return new OPTError();
     }
-    public boolean jud(IRFuncDef func)
-    {
-        if(func.getBlockstmts().size()>4000)
-        {
-            return true;
-        }
-        return false;
-    }
+    // public boolean jud(IRFuncDef func)
+    // {
+    // if(func.getBlockstmts().size()>4000)
+    // {
+    // return true;
+    // }
+    // return false;
+    // }
 
     public void work(IRFuncDef func) {
-        if(jud(func))
-        {
-            return;
-        }
+        // if(jud(func))
+        // {
+        // return;
+        // }
         V = new HashMap<>();
         Excutable = new HashSet<>();
         Var2Use = new HashMap<IRVariable, HashSet<IRInst>>();
@@ -131,12 +131,35 @@ public class SCCP implements IRVisitor<OPTError> {
             while (!WorkListB.isEmpty()) {
                 var block = WorkListB.iterator().next();
                 WorkListB.remove(block);
-                if(block.getLabelName().getLabel().equals("inline.2")) {
-                    int a = 1;
-                }
                 for (var phiInst : block.getPhiList().values()) {
-                    if (phiInst.getDef().getValue().equals("%.tmp.binary.15")) {
-                        int a = 1;
+                    // 9
+                    boolean fact9 = true;
+                    IREntity entity = null;
+                    for (int i = 0; i < phiInst.getLabels().size(); ++i) {
+                        var val = phiInst.getVals().get(i);
+                        var label = phiInst.getLabels().get(i);
+                        if (Excutable.contains(label2Block.get(label))) {
+                            if (val instanceof IRVariable && V.get(val).a == 2) {
+                                fact9 = false;
+                                break;
+                            } else if (val instanceof IRVariable && V.get(val).a == 0) {
+                                continue;
+                            }
+                            if (entity == null) {
+                                entity = val instanceof IRLiteral ? val : V.get(val).b;
+                            } else if (!entity.equals(val instanceof IRLiteral ? val : V.get(val).b)) {
+                                fact9 = false;
+                                break;
+                            }
+                        }
+                    }
+                    fact9 = entity == null ? false : fact9;
+                    if (fact9) {
+                        if (V.get(phiInst.getDef()).a < 1) {
+                            V.put(phiInst.getDef(), new Pair<>(1, entity));
+                            WorkListV.add(phiInst.getDef());
+                        }
+                        continue;
                     }
                     // 6
                     boolean fact6 = false;
@@ -179,38 +202,6 @@ public class SCCP implements IRVisitor<OPTError> {
                         }
                         continue;
                     }
-
-                    if (phiInst.getDef().getValue().equals("%b.depth.2.tags.0.1.1.PhiBlock.0")) {
-                        int a = 1;
-                        // System.out.println(V.get(phiInst.getDef()).a);
-                    }
-                    // 9
-                    boolean fact9 = true;
-                    IREntity entity = null;
-                    for (int i = 0; i < phiInst.getLabels().size(); ++i) {
-                        var val = phiInst.getVals().get(i);
-                        var label = phiInst.getLabels().get(i);
-                        if (Excutable.contains(label2Block.get(label))
-                                && (val instanceof IRLiteral || V.get(val).a == 1)) {
-                            if (entity == null) {
-                                entity = val instanceof IRLiteral ? val : V.get(val).b;
-                            } else if (!entity.equals(val instanceof IRLiteral ? val : V.get(val).b)) {
-                                fact9 = false;
-                                break;
-                            }
-                        }
-                    }
-                    fact9 = entity == null ? false : fact9;
-                    if (fact9) {
-                        if (phiInst.getDef().getValue().equals("%b.depth.2.tags.0.1.1.PhiBlock.0")) {
-                            int a = 1;
-                            // System.out.println(V.get(phiInst.getDef()).a);
-                        }
-                        if (V.get(phiInst.getDef()).a < 1) {
-                            V.put(phiInst.getDef(), new Pair<>(1, entity));
-                            WorkListV.add(phiInst.getDef());
-                        }
-                    }
                 }
                 for (var inst : block.getInsts()) {
                     if (inst instanceof IRLoad) {
@@ -242,12 +233,6 @@ public class SCCP implements IRVisitor<OPTError> {
                             }
                         }
                     } else if (inst instanceof IRIcmp) {
-                        if (((IRIcmp) inst).getDef().getValue().equals(".tmp.binary.13")) {
-                            int a = 1;
-                        }
-                        if (inst.getDef().getValue().equals("%.tmp.binary.18")) {
-                            int a = 1;
-                        }
                         if (((((IRIcmp) inst).getLhs() instanceof IRVariable)
                                 && (V.get(((IRIcmp) inst).getLhs()).a == 2))
                                 || ((((IRIcmp) inst).getRhs() instanceof IRVariable)
@@ -381,43 +366,44 @@ public class SCCP implements IRVisitor<OPTError> {
                         } else {
                             throw new OPTError("Invalid cond in branch in SCCP");
                         }
-                        // if (((IRBranch) inst).getCond().getValue().equals("1")) {
-                        //     if (!Excutable
-                        //             .contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
-                        //         WorkListB.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
-                        //         Excutable.add(label2Block.get(((IRBranch) inst).getTrueLabel()));
-                        //         for (var succ : label2Block.get(((IRBranch) inst).getTrueLabel()).getSuccessors()) {
-                        //             if (Excutable.contains(succ)) {
-                        //                 WorkListB.add(succ);
-                        //             }
-                        //         }
-                        //     }
-                        // } else if (((IRBranch) inst).getCond().getValue().equals("0")) {
-                        //     if (!Excutable
-                        //             .contains(label2Block.get(((IRBranch) inst).getFalseLabel()))) {
-                        //         WorkListB.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
-                        //         Excutable.add(label2Block.get(((IRBranch) inst).getFalseLabel()));
-                        //         for (var succ : label2Block.get(((IRBranch) inst).getFalseLabel()).getSuccessors()) {
-                        //             if (Excutable.contains(succ)) {
-                        //                 WorkListB.add(succ);
-                        //             }
-                        //         }
-                        //     }
-                        // } else {
-                        //     throw new OPTError("Invalid value in branch cond in SCCP");
-                        // }
                     }
                 }
             }
             while (!WorkListV.isEmpty()) {
                 var var = WorkListV.iterator().next();
                 WorkListV.remove(var);
-                if (var.getValue().equals("%.tmp.binary.13")) {
-                    int a = 1;
-                }
                 for (var inst : Var2Use.get(var)) {
                     if (inst instanceof IRPhi) {
                         var phiInst = (IRPhi) inst;
+                        // 9
+                        boolean fact9 = true;
+                        IREntity entity = null;
+                        for (int i = 0; i < phiInst.getLabels().size(); ++i) {
+                            var val = phiInst.getVals().get(i);
+                            var label = phiInst.getLabels().get(i);
+                            if (Excutable.contains(label2Block.get(label))) {
+                                if (val instanceof IRVariable && V.get(val).a == 2) {
+                                    fact9 = false;
+                                    break;
+                                } else if (val instanceof IRVariable && V.get(val).a == 0) {
+                                    continue;
+                                }
+                                if (entity == null) {
+                                    entity = val instanceof IRLiteral ? val : V.get(val).b;
+                                } else if (!entity.equals(val instanceof IRLiteral ? val : V.get(val).b)) {
+                                    fact9 = false;
+                                    break;
+                                }
+                            }
+                        }
+                        fact9 = entity == null ? false : fact9;
+                        if (fact9) {
+                            if (V.get(phiInst.getDef()).a < 1) {
+                                V.put(phiInst.getDef(), new Pair<>(1, entity));
+                                WorkListV.add(phiInst.getDef());
+                            }
+                            continue;
+                        }
                         // 6
                         boolean fact6 = false;
                         HashSet<IREntity> tmp = new HashSet<>();
@@ -458,34 +444,6 @@ public class SCCP implements IRVisitor<OPTError> {
                                 WorkListV.add(phiInst.getDef());
                             }
                             continue;
-                        }
-
-                        // 9
-                        boolean fact9 = true;
-                        IREntity entity = null;
-                        for (int i = 0; i < phiInst.getLabels().size(); ++i) {
-                            var val = phiInst.getVals().get(i);
-                            var label = phiInst.getLabels().get(i);
-                            if (Excutable.contains(label2Block.get(label))
-                                    && (val instanceof IRLiteral || V.get(val).a == 1)) {
-                                if (entity == null) {
-                                    entity = val instanceof IRLiteral ? val : V.get(val).b;
-                                } else if (!entity.equals(val instanceof IRLiteral ? val : V.get(val).b)) {
-                                    fact9 = false;
-                                    break;
-                                }
-                            }
-                        }
-                        fact9 = entity == null ? false : fact9;
-                        if (fact9) {
-                            if (phiInst.getDef().getValue().equals("%call.2")) {
-                                int a = 1;
-                                // System.out.println(V.get(phiInst.getDef()).a);
-                            }
-                            if (V.get(phiInst.getDef()).a < 1) {
-                                V.put(phiInst.getDef(), new Pair<>(1, entity));
-                                WorkListV.add(phiInst.getDef());
-                            }
                         }
                     } else {
                         if (inst instanceof IRLoad) {
@@ -652,18 +610,9 @@ public class SCCP implements IRVisitor<OPTError> {
         }
         var Blockstmts = new ArrayList<IRBlock>();
         for (var block : func.getBlockstmts()) {
-            if(block.getLabelName().getLabel().equals("inline.2")) {
-                int a = 1;
-            }
             if (Excutable.contains(block)) {
                 var PhiList = new HashMap<IRVariable, IRPhi>();
                 for (var phiInst : block.getPhiList().values()) {
-                    if (phiInst.getDef().getValue().equals("%.tmp.binary.19")) {
-                        int a = 1;
-                        if (V.get(phiInst.getDef()).a == 0) {
-                            int b = 1;
-                        }
-                    }
                     if (V.get(phiInst.getDef()).a == 2) {
                         var tmp = new IRPhi(phiInst.getId(), phiInst.getDest(), phiInst.getType(),
                                 new ArrayList<>(), new ArrayList<>());
@@ -837,98 +786,99 @@ public class SCCP implements IRVisitor<OPTError> {
     }
 
     // public void CodeMove(IRRoot root) {
-    //     for (var func : root.getFuncs()) {
-    //         codemove(func);
-    //     }
+    // for (var func : root.getFuncs()) {
+    // codemove(func);
+    // }
     // }
 
     // public void codemove(IRFuncDef func) {
-    //     Var2Pair = new HashMap<>();
-    //     var WorkList = new HashSet<IRInst>();
-    //     for (var para : func.getParams()) {
-    //         Var2Pair.put(para, null);
-    //     }
-    //     for (var block : func.getOrder2Block()) {
-    //         init(block, WorkList);
-    //     }
-    //     for (var block : func.getOrder2Block()) {
-    //         for (int i = 0; i < block.getInsts().size(); ++i) {
-    //             var inst = block.getInsts().get(i);
-    //             if (!WorkList.contains(inst)) {
-    //                 continue;
-    //             }
-    //             WorkList.remove(inst);
-    //             ArrayList<IRVariable> use = new ArrayList<>();
-    //             for (var unit : inst.getUses()) {
-    //                 if (Var2Pair.get(unit) != null) {
-    //                     use.add(unit);
-    //                 }
-    //             }
-    //             if (use.size() == 0) {
-    //                 continue;
-    //             }
-    //             var pair = FindEarly(block, use);
-    //             if (pair == null) {
-    //                 continue;
-    //             }
-    //             var earlyBlock = pair.a;
-    //             var earlyInst = pair.b;
-    //             int index;
-    //             if (earlyInst != null) {
-    //                 index = earlyBlock.getInsts().indexOf(earlyInst);
-    //                 block.getInsts().remove(i);
-    //                 earlyBlock.getInsts().add(index + 1, inst);
-    //                 Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-    //             } else {
-    //                 index = 0;
-    //                 block.getInsts().remove(i);
-    //                 earlyBlock.getInsts().add(index, inst);
-    //                 Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-    //             }
-    //         }
-    //     }
+    // Var2Pair = new HashMap<>();
+    // var WorkList = new HashSet<IRInst>();
+    // for (var para : func.getParams()) {
+    // Var2Pair.put(para, null);
+    // }
+    // for (var block : func.getOrder2Block()) {
+    // init(block, WorkList);
+    // }
+    // for (var block : func.getOrder2Block()) {
+    // for (int i = 0; i < block.getInsts().size(); ++i) {
+    // var inst = block.getInsts().get(i);
+    // if (!WorkList.contains(inst)) {
+    // continue;
+    // }
+    // WorkList.remove(inst);
+    // ArrayList<IRVariable> use = new ArrayList<>();
+    // for (var unit : inst.getUses()) {
+    // if (Var2Pair.get(unit) != null) {
+    // use.add(unit);
+    // }
+    // }
+    // if (use.size() == 0) {
+    // continue;
+    // }
+    // var pair = FindEarly(block, use);
+    // if (pair == null) {
+    // continue;
+    // }
+    // var earlyBlock = pair.a;
+    // var earlyInst = pair.b;
+    // int index;
+    // if (earlyInst != null) {
+    // index = earlyBlock.getInsts().indexOf(earlyInst);
+    // block.getInsts().remove(i);
+    // earlyBlock.getInsts().add(index + 1, inst);
+    // Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+    // } else {
+    // index = 0;
+    // block.getInsts().remove(i);
+    // earlyBlock.getInsts().add(index, inst);
+    // Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
+    // }
+    // }
+    // }
     // }
 
-    // public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable> use) {
-    //     Pair<IRBlock, IRInst> res = null;
-    //     for (var var : use) {
-    //         var pair = Var2Pair.get(var);
-    //         if (pair == null) {
-    //             continue;
-    //         }
-    //         if (pair.b instanceof IRPhi) {
-    //             pair = new Pair<IRBlock, IRInst>(pair.a, null);
-    //         }
-    //         var tmp = block;
-    //         while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
-    //             tmp = tmp.getIdom();
-    //         }
-    //         if (!tmp.equals(pair.a)) {
-    //             throw new OPTError("Invalid idom in CodeMove");
-    //         }
-    //         if (res == null) {
-    //             res = pair;
-    //         } else {
-    //             if (pair.a.equals(res.a)) {
-    //                 if (pair.b != null) {
-    //                     var index_res = res.a.getInsts().indexOf(res.b);
-    //                     var index_pair = pair.a.getInsts().indexOf(pair.b);
-    //                     if (index_pair > index_res) {
-    //                         res = pair;
-    //                     }
-    //                 }
-    //             } else {
-    //                 var tmp1 = pair.a;
-    //                 while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
-    //                     tmp1 = tmp1.getIdom();
-    //                 }
-    //                 if (tmp1.equals(res.a)) {
-    //                     res = pair;
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     return res;
+    // public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable>
+    // use) {
+    // Pair<IRBlock, IRInst> res = null;
+    // for (var var : use) {
+    // var pair = Var2Pair.get(var);
+    // if (pair == null) {
+    // continue;
+    // }
+    // if (pair.b instanceof IRPhi) {
+    // pair = new Pair<IRBlock, IRInst>(pair.a, null);
+    // }
+    // var tmp = block;
+    // while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
+    // tmp = tmp.getIdom();
+    // }
+    // if (!tmp.equals(pair.a)) {
+    // throw new OPTError("Invalid idom in CodeMove");
+    // }
+    // if (res == null) {
+    // res = pair;
+    // } else {
+    // if (pair.a.equals(res.a)) {
+    // if (pair.b != null) {
+    // var index_res = res.a.getInsts().indexOf(res.b);
+    // var index_pair = pair.a.getInsts().indexOf(pair.b);
+    // if (index_pair > index_res) {
+    // res = pair;
+    // }
+    // }
+    // } else {
+    // var tmp1 = pair.a;
+    // while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
+    // tmp1 = tmp1.getIdom();
+    // }
+    // if (tmp1.equals(res.a)) {
+    // res = pair;
+    // }
+    // }
+    // }
+    // }
+    // return res;
     // }
 
     public void init(IRBlock block, HashSet<IRInst> WorkList) {
@@ -1264,7 +1214,7 @@ public class SCCP implements IRVisitor<OPTError> {
     }
 
     @Override
-    public OPTError visit(IROptBranch node) throws BaseError{
+    public OPTError visit(IROptBranch node) throws BaseError {
         return new OPTError();
     }
 }

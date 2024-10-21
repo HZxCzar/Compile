@@ -33,14 +33,14 @@ public class Inlining {
     private IRPhi PhiInst;
     private IRLabel curBlock;
 
-    public boolean jud(IRFuncDef func)
-    {
-        if(func.getBlockstmts().size()>4000)
-        {
-            return true;
-        }
-        return false;
-    }
+    // public boolean jud(IRFuncDef func)
+    // {
+    //     if(func.getBlockstmts().size()>4000)
+    //     {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public void visit(IRRoot root) {
         Callednum = new HashMap<>();
@@ -60,10 +60,10 @@ public class Inlining {
         while (run) {
             run = false;
             for (var func : root.getFuncs()) {
-                if(jud(func))
-                {
-                    continue;
-                }
+                // if(jud(func))
+                // {
+                //     continue;
+                // }
                 if (Calltimes.get(func.getName()) == 0)
                     continue;
                 run |= visit(func);

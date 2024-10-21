@@ -48,19 +48,19 @@ public class ADCE {
     private HashMap<IRInst, IRBlock> inst2block;
     private HashMap<IRLabel, IRBlock> name2block;
 
-    public boolean jud(IRFuncDef func) {
-        if (func.getBlockstmts().size() > 4000) {
-            return true;
-        }
-        return false;
-    }
+    // public boolean jud(IRFuncDef func) {
+    //     if (func.getBlockstmts().size() > 4000) {
+    //         return true;
+    //     }
+    //     return false;
+    // }
 
     public OPTError visit(IRRoot root) throws OPTError {
         new CFGBuilder().visit(root);
         for (var func : root.getFuncs()) {
-            if (jud(func)) {
-                continue;
-            }
+            // if (jud(func)) {
+            //     continue;
+            // }
             WorkList = new HashSet<>();
             var2def = new HashMap<>();
             Live = new HashSet<>();

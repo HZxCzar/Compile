@@ -37,12 +37,75 @@ public class Other {
     public void visit(IRRoot root) {
         new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> replaceLoad(func));
+        root.getFuncs().forEach(func -> efficiency_killer(func));
+    }
+
+    public void efficiency_killer(IRFuncDef func)
+    {
+        HashMap<IRVariable,IREntity> rep=new HashMap<>();
+        for(var block:func.getBlockstmts())
+        {
+            for(var phiInst:block.getPhiList().values())
+            {
+                for(var use:phiInst.getUses())
+                {
+                    if(rep.containsKey(use))
+                    {
+                        phiInst.replaceUse(use,rep.get(use));
+                    }
+                }
+            }
+            for(int i=0;i<block.getInsts().size();++i)
+            {
+                var inst=block.getInsts().get(i);
+                for(var use:inst.getUses())
+                {
+                    if(rep.containsKey(use))
+                    {
+                        inst.replaceUse(use,rep.get(use));
+                    }
+                }
+                if(inst instanceof IRIcmp)
+                {
+                    IRIcmp icmp=(IRIcmp)inst;
+                    if(icmp.getLhs().equals(icmp.getRhs()) && (icmp.getCond().equals("eq") || icmp.getCond().equals("sle") || icmp.getCond().equals("sge")))
+                    {
+                        block.getInsts().remove(i);
+                        rep.put(icmp.getDest(),new IRLiteral(inst.getDef().getType(),"true"));
+                        --i;
+                    }
+                    else if(icmp.getLhs().equals(icmp.getRhs()) && (icmp.getCond().equals("ne") || icmp.getCond().equals("slt") || icmp.getCond().equals("sgt")))
+                    {
+                        block.getInsts().remove(i);
+                        rep.put(icmp.getDest(),new IRLiteral(inst.getDef().getType(),"false"));
+                        --i;
+                    }
+                }
+            }
+            for(var use:block.getReturnInst().getUses())
+            {
+                if(rep.containsKey(use))
+                {
+                    block.getReturnInst().replaceUse(use,rep.get(use));
+                }
+            }
+        }
     }
 
     public void replaceLoad(IRFuncDef func) {
         HashMap<IRVariable, IRVariable> rep = new HashMap<>();
         for (var block : func.getBlockstmts()) {
             HashMap<IRVariable, IRVariable> var2base = new HashMap<>();
+            for(var phiInst:block.getPhiList().values())
+            {
+                for(var use:phiInst.getUses())
+                {
+                    if(rep.containsKey(use))
+                    {
+                        phiInst.replaceUse(use,rep.get(use));
+                    }
+                }
+            }
             for (int i = 0; i < block.getInsts().size(); ++i) {
                 var inst = block.getInsts().get(i);
                 for (var var : inst.getUses()) {
@@ -64,6 +127,13 @@ public class Other {
                     }
                 } else if (inst instanceof IRStore) {
                     var2base.put(((IRStore) inst).getDest(), null);
+                }
+            }
+            for(var use:block.getReturnInst().getUses())
+            {
+                if(rep.containsKey(use))
+                {
+                    block.getReturnInst().replaceUse(use,rep.get(use));
                 }
             }
         }
