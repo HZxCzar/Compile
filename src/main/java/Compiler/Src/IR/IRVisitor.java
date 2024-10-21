@@ -1,6 +1,6 @@
 package Compiler.Src.IR;
 import Compiler.Src.Util.Error.BaseError;
-import Compiler.Src.ASM_New.Node.ASMNode;
+import Compiler.Src.ASM.Node.ASMNode;
 import Compiler.Src.IR.Entity.*;
 import Compiler.Src.IR.Node.*;
 import Compiler.Src.IR.Node.Def.*;

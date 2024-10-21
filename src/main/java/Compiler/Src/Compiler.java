@@ -9,17 +9,11 @@ import java.io.IOException;
 import java.io.PrintStream;
 import org.antlr.v4.runtime.*;
 
-// import Compiler.Src.ASM.ASMBuilder;
-// import Compiler.Src.ASM.ASMBuilder_Naive;
-// import Compiler.Src.ASM.ASMBuilder_Basic;
-// import Compiler.Src.ASM.ASMBuilder_Formal;
-// import Compiler.Src.ASM.Node.ASMNode;
-
-import Compiler.Src.ASM_New.Node.ASMNode;
-import Compiler.Src.ASM_New.Node.ASMRoot;
-import Compiler.Src.ASM_New.InstSelector;
-import Compiler.Src.ASM_New.Allocator.RegAllocator;
-import Compiler.Src.ASM_New.Allocator.StackManager;
+import Compiler.Src.ASM.InstSelector;
+import Compiler.Src.ASM.Allocator.RegAllocator;
+import Compiler.Src.ASM.Allocator.StackManager;
+import Compiler.Src.ASM.Node.ASMNode;
+import Compiler.Src.ASM.Node.ASMRoot;
 import Compiler.Src.AST.*;
 import Compiler.Src.AST.Node.*;
 
@@ -89,6 +83,7 @@ public class Compiler {
                 System.out.println(asmProgram2);
             } catch (BaseError e) {
                 System.out.println(e.getMessage());
+                // System.exit(1);
                 return;
             }
         } catch (BaseError e) {

@@ -14,10 +14,10 @@ import java.util.HashMap;
 
 import org.antlr.v4.runtime.misc.Pair;
 
-import Compiler.Src.ASM_New.Entity.ASMReg;
-import Compiler.Src.ASM_New.Node.Inst.Presudo.ASMCall;
-import Compiler.Src.ASM_New.Node.Stmt.ASMBlock;
-import Compiler.Src.ASM_New.Util.BuiltInRegs;
+import Compiler.Src.ASM.Entity.ASMReg;
+import Compiler.Src.ASM.Node.Inst.Presudo.ASMCall;
+import Compiler.Src.ASM.Node.Stmt.ASMBlock;
+import Compiler.Src.ASM.Util.BuiltInRegs;
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IREntity;
 import Compiler.Src.IR.Entity.IRLiteral;

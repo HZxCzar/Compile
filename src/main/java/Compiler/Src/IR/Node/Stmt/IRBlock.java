@@ -7,7 +7,7 @@ import java.util.TreeMap;
 
 import javax.print.DocFlavor.STRING;
 
-import Compiler.Src.ASM_New.Entity.ASMReg;
+import Compiler.Src.ASM.Entity.ASMReg;
 import Compiler.Src.IR.IRVisitor;
 import Compiler.Src.IR.Entity.IRVariable;
 import Compiler.Src.IR.Node.Inst.IRInst;
