@@ -344,7 +344,7 @@ public class StackManager {
     {
         if(reg2pos.get(reg)==null)
         {
-            int imm=curFunc.getStackSize()+4;
+            int imm=curFunc.getStackSize();
             curFunc.setStackSize(curFunc.getStackSize()+4);
             reg2pos.put(reg,imm);
             return imm;
