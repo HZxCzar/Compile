@@ -33,7 +33,7 @@ import Compiler.Src.Util.Error.BaseError;
 import Compiler.Src.Util.Error.OPTError;
 import Compiler.Src.Util.ScopeUtil.GlobalScope;
 
-public class Other {
+public class IROther {
     public void visit(IRRoot root) {
         new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> replaceLoad(func));

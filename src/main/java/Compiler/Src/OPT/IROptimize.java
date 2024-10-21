@@ -7,7 +7,7 @@ public class IROptimize {
     {
         new LoadStoreOpt().visit(root);
         new Mem2Reg().visit(root);
-        new Other().visit(root);
+        new IROther().visit(root);
         new LoopOpt().visit(root);
         new Tail().visit(root);
         new Inlining().visit(root);

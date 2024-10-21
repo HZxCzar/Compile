@@ -23,12 +23,12 @@ import Compiler.Src.ASM_New.Node.Stmt.ASMStmt;
 import Compiler.Src.ASM_New.Util.ASMCounter;
 import Compiler.Src.ASM_New.Util.BuiltInRegs;
 import Compiler.Src.Util.Error.OPTError;
-public class Jmove {
+public class ASMOther {
     public void visit(ASMRoot root)
     {
-        root.getFuncs().forEach(func->work_on_func(func));
+        root.getFuncs().forEach(func->Jmove(func));
     }
-    public void work_on_func(ASMFuncDef func)
+    public void Jmove(ASMFuncDef func)
     {
         for(int i=0;i<func.getBlocks().size();++i)
         {
@@ -63,8 +63,8 @@ public class Jmove {
                     var jump=block.getJump();
                     if(func.getBlocks().get(i+1).getLabel().getLabel().equals(jump.getLabel()) && block.getReturnInst().getInsts().size()>=2)
                     {
-                        var bezqInst=(ASMBeq)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2);
-                        bezqInst.setLabel(jump.getLabel());
+                        var beqInst=(ASMBeq)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2);
+                        beqInst.setLabel(jump.getLabel());
                         block.setJlabel(null);
                         block.setJump(null);
                     }

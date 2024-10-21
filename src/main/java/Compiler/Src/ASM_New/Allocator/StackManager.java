@@ -36,7 +36,7 @@ public class StackManager {
             callmodify(func);
             work(func);
         }
-        new Jmove().visit(root);
+        new ASMOther().visit(root);
     }
 
     public ASMPhysicalReg getColor(ASMReg reg) {
@@ -45,8 +45,6 @@ public class StackManager {
         } else {
             if (color.get(reg) == null) {
                 throw new OPTError("getColor");
-                // int a=1;
-                // return null;
             }
             int imm = color.get(reg);
             return regs.get(imm);
