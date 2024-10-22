@@ -21,6 +21,25 @@ public class IRLoop extends IRStmt {
             addBlockInsts(init);
         }
         addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
+
+        // addInsts(condLabel);
+        // if (cond != null) {
+        //     addBlockInsts(cond);
+        //     addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
+        // } else {
+        //     addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
+        // }
+
+        addInsts(bodyLabel);
+        addBlockInsts(body);
+        addInsts(new IRBranch(++InstCounter.InstCounter, updateLabel));
+
+        addInsts(updateLabel);
+        if (update != null) {
+            addBlockInsts(update);
+        }
+        addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
+
         addInsts(condLabel);
         if (cond != null) {
             addBlockInsts(cond);
@@ -28,14 +47,7 @@ public class IRLoop extends IRStmt {
         } else {
             addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
         }
-        addInsts(bodyLabel);
-        addBlockInsts(body);
-        addInsts(new IRBranch(++InstCounter.InstCounter, updateLabel));
-        addInsts(updateLabel);
-        if (update != null) {
-            addBlockInsts(update);
-        }
-        addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
+        
         addInsts(endLabel);
     }
 
