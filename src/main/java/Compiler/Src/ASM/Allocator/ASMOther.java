@@ -23,8 +23,10 @@ import Compiler.Src.ASM.Util.ASMCounter;
 import Compiler.Src.ASM.Util.BuiltInRegs;
 import Compiler.Src.Util.Error.OPTError;
 public class ASMOther {
+    HashMap<String,Integer> name2block;
     public void visit(ASMRoot root)
     {
+        name2block=new HashMap<>();
         root.getFuncs().forEach(func->J2B(func));
         root.getFuncs().forEach(func->Jmove(func));
     }
@@ -46,7 +48,6 @@ public class ASMOther {
 
     public void J2B(ASMFuncDef func)
     {
-        HashMap<String,Integer> name2block=new HashMap<>();
         for(int i=0;i<func.getBlocks().size();++i)
         {
             var block=func.getBlocks().get(i);
@@ -120,7 +121,7 @@ public class ASMOther {
                     if(block.getReturnInst().getInsts().size()>=2 && block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2) instanceof ASMBeq)
                     {
                         var beqInst=(ASMBeq)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-2);
-                        if(beqInst.getType()!=0 && func.getBlocks().get(i+1).getLabel().getLabel().equals(beqInst.getLabel()))
+                        if(beqInst.getType()!=0 && func.getBlocks().get(i+1).getLabel().getLabel().equals(beqInst.getLabel()) && computedist(func,name2block.get(((ASMJump)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-1)).getLabel()),i)<1000)
                         {
                             beqInst.setLabel(((ASMJump)block.getReturnInst().getInsts().get(block.getReturnInst().getInsts().size()-1)).getLabel());
                             block.getReturnInst().getInsts().remove(block.getReturnInst().getInsts().size()-1);
