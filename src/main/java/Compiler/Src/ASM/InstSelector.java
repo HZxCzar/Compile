@@ -173,7 +173,8 @@ public class InstSelector extends ASMControl implements IRVisitor<ASMNode> {
                                 node.getLabelName().getLabel() + "." + blockLabel + ".PhiCreate."
                                         + (++CreateblockCnt)));
                         midBlock.setLoopDepth(predBlock.getLoopDepth());
-                        funcBlocks.add(midBlock);
+                        var predindex=funcBlocks.indexOf(predBlock);
+                        funcBlocks.add(predindex+1,midBlock);
                         label2new.put(blockLabel, midBlock.getLabel().getLabel());
                         label2block.put(midBlock.getLabel().getLabel(), midBlock);
 
