@@ -124,6 +124,16 @@ public class Mem2Reg {
             }
             calcDF(block);
         }
+        for(int i=0;i<func.getBlockstmts().size();++i)
+        {
+            var block = func.getBlockstmts().get(i);
+            if(!PostOrder.contains(block))
+            {
+                func.getBlockstmts().remove(i);
+                --i;
+                // throw new OPTError("block not in postorder");
+            }
+        }
         // for (var block : func.getOrder2Block()) {
         // if (block.getIdom() != block) {
         // block.getIdom().getDomChildren().add(block);

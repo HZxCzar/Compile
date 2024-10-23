@@ -92,20 +92,15 @@ public class ADCE {
         CalcRpo(entryBlock);
         entryBlock.setRidom(entryBlock);
         entryBlock.getSuccessors().add(entryBlock);
-        HashSet<IRBlock> visitedBlocks = new HashSet<>();
-        for (int i = PostOrder.size() - 1; i >= 0; i--)
-        {
-            visitedBlocks.add(PostOrder.get(i));
-        }
-        for(int i=0;i<func.getBlockstmts().size();++i)
-        {
-            var block=func.getBlockstmts().get(i);
-            if(!visitedBlocks.contains(block))
-            {
-                func.getBlockstmts().remove(i);
-                --i;
-            }
-        }
+        // for(int i=0;i<func.getBlockstmts().size();++i)
+        // {
+        //     var block=func.getBlockstmts().get(i);
+        //     if(!PostOrder.contains(block))
+        //     {
+        //         func.getBlockstmts().remove(i);
+        //         --i;
+        //     }
+        // }
         // build DomTree
         boolean run = true;
         while (run) {
