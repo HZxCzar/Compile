@@ -49,9 +49,9 @@ public class SCCP implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRRoot root) throws BaseError {
-        new CFGBuilder().visit(root);
-        Collect(root);
-        Run(root);
+        // new CFGBuilder().visit(root);
+        // Collect(root);
+        // Run(root);
         new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> work(func));
         // Erease(root);
@@ -745,9 +745,6 @@ public class SCCP implements IRVisitor<OPTError> {
                         block.setReturnInst(inst);
                     } else {
                         if (((IRBranch) inst).getCond() instanceof IRVariable) {
-                            if (((IRBranch) inst).getCond().getValue().equals("%.tmp.binary.19")) {
-                                int a = 1;
-                            }
                             if (V.get(((IRBranch) inst).getCond()).a == 1) {
                                 if (V.get(((IRBranch) inst).getCond()).b.getValue().equals("1")) {
                                     block.setReturnInst(new IRBranch(inst.getId(), ((IRBranch) inst).getTrueLabel()));
