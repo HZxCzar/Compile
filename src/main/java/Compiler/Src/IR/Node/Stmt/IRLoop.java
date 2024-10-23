@@ -22,13 +22,13 @@ public class IRLoop extends IRStmt {
         }
         addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
 
-        addInsts(condLabel);
-        if (cond != null) {
-            addBlockInsts(cond);
-            addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
-        } else {
-            addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
-        }
+        // addInsts(condLabel);
+        // if (cond != null) {
+        //     addBlockInsts(cond);
+        //     addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
+        // } else {
+        //     addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
+        // }
 
         addInsts(bodyLabel);
         addBlockInsts(body);
@@ -40,13 +40,13 @@ public class IRLoop extends IRStmt {
         }
         addInsts(new IRBranch(++InstCounter.InstCounter, condLabel));
 
-        // addInsts(condLabel);
-        // if (cond != null) {
-        //     addBlockInsts(cond);
-        //     addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
-        // } else {
-        //     addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
-        // }
+        addInsts(condLabel);
+        if (cond != null) {
+            addBlockInsts(cond);
+            addInsts(new IRBranch(++InstCounter.InstCounter, cond.getDest(), bodyLabel, endLabel));
+        } else {
+            addInsts(new IRBranch(++InstCounter.InstCounter, bodyLabel));
+        }
         
         addInsts(endLabel);
     }
