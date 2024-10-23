@@ -35,7 +35,7 @@ public class StackManager {
             callmodify(func);
             work(func);
         }
-        new ASMOther().visit(root);
+        // new ASMOther().visit(root);
     }
 
     public ASMPhysicalReg getColor(ASMReg reg) {
