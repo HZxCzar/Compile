@@ -42,7 +42,7 @@ public class ADCE {
     private HashSet<IRBlock> visited = new HashSet<IRBlock>();
     private HashSet<IRInst> WorkList;
     private HashMap<IRVariable, IRInst> var2def;
-    private HashMap<String, IRInst> label2jump;
+    // private HashMap<String, IRInst> label2jump;
     private HashSet<IRInst> Live;
     private HashSet<IRBlock> LiveBlock;
     private HashMap<IRInst, IRBlock> inst2block;
@@ -69,7 +69,7 @@ public class ADCE {
             name2block = new HashMap<>();
             PostOrder = new ArrayList<>();
             visited = new HashSet<>();
-            label2jump = new HashMap<>();
+            // label2jump = new HashMap<>();
             buildDom(func);
             Collect(func);
             Work();
@@ -210,17 +210,6 @@ public class ADCE {
                 WorkList.add(block.getReturnInst());
             }
             inst2block.put(block.getReturnInst(), block);
-            if (block.getReturnInst() instanceof IRBranch) {
-                var ret = (IRBranch) block.getReturnInst();
-                if (ret.isJump()) {
-                    label2jump.put(ret.getTrueLabel().getLabel(), ret);
-                } else {
-                    label2jump.put(ret.getTrueLabel().getLabel(), ret);
-                    label2jump.put(ret.getFalseLabel().getLabel(), ret);
-                }
-            } else if (block.getReturnInst() instanceof IRRet) {
-                WorkList.add(block.getReturnInst());
-            }
         }
     }
 
@@ -270,13 +259,24 @@ public class ADCE {
                     var parent = name2block.get(label);
                     if (!Live.contains(parent.getReturnInst())) {
                         WorkList.add(parent.getReturnInst());
-                        LiveBlock.add(parent);
+                        // LiveBlock.add(parent);
                     }
                 }
             }
             var curblock = inst2block.get(x);
             for (var pred : curblock.getRDomFrontier()) {
                 if (!Live.contains(pred.getReturnInst())) {
+                    if(pred.getReturnInst() instanceof IRBranch)
+                    {
+                        if(((IRBranch)pred.getReturnInst()).isJump())
+                        {
+                            throw new OPTError("Jump error");
+                        }
+                    }
+                    else if(pred.getReturnInst() instanceof IRRet)
+                    {
+                        throw new OPTError("Jump error");
+                    }
                     WorkList.add(pred.getReturnInst());
                 }
             }

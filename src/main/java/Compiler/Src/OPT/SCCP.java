@@ -49,10 +49,10 @@ public class SCCP implements IRVisitor<OPTError> {
 
     @Override
     public OPTError visit(IRRoot root) throws BaseError {
-        // new CFGBuilder().visit(root);
-        // Collect(root);
-        // Run(root);
         new CFGBuilder().visit(root);
+        Collect(root);
+        // Run(root);
+        // new CFGBuilder().visit(root);
         root.getFuncs().forEach(func -> work(func));
         // Erease(root);
         // CodeMove(root);
@@ -282,6 +282,10 @@ public class SCCP implements IRVisitor<OPTError> {
                         }
                     }
                 } else if (block.getReturnInst() instanceof IRBranch) {
+                    if(block.getLabelName().getLabel().equals("loop.3.condLabel"))
+                    {
+                        int a=1;
+                    }
                     var inst = block.getReturnInst();
                     if (Excutable.contains(block)) {
                         if (((IRBranch) inst).getCond() instanceof IRVariable) {
@@ -371,6 +375,10 @@ public class SCCP implements IRVisitor<OPTError> {
             }
             while (!WorkListV.isEmpty()) {
                 var var = WorkListV.iterator().next();
+                if(var.getValue().equals("%.tmp.binary.10"))
+                {
+                    int a = 1;
+                }
                 WorkListV.remove(var);
                 for (var inst : Var2Use.get(var)) {
                     if (inst instanceof IRPhi) {
@@ -519,7 +527,12 @@ public class SCCP implements IRVisitor<OPTError> {
                                 }
                             }
                         } else if (inst instanceof IRBranch) {
+                            var inst2b=Inst2Block.get(inst);
                             if (!((IRBranch) inst).isJump() && Excutable.contains(Inst2Block.get(inst))) {
+                                if(Inst2Block.get(inst).getLabelName().getLabel().equals("loop.3.condLabel"))
+                                {
+                                    int a=1;
+                                }
                                 if (((IRBranch) inst).getCond() instanceof IRVariable) {
                                     if (V.get(((IRBranch) inst).getCond()).a == 2) {
                                         if (!Excutable.contains(label2Block.get(((IRBranch) inst).getTrueLabel()))) {
@@ -739,6 +752,10 @@ public class SCCP implements IRVisitor<OPTError> {
                     }
                 }
                 block.setInsts(insts);
+                if(block.getLabelName().getLabel().equals("loop.3.condLabel"))
+                {
+                    int a=1;
+                }
                 var inst = block.getReturnInst();
                 if (inst instanceof IRBranch) {
                     if (((IRBranch) inst).isJump()) {
@@ -997,6 +1014,10 @@ public class SCCP implements IRVisitor<OPTError> {
     @Override
     public OPTError visit(IRBlock block) {
         currentBlock = block;
+        if(block.getLabelName().getLabel().equals("loop.3.condLabel"))
+        {
+            int a=1;
+        }
         for (var inst : block.getPhiList().values()) {
             inst.accept(this);
         }
