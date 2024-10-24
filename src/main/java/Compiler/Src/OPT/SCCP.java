@@ -58,14 +58,6 @@ public class SCCP implements IRVisitor<OPTError> {
         // CodeMove(root);
         return new OPTError();
     }
-    // public boolean jud(IRFuncDef func)
-    // {
-    // if(func.getBlockstmts().size()>4000)
-    // {
-    // return true;
-    // }
-    // return false;
-    // }
 
     public void work(IRFuncDef func) {
         // if(jud(func))
@@ -282,10 +274,6 @@ public class SCCP implements IRVisitor<OPTError> {
                         }
                     }
                 } else if (block.getReturnInst() instanceof IRBranch) {
-                    if(block.getLabelName().getLabel().equals("loop.3.condLabel"))
-                    {
-                        int a=1;
-                    }
                     var inst = block.getReturnInst();
                     if (Excutable.contains(block)) {
                         if (((IRBranch) inst).getCond() instanceof IRVariable) {
@@ -375,10 +363,6 @@ public class SCCP implements IRVisitor<OPTError> {
             }
             while (!WorkListV.isEmpty()) {
                 var var = WorkListV.iterator().next();
-                if(var.getValue().equals("%.tmp.binary.10"))
-                {
-                    int a = 1;
-                }
                 WorkListV.remove(var);
                 for (var inst : Var2Use.get(var)) {
                     if (inst instanceof IRPhi) {
@@ -483,10 +467,6 @@ public class SCCP implements IRVisitor<OPTError> {
                                 }
                             }
                         } else if (inst instanceof IRIcmp) {
-                            if (((IRIcmp) inst).getLhs().getValue().equals("%call.2")) {
-                                int a = 1;
-                                // System.out.println(V.get(((IRIcmp) inst).getLhs()).a);
-                            }
                             if (((((IRIcmp) inst).getLhs() instanceof IRVariable)
                                     && (V.get(((IRIcmp) inst).getLhs()).a == 2))
                                     || ((((IRIcmp) inst).getRhs() instanceof IRVariable)
@@ -527,7 +507,6 @@ public class SCCP implements IRVisitor<OPTError> {
                                 }
                             }
                         } else if (inst instanceof IRBranch) {
-                            var inst2b=Inst2Block.get(inst);
                             if (!((IRBranch) inst).isJump() && Excutable.contains(Inst2Block.get(inst))) {
                                 if(Inst2Block.get(inst).getLabelName().getLabel().equals("loop.3.condLabel"))
                                 {
@@ -752,10 +731,6 @@ public class SCCP implements IRVisitor<OPTError> {
                     }
                 }
                 block.setInsts(insts);
-                if(block.getLabelName().getLabel().equals("loop.3.condLabel"))
-                {
-                    int a=1;
-                }
                 var inst = block.getReturnInst();
                 if (inst instanceof IRBranch) {
                     if (((IRBranch) inst).isJump()) {
@@ -798,102 +773,6 @@ public class SCCP implements IRVisitor<OPTError> {
         }
         func.setBlockstmts(Blockstmts);
     }
-
-    // public void CodeMove(IRRoot root) {
-    // for (var func : root.getFuncs()) {
-    // codemove(func);
-    // }
-    // }
-
-    // public void codemove(IRFuncDef func) {
-    // Var2Pair = new HashMap<>();
-    // var WorkList = new HashSet<IRInst>();
-    // for (var para : func.getParams()) {
-    // Var2Pair.put(para, null);
-    // }
-    // for (var block : func.getOrder2Block()) {
-    // init(block, WorkList);
-    // }
-    // for (var block : func.getOrder2Block()) {
-    // for (int i = 0; i < block.getInsts().size(); ++i) {
-    // var inst = block.getInsts().get(i);
-    // if (!WorkList.contains(inst)) {
-    // continue;
-    // }
-    // WorkList.remove(inst);
-    // ArrayList<IRVariable> use = new ArrayList<>();
-    // for (var unit : inst.getUses()) {
-    // if (Var2Pair.get(unit) != null) {
-    // use.add(unit);
-    // }
-    // }
-    // if (use.size() == 0) {
-    // continue;
-    // }
-    // var pair = FindEarly(block, use);
-    // if (pair == null) {
-    // continue;
-    // }
-    // var earlyBlock = pair.a;
-    // var earlyInst = pair.b;
-    // int index;
-    // if (earlyInst != null) {
-    // index = earlyBlock.getInsts().indexOf(earlyInst);
-    // block.getInsts().remove(i);
-    // earlyBlock.getInsts().add(index + 1, inst);
-    // Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-    // } else {
-    // index = 0;
-    // block.getInsts().remove(i);
-    // earlyBlock.getInsts().add(index, inst);
-    // Var2Pair.put(inst.getDest(), new Pair<>(earlyBlock, inst));
-    // }
-    // }
-    // }
-    // }
-
-    // public Pair<IRBlock, IRInst> FindEarly(IRBlock block, ArrayList<IRVariable>
-    // use) {
-    // Pair<IRBlock, IRInst> res = null;
-    // for (var var : use) {
-    // var pair = Var2Pair.get(var);
-    // if (pair == null) {
-    // continue;
-    // }
-    // if (pair.b instanceof IRPhi) {
-    // pair = new Pair<IRBlock, IRInst>(pair.a, null);
-    // }
-    // var tmp = block;
-    // while (tmp.getIdom() != tmp && !tmp.equals(pair.a)) {
-    // tmp = tmp.getIdom();
-    // }
-    // if (!tmp.equals(pair.a)) {
-    // throw new OPTError("Invalid idom in CodeMove");
-    // }
-    // if (res == null) {
-    // res = pair;
-    // } else {
-    // if (pair.a.equals(res.a)) {
-    // if (pair.b != null) {
-    // var index_res = res.a.getInsts().indexOf(res.b);
-    // var index_pair = pair.a.getInsts().indexOf(pair.b);
-    // if (index_pair > index_res) {
-    // res = pair;
-    // }
-    // }
-    // } else {
-    // var tmp1 = pair.a;
-    // while (tmp1.getIdom() != tmp1 && !tmp1.equals(res.a)) {
-    // tmp1 = tmp1.getIdom();
-    // }
-    // if (tmp1.equals(res.a)) {
-    // res = pair;
-    // }
-    // }
-    // }
-    // }
-    // return res;
-    // }
 
     public void init(IRBlock block, HashSet<IRInst> WorkList) {
         for (var inst : block.getPhiList().values()) {
